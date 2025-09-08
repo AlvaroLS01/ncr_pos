@@ -117,5 +117,6 @@
     <module>comerzzia-ametller-pos-gui</module>
     <module>comerzzia-ametller-pos-application</module>
     <module>comerzzia-ametller-pos-resources</module>
+    <module>comerzzia-ametller-pos-ncr</module>
   </modules>
 </project>
