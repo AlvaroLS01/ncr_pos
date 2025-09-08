@@ -1,0 +1,268 @@
+<plantilla>
+	<documento charset="GB18030">
+		
+		#if(!${salida.equals("pantalla")})
+			<apertura-cajon></apertura-cajon>
+		#end
+	
+		#set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+		#parse("./plantillas/datos_cabecera_zh.xml")
+
+		#if (${empresa.getDesEmpresa()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDesEmpresa()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDomicilio()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getPoblacion()}</texto>
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} )
+		<linea>
+			#if (${empresa.getProvincia()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getProvincia()}</texto>
+			#end
+		</linea>
+		<linea>
+			#if (${empresa.getCp()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getCp()}</texto>
+			#end
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="left">顾客</texto>
+		</linea>
+		#if (${apartado.getDesCliente()})
+			<linea> <texto align="left" size ="40">${apartado.getDesCliente()}</texto> </linea>
+		#end
+		#if (${apartado.getDomicilio()})
+			<linea> <texto align="left" size ="40">${apartado.getDomicilio()}</texto> </linea>
+		#end
+		#if (${apartado.getTelefono1()})
+			<linea> <texto align="left" size ="40">${apartado.getTelefono1()}</texto> </linea>
+		#end
+		<linea>
+		</linea>
+		<linea>
+			<texto align="center">${fecha}</texto>
+		</linea>	
+		<linea>
+			<texto>款:${apartado.getIdApartado()}</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="14">付款方式:</texto>
+			<texto size="26" align="right">${pago.getDesMedioPago()}</texto>
+		</linea>
+		<linea>
+			<texto size="8">金额:</texto>
+			#if(${pago.getCargoTicket()})
+			<texto size="32" align="right">${importe}</texto>
+			#end
+			#if(${pago.getAbonoTicket()})
+			<texto size="32" align="right">-${pago.getAbonoTicket()}</texto>
+			#end
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto align="center">收银员..... ${cajero}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="center" size ="40">复本给店面</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+
+		#parse("./plantillas/datos_cabecera_zh.xml")
+
+		#if (${empresa.getDesEmpresa()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDesEmpresa()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDomicilio()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getPoblacion()}</texto>
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} )
+		<linea>
+			#if (${empresa.getProvincia()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getProvincia()}</texto>
+			#end
+		</linea>
+		<linea>
+			#if (${empresa.getCp()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getCp()}</texto>
+			#end
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="left">顾客</texto>
+		</linea>
+		#if (${apartado.getDesCliente()})
+			<linea> <texto align="left" size ="40">${apartado.getDesCliente()}</texto> </linea>
+		#end
+		#if (${apartado.getDomicilio()})
+			<linea> <texto align="left" size ="40">${apartado.getDomicilio()}</texto> </linea>
+		#end
+		#if (${apartado.getTelefono1()})
+			<linea> <texto align="left" size ="40">${apartado.getTelefono1()}</texto> </linea>
+		#end
+		<linea>
+		</linea>
+		<linea>
+			<texto align="center">${fecha}</texto>
+		</linea>	
+		<linea>
+			<texto>款:${apartado.getIdApartado()}</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="14">付款方式:</texto>
+			<texto size="26" align="right">${pago.getDesMedioPago()}</texto>
+		</linea>
+		<linea>
+			<texto size="8">金额:</texto>
+			#if(${pago.getCargoTicket()})
+			<texto size="32" align="right">${importe}</texto>
+			#end
+			#if(${pago.getAbonoTicket()})
+			<texto size="32" align="right">-${pago.getAbonoTicket()}</texto>
+			#end
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto align="center">谢谢您的光临</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="center">收银员..... ${cajero}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>	
+		#if(${importeVale})
+			<linea>
+				<texto>****************************************</texto>
+			</linea>
+			<linea>
+				<texto align="left">${apartado.getDesCliente()}</texto>
+			</linea>
+			<linea>
+				<texto align="left">${apartado.getDomicilio()}</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto>${fecha}</texto>
+			</linea>    
+			<linea>
+				<texto size="40" align="center">搁置:${apartado.getIdApartado()}</texto>
+			</linea>
+			<linea>
+				<texto>----------------------------------------</texto>
+			</linea>
+			<linea>
+				<texto align="center" size ="40">发出券</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto align="center" size ="40">金额: ${importeVale}</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto>----------------------------------------</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto align="center" size ="40">发出员 ${cajero}</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto>****************************************</texto>
+			</linea>
+			<corte></corte>
+		#end
+	</documento>
+</plantilla>

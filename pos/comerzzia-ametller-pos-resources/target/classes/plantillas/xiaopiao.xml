@@ -1,0 +1,251 @@
+<plantilla> 
+  <documento salida="impresora1" charset="GB18030">
+  
+  	#if(!${salida.equals("pantalla")})
+    	<apertura-cajon></apertura-cajon>
+    #end
+         
+    <logo></logo>    
+    <linea> <texto> </texto> </linea>
+    
+	#set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+    #parse("./plantillas/datos_cabecera_zh.xml")
+    
+    <linea> <texto> </texto> </linea>
+    <linea>
+        <texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+    </linea>    
+    <linea>
+        <texto align="left" fontsize="4">${ticket.getCabecera().getDesTipoDocumento()}: ${ticket.getCabecera().getCodTicket()}</texto>
+    </linea>
+    <linea> <texto> </texto> </linea>
+    <linea> <texto style ="1">数量 描述                 金额</texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+    ## LINEAS
+    #foreach ($linea in $ticket.getLineas())   
+        <!-- Impresoras UPOS usan line-cols para reducir el tamaño de la fuente -->
+        <!-- Para entornos FOOD
+        <linea> 
+             <texto size="6" align="right" fontsize="4">${linea.getCantidadAsString()}</texto>
+             <texto size="1" align="left" fontsize="4"> </texto>
+             <texto size="34" align="left" fontsize="4">$esc.xml(${linea.getArticulo().getDesArticulo()})</texto>
+             <texto size="12" align="right">${linea.getImporteTotalConDtoAsString()}</texto> 
+        </linea>    -->
+        <!-- Para entornos NON-FOOD -->
+        <linea> 
+             <texto size="2" align="right" fontsize="4">${linea.getCantidad().intValue().toString().toString()}</texto>
+             <texto size="1" align="left" fontsize="4"> </texto>
+             <texto size="38" align="left" fontsize="4">$esc.xml(${linea.getArticulo().getDesArticulo()})</texto>
+             <texto size="9" align="right">${linea.getImporteTotalConDtoAsString()}</texto> 
+        </linea>    
+       
+		#foreach ($numeroSerie in $linea.getNumerosSerie())
+			<linea>
+				<texto size="40" align="left">   *NS:${numeroSerie}</texto>
+			</linea>
+		#end 
+    #end
+    <linea> <texto> </texto> </linea>
+    ## TOTALES    
+    <linea line-size = "1"> 
+        <texto size="29" align="right" >总支付： </texto>
+        <texto size="11" align="right" >${ticket.getTotales().getTotalAPagarAsString()}</texto> 
+    </linea>
+    #if(${ticket.getTotales().isHayEntregaCuenta()})
+     <linea line-size = "1">
+        <texto size="29" align="right">交付给帐户： </texto>
+        <texto size="11" align="right">${ticket.getTotales().getEntregadoACuentaAsString()}</texto> 
+    </linea>
+    #end
+    <linea line-size = "1">
+        <texto size="29" align="right">总量交付： </texto>
+        <texto size="11" align="right">${ticket.getTotales().getEntregadoAsString()}</texto> 
+    </linea>
+    <linea line-size = "1"> <texto>                              ----------</texto> </linea>
+    <linea line-size = "1">
+        <texto size="29" align="right">找钱： </texto>
+        <texto size="11" align="right">${ticket.getTotales().getCambioAsString()}</texto> 
+    </linea>
+    <linea> <texto>  </texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+    <linea> <texto style ="1">         (包税)          </texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+    <linea> <texto>  </texto> </linea>
+    <linea> <texto style ="1" >付款细节</texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+	#parse("./plantillas/detalle_pagos.xml")
+    <linea> <texto> </texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+    <linea> <texto style ="1" >税收细目</texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+    <linea> <texto style ="1">应税         税                 总共</texto> </linea>
+    <linea> <texto>----------------------------------------</texto> </linea>
+    #foreach ($impuesto in $ticket.getCabecera().getSubtotalesIva())
+        <linea>
+            <texto size="9" align="right">${impuesto.getBaseAsString()} </texto> 
+            <texto size="20" align="left">  ${impuesto.getPorcentajeAsString()}%  ${impuesto.getCuotaAsString()} </texto> 
+            <texto size="11" align="right"> ${impuesto.getTotalAsString()}</texto> 
+        </linea>
+    #end
+    <linea> <texto> </texto> </linea>
+    #PROMOCIONES
+    #if(${ticket.tienePromocionesAhorroMayor0()})
+	    <linea> <texto>----------------------------------------</texto> </linea>
+	    <linea> <texto style ="1" >促销</texto> </linea>
+	    <linea> <texto>----------------------------------------</texto> </linea>
+	    #foreach ($promocion in $ticket.getPromociones())
+			#if(${promocion.getImporteTotalAhorro()} > 0)    	
+		        <linea>
+		            <texto size="34" align="left">P${promocion.getIdPromocion()} ${promocion.getTextoPromocion()}</texto> 
+		            <texto size="1" align="left"> </texto>
+		            <texto size="5" align="right">${promocion.getImporteTotalAhorroAsString()}</texto> 
+		        </linea>
+	        #end
+	    #end
+	    <linea> <texto> </texto> </linea>
+	    <linea line-size = "1">
+	        <texto size="29" align="right">总促销: </texto>
+	        <texto size="11" align="right">${ticket.getTotales().getTotalPromocionesAsString()}</texto> 
+	    </linea>
+	#end
+	<linea> <texto> </texto> </linea>
+	#FIDELIZADO y PUNTOS
+	#if(${ticket.getCabecera().getDatosFidelizado()})
+		#if(${ticket.getCabecera().getDatosFidelizado().getNumTarjetaFidelizado()})
+	<linea> <texto>会员卡: ${ticket.getCabecera().getDatosFidelizado().getNumTarjetaFidelizado()}</texto> </linea>
+		#end
+      #if (${ticket.getCabecera().getDatosFidelizado().getNombre()})
+      <linea>
+          <texto align="left">名称： ${ticket.getCabecera().getDatosFidelizado().getNombre()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosFidelizado().getApellido()})
+      <linea>
+          <texto align="left">     ${ticket.getCabecera().getDatosFidelizado().getApellido()}</texto>
+      </linea>
+      #end
+      <linea> <texto>累积积分：  ${ticket.getCabecera().getDatosFidelizado().getSaldoTotalAsString()}</texto> </linea>
+    #if(${ticket.getTotales().getPuntos()} > 0)
+    	 <linea><texto>他已获得 ${ticket.getTotales().getPuntos()} 在此次购买中。</texto></linea>
+    #end
+  #end
+    <linea> <texto>----------------------------------------</texto> </linea>
+	
+    <linea>
+        <texto></texto>
+    </linea>
+	
+	#if(${ticket.getCabecera().getDatosEnvio()})
+	<linea> <texto>----------------------------------------</texto> </linea>
+	<linea><texto align="center" size="40">送货到家</texto></linea>
+	<linea> <texto>----------------------------------------</texto> </linea>
+	<linea><texto></texto></linea>
+	#end
+    
+	<codbar align="center" tipo-leyenda="0" >${ticket.getCabecera().getLocalizador()}</codbar>	
+	<codbar type="QR">${urlQR}${ticket.getCabecera().getUidTicket()}</codbar>
+        
+	<linea> <texto size="40" align="center">如果您有任何疑问关于我们</texto> </linea>
+	<linea> <texto size="40" align="center">销售服务，产品，</texto> </linea>
+	<linea> <texto size="40" align="center">您的订单，发货或退货，你可以</texto> </linea> 
+	<linea> <texto size="40" align="center">通过QR码与我们联系</texto> </linea>
+	<linea> </linea>
+	
+	#if(${apartado})
+	   <corte></corte>
+	   <linea><texto size="40" align="center">收据交货商品章节</texto> </linea>
+	   <linea></linea>  
+	   <linea><texto>章节：${apartado}</texto> </linea>
+	   #if ((${ticket.getCabecera().getCliente().getDatosFactura()}) && (${ticket.getCabecera().getCliente().getDatosFactura().getNombre()}))
+        <linea><texto>顾客:${ticket.getCabecera().getCliente().getDatosFactura().getNombre()}</texto> </linea>
+	   #else
+	      <linea><texto>客户：${ticket.getCliente().getNombreComercial()}</texto> </linea>
+	   #end
+	   <linea><texto>日期：${ticket.getCabecera().getFechaAsLocale()}</texto></linea>    
+     <linea><texto>${ticket.getCabecera().getDesTipoDocumento()}:${ticket.getCabecera().getCodTicket()}</texto> </linea>
+	   <linea><texto>金额：${ticket.getTotales().getTotalAPagarAsString()}</texto> </linea>
+	   <linea> <texto> </texto> </linea>
+	   <linea> <texto style ="1" >付款明细</texto> </linea>
+     <linea> <texto>----------------------------------------</texto> </linea>
+	   #parse("./plantillas/detalle_pagos.xml")
+	   <linea> <texto> </texto> </linea>
+	   <linea><texto size="40" align="center">复本给店面</texto> </linea>
+	   <linea></linea>   
+	#end
+        
+	<corte></corte>
+	#set($esBoletaCompleta = true)
+	#parse("./plantillas/detalle_pagos_boletas.xml")
+	#parse("./plantillas/detalle_comprobantes_giftcard.xml")
+	#if(${ticket.getCabecera().getDatosEnvio()})
+	<linea><texto></texto></linea>
+	<linea><texto></texto></linea>
+	<linea><texto></texto></linea>
+	<linea><texto align="center" size="40">运输信息</texto></linea>
+	<linea><texto>----------------------------------------</texto></linea>
+	<linea>
+        <texto size="50" align="left">${ticket.getCabecera().getDesTipoDocumento()} : ${ticket.getCabecera().getCodTicket()}</texto>
+    </linea>
+		#if (${ticket.getCabecera().getDatosEnvio().getNombreComercial()})
+      <linea>
+          <texto>名称： </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getNombreComercial()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getTipoIdentificacion()})
+      #if(${ticket.getCabecera().getDatosEnvio().getCif()})
+      <linea>
+          <texto>${ticket.getCabecera().getDatosEnvio().getTipoIdentificacion()}: </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getCif()}</texto>
+      </linea>
+      #end
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getDomicilio()})
+      <linea>
+          <texto>地址： </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getDomicilio()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getPoblacion()})
+      <linea>
+          <texto>镇：</texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getPoblacion()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getProvincia()})
+      <linea>
+          <texto>省： </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getProvincia()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getLocalidad()})
+      <linea>
+          <texto>地区： </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getLocalidad()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getPais()})
+      <linea>
+          <texto>国家： </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getPais()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getCp()})
+      <linea>
+          <texto>邮政编码 </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getCp()}</texto>
+      </linea>
+      #end
+      #if (${ticket.getCabecera().getDatosEnvio().getTelefono1()})
+      <linea>
+          <texto>手机： </texto>
+          <texto align="left">${ticket.getCabecera().getDatosEnvio().getTelefono1()}</texto>
+      </linea>
+      #end
+	  <linea><texto></texto></linea>
+	  <linea><texto></texto></linea>
+	  <linea><texto></texto></linea>
+      <corte></corte>
+	#end
+   </documento>        
+</plantilla>

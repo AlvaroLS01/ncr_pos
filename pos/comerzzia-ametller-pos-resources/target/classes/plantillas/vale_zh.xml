@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<plantilla>
+	<documento>
+		<linea>
+			<texto>****************************************</texto>
+		</linea>
+		#set( $imprimirDatosFacturacion =  false)
+		#parse("./plantillas/datos_cabecera_zh.xml")
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+		</linea>    
+		<linea>
+			<texto size="40" align="center">${ticket.getCabecera().getCodCaja()} - ${ticket.getCabecera().getIdTicket()}</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto align="center" size ="40">发行凭单</texto>
+		</linea>
+		#if (${esCopia})
+		<linea>
+			<texto align="center" size ="40">复本给店面</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="center" size ="40">金额: ${importeVale}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="center" size ="40">发行人 ${ticket.getCabecera().getCajero().getDesusuario()}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto>****************************************</texto>
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>

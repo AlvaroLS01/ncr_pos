@@ -1,0 +1,4 @@
+<plantilla>
+	<documento salida="impresora2" titulo="Formulario de fidelizado" procesador="JASPER" fichero="fidelizados/formulariofidelizado">		
+	</documento>
+</plantilla>

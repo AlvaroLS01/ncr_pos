@@ -1,0 +1,10 @@
+[
+  {
+    "couponTypeCode": "DEFAULT",
+    "couponTypeName": "DEFAULT",
+    "defManualSelect": true,
+    "prefix": "299",
+    "maxLength": 8,
+    "generationMode": 0
+  }
+]

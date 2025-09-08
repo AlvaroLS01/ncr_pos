@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="facturaA4" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="545" leftMargin="25" rightMargin="25" topMargin="25" bottomMargin="25" uuid="646eef7a-0257-407e-a8ea-957b2a7de73b">
+	<property name="ireport.zoom" value="1.0245201830476134"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="385"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[".//"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGO" class="java.io.InputStream"/>
+	<parameter name="ticket" class="com.comerzzia.pos.services.ticket.ITicket"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="des_tipo_documento" class="java.lang.String">
+		<fieldDescription><![CDATA[$P{ticket}.cabecera.desTipoDocumento]]></fieldDescription>
+	</field>
+	<field name="datosFacturacionNombre" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.datosFactura.nombre]]></fieldDescription>
+	</field>
+	<field name="datosFacturacionDomicilio" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.datosFactura.domicilio]]></fieldDescription>
+	</field>
+	<field name="datosFacturacionCP" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.datosFactura.cp]]></fieldDescription>
+	</field>
+	<field name="datosFacturacionPoblacion" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.datosFactura.poblacion]]></fieldDescription>
+	</field>
+	<field name="datosFacturacionProvincia" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.datosFactura.provincia]]></fieldDescription>
+	</field>
+	<field name="datosFacturacionCif" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.datosFactura.cif]]></fieldDescription>
+	</field>
+	<field name="desCliente" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.desCliente]]></fieldDescription>
+	</field>
+	<field name="domicilio" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.domicilio]]></fieldDescription>
+	</field>
+	<field name="cp" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.cp]]></fieldDescription>
+	</field>
+	<field name="poblacion" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.poblacion]]></fieldDescription>
+	</field>
+	<field name="provincia" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.provincia]]></fieldDescription>
+	</field>
+	<field name="emp_desemp" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.desEmpresa]]></fieldDescription>
+	</field>
+	<field name="emp_domicilio" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.domicilio]]></fieldDescription>
+	</field>
+	<field name="emp_poblacion" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.poblacion]]></fieldDescription>
+	</field>
+	<field name="emp_cp" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.cp]]></fieldDescription>
+	</field>
+	<field name="emp_provincia" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.provincia]]></fieldDescription>
+	</field>
+	<field name="cif" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.cif]]></fieldDescription>
+	</field>
+	<field name="emp_telefono_1" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.telefono1]]></fieldDescription>
+	</field>
+	<field name="emp_cif" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.empresa.cif]]></fieldDescription>
+	</field>
+	<field name="fecha_registro" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.fechaAsLocale]]></fieldDescription>
+	</field>
+	<field name="fecha_vencimiento" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.fechaAsLocale]]></fieldDescription>
+	</field>
+	<field name="cod_ticket" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.codTicket]]></fieldDescription>
+	</field>
+	<field name="codcli" class="java.lang.String">
+		<fieldDescription><![CDATA[cabecera.cliente.codCliente]]></fieldDescription>
+	</field>
+	<field name="total_a_pagar" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[cabecera.totales.totalAPagar]]></fieldDescription>
+	</field>
+	<field name="impuestos" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[cabecera.totales.impuestos]]></fieldDescription>
+	</field>
+	<field name="base" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[cabecera.totales.base]]></fieldDescription>
+	</field>
+	<field name="fieldPagos" class="java.util.List">
+		<fieldDescription><![CDATA[pagos]]></fieldDescription>
+	</field>
+	<field name="fieldSubtotalesIva" class="java.util.List">
+		<fieldDescription><![CDATA[cabecera.subtotalesIva]]></fieldDescription>
+	</field>
+	<field name="fieldLineas" class="java.util.List">
+		<fieldDescription><![CDATA[lineas]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="91" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="131" height="50" uuid="40fc8039-2524-48b4-928a-b8c1d1f4e227"/>
+				<imageExpression><![CDATA[$P{LOGO}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="305" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="14" y="0" width="213" height="11" uuid="75b64f60-afd2-4316-8d0a-32b4d4c0d911"/>
+				<textElement>
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{ticket}.getCabecera().getCliente().getDatosFactura().getCif()==null?$P{ticket}.getCabecera().getCliente().getDesCliente():$P{ticket}.getCabecera().getCliente().getDatosFactura().getNombre())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="14" y="11" width="213" height="11" uuid="d85cf7b2-c143-41c9-b148-12a9cb26f56b"/>
+				<textElement>
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{ticket}.getCabecera().getCliente().getDatosFactura().getCif()==null?$P{ticket}.getCabecera().getCliente().getDomicilio():$P{ticket}.getCabecera().getCliente().getDatosFactura().getDomicilio())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="14" y="22" width="213" height="11" uuid="f27c3e55-7f89-409e-8500-d8700c0713ec"/>
+				<textElement>
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{ticket}.getCabecera().getCliente().getDatosFactura().getCif()==null?$P{ticket}.getCabecera().getCliente().getCp()+", "+$P{ticket}.getCabecera().getCliente().getPoblacion():$P{ticket}.getCabecera().getCliente().getDatosFactura().getCp()+", "+$P{ticket}.getCabecera().getCliente().getDatosFactura().getPoblacion())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="14" y="33" width="213" height="11" uuid="009a8fc2-09d8-49a6-bd6d-5be4e1fddb9b"/>
+				<textElement>
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{ticket}.getCabecera().getCliente().getDatosFactura().getCif()==null?$P{ticket}.getCabecera().getCliente().getProvincia():$P{ticket}.getCabecera().getCliente().getDatosFactura().getProvincia())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="369" y="0" width="151" height="20" uuid="a4b8b6bc-e03d-4153-92a8-43ec9c0d9cae"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getDesTipoDocumento()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="309" y="44" width="211" height="11" uuid="f60daf5c-619b-4b13-8c14-311920e620b9"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getEmpresa().getDesEmpresa()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="309" y="55" width="211" height="11" uuid="e0a17649-6fb5-4937-b2ac-7803c29ebe02"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getEmpresa().getDomicilio()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="309" y="66" width="211" height="11" uuid="c714f93a-3f59-465f-bab3-50a7ac278662"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getEmpresa().getPoblacion()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="309" y="77" width="211" height="11" uuid="9b8eca3c-78ee-44ad-9b26-056e58f04bfe"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getEmpresa().getCp()+", "+$P{ticket}.getCabecera().getEmpresa().getProvincia()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="89" y="88" width="100" height="11" uuid="de531dcf-c5e7-424e-9f2b-3fc545c7a400"/>
+				<textElement>
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{ticket}.getCabecera().getCliente().getDatosFactura().getCif()==null?$P{ticket}.getCabecera().getCliente().getCif():$P{ticket}.getCabecera().getCliente().getDatosFactura().getCif())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="14" y="88" width="75" height="11" uuid="7a081966-3c4b-434e-8aa3-5523d03ec731"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CIF/NIF]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="99" width="75" height="11" uuid="7a081966-3c4b-434e-8aa3-5523d03ec731"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Nº teléfono]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="110" width="75" height="11" uuid="7a081966-3c4b-434e-8aa3-5523d03ec731"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CIF/NIF]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="404" y="99" width="116" height="11" uuid="78d9c2f0-e2f3-40c3-81f7-83906f4dee4f"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getEmpresa().getTelefono1()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="404" y="110" width="116" height="11" uuid="dde4f37d-2d3e-4f9a-980e-13c0d0519c56"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getEmpresa().getCif()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="14" y="143" width="86" height="11" uuid="7a081966-3c4b-434e-8aa3-5523d03ec731"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Data de registro]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="14" y="154" width="86" height="11" uuid="7a081966-3c4b-434e-8aa3-5523d03ec731"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Data de vencimiento]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="100" y="143" width="100" height="11" uuid="6c165bfc-b21d-4f14-99b8-ea23bbf157e2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getFechaAsLocale()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="100" y="154" width="100" height="11" uuid="e22d368d-0b86-4350-992a-c4d9aa819bac"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getFechaAsLocale()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="466" y="235" width="54" height="16" uuid="e58fe4c0-4a50-4ef2-904b-3a5968bf9195"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="14" y="235" width="43" height="16" uuid="f39ccab5-eadc-4c3c-b830-42f867861287"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Q.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="383" y="235" width="74" height="16" uuid="5abb1112-d027-44dc-921f-c7c0431773e1"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[% Desconto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="326" y="235" width="43" height="16" uuid="a505ecce-6935-4964-9985-7d4b71414f72"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor]]></text>
+			</staticText>
+			<line>
+				<reportElement x="14" y="255" width="506" height="1" uuid="bb0d5750-42f8-4f2e-b957-d4c194f934a9"/>
+			</line>
+			<staticText>
+				<reportElement x="66" y="235" width="257" height="16" uuid="eb152e15-796b-4861-ba7f-8e58f2c5ad03"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Artigo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="165" width="47" height="11" uuid="7a081966-3c4b-434e-8aa3-5523d03ec731"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nº fatura]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="186" width="98" height="11" uuid="dc1c25db-74a9-4c7f-81dd-84761fb0d5ad"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fatura Nº do cliente]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="383" y="165" width="137" height="11" uuid="9801381f-68b7-479b-9337-f43e9e26fb17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getCodTicket()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="420" y="186" width="100" height="11" uuid="a39a4587-fe73-420d-be58-463104386ad1"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getCliente().getCodCliente()]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="14" y="184" width="170" height="42" isRemoveLineWhenBlank="true" uuid="b6833266-90a6-436d-97e6-6b3367a6abba"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{ticket}.getPagos())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SubInfAlbaranVentas_PagosACuenta_PT.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="14" y="166" width="78" height="16" uuid="f39ccab5-eadc-4c3c-b830-42f867861287"/>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pagamento]]></text>
+			</staticText>
+			<line>
+				<reportElement x="14" y="182" width="170" height="1" uuid="b6432d43-d38e-4862-a801-95653bdbc355"/>
+			</line>
+			<subreport>
+				<reportElement x="4" y="268" width="516" height="20" isRemoveLineWhenBlank="true" uuid="d3a343fe-f396-435d-8d0a-6685d07a36d4"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{ticket}.getLineas())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SubInfLineas_PT.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageHeader>
+	<pageFooter>
+		<band height="265">
+			<staticText>
+				<reportElement x="295" y="26" width="109" height="15" uuid="823530b5-4431-4a8f-b57b-63a390381b48"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total imposto]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="420" y="41" width="100" height="15" uuid="81f6d523-5ef7-4a86-83ba-d75f53c2a5c0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getTotales().getBase()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="295" y="41" width="109" height="15" uuid="8fcebc08-f970-4e6f-849c-e04823f5834b"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<text><![CDATA[Incidencia]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="420" y="26" width="100" height="15" uuid="85581467-17fc-4949-bb28-a16f878f4346"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getTotales().getImpuestos()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="420" y="4" width="100" height="1" uuid="b6432d43-d38e-4862-a801-95653bdbc355"/>
+			</line>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="420" y="11" width="100" height="15" uuid="4f77f867-029e-4699-bb0d-52144de8d0ca"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ticket}.getCabecera().getTotales().getTotalAPagar()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="295" y="11" width="109" height="15" uuid="9cc5af03-a761-4123-a8f3-b45273bbbf85"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total EUR]]></text>
+			</staticText>
+			<subreport>
+				<reportElement x="14" y="56" width="390" height="75" isRemoveLineWhenBlank="true" uuid="64b5163a-fc0e-47f8-a77e-529e96145f6d"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{ticket}.getCabecera().getSubtotalesIva())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SubInfImportes_PT.jasper"]]></subreportExpression>
+			</subreport>
+			<image>
+				<reportElement x="226" y="151" width="194" height="98" uuid="5561c7e2-8ca4-4f3b-8e71-d5e83c77a6f3"/>
+				<imageExpression><![CDATA[com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(
+     new com.google.zxing.qrcode.QRCodeWriter().encode(
+         new com.comerzzia.core.util.base64.Base64Coder(com.comerzzia.core.util.base64.Base64Coder.UTF8).decodeBase64($P{ticket}.getCabecera().getFiscalData().getData()),
+         com.google.zxing.BarcodeFormat.QR_CODE, 300, 300))]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+</jasperReport>

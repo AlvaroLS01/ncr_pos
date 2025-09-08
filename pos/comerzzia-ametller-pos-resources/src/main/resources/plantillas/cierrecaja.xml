@@ -1,0 +1,238 @@
+<plantilla>
+    <documento>
+		<linea> 
+			<texto> 
+			</texto> 
+		</linea>
+		
+		#if (${empresa.getNombreComercial()})
+		<linea>
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getNombreComercial()}</texto>
+		</linea>
+		#else
+			#if (${empresa.getDesEmpresa()})
+			<linea>
+				<texto size="10" align="right"></texto> 
+				<texto size="30" align="left">${empresa.getDesEmpresa()} </texto> 
+			</linea>
+		#end
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea> 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getDomicilio()} </texto> 
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea> 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getPoblacion()}</texto> 
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} ) 
+		<linea>
+			#if (${empresa.getProvincia()}) 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getProvincia()}</texto> 
+			#end
+		</linea>
+		<linea>       
+			#if (${empresa.getCp()}) 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getCp()}</texto> 
+			#end            
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea> 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getTelefono1()}</texto> 
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		#if(${caja.getCodAlmAsString()}&&${caja.getCodCajaAsString()})
+		<linea> 
+			<texto size="40" align="left">CAJA: ${caja.getCodAlmAsString()}/${caja.getCodCajaAsString()}</texto> 
+		</linea>
+		#end
+		#if(${fechaApertura})
+		<linea>
+				<texto size="40" align="left">FECHA APERTURA: ${fechaApertura}</texto>
+		</linea>
+		#end
+		#if(${fechaCierre})
+		<linea>
+			<texto size="40" align="left">FECHA CIERRE: ${fechaCierre}</texto>
+		</linea>
+		#end
+		#if(${usuario})
+		<linea>
+			<texto size="40" align="left">USUARIO CIERRE: ${usuario.getUsuario()} - ${usuario.getDesusuario()}</texto>
+		</linea>
+		#end
+		#if(${fechaImpresion})
+		<linea>
+			<texto size="40" align="left">FECHA IMPRESION: ${fechaImpresion}</texto>
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">RESUMEN TOTALIZADOS</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="20" align="left">Total de tickets:</texto>         
+			<texto size="20" align="right">${caja.getTotalTicketsAsString()}</texto>
+		</linea>   
+		#if( ${caja.getTotalApuntesEntradaAsString()})
+		<linea> 
+			<texto size="20" align="left">A) MOV. ENTRADAS:</texto>
+			<texto size="20" align="right">${caja.getTotalApuntesEntradaAsString()}</texto> 
+		</linea>
+		#end
+		#if(${caja.getTotalVentasEntradaAsString()})
+		<linea>
+			<texto size="20" align="left">B) VENTAS:</texto>
+			<texto size="20" align="right">${caja.getTotalVentasEntradaAsString()}</texto>
+		</linea>
+		#end
+		#if(${caja.getNumTicketsEntrada()})
+		<linea> 
+			<texto size="40" align="left">${caja.getNumTicketsEntrada()} tickets de ventas</texto> 
+		</linea>
+		#end
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		#if( ${caja.getTotalEntradasAsString()})
+		<linea> 
+			<texto size="20" align="left">E = (A+B)</texto> 
+			<texto size="20" align="right">${caja.getTotalEntradasAsString()}</texto>
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		#if(${caja.getTotalApuntesSalidaAsString()})
+		<linea> 
+			<texto size="20" align="left">C) MOV. SALIDA:</texto> 
+			<texto size="20" align="right">${caja.getTotalApuntesSalidaAsString()}</texto>
+		</linea>
+		#end
+		#if(${caja.getTotalVentasSalidaAsString()})
+		<linea>
+			<texto size="20" align="left">D) DEVOLUCIONES:</texto>
+			<texto size="20" align="right">${caja.getTotalVentasSalidaAsString()}</texto>
+		</linea>
+		#end
+		<linea> 
+			<texto size="40" align="left">${caja.getNumTicketsSalida()} tickets de devolucion</texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea> 
+			<texto size="20" align="left">S = (C+D)</texto> 
+			<texto size="20" align="right">${caja.getTotalSalidasAsString()}</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea> 
+			<texto size="20" align="left">(E-S)</texto> 
+			<texto size="20" align="right">${caja.getTotalAsString()}</texto>
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto>MEDIO PAGO     TOTAL  RECUENTO      DESC</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		#foreach($acumulado in $acumulados)
+		<linea>
+			#if(${acumulado.getMedioPago().getDesMedioPago()})
+			<texto size="10" align="right">${acumulado.getMedioPago().getDesMedioPago()}</texto>
+			#end
+			#if(${acumulado.getTotal()})
+			<texto size="10" align="right">${acumulado.getTotalAsString()}</texto>
+			#end
+			#if(${acumulado.getRecuento()})
+			<texto size="10" align="right">${acumulado.getRecuentoAsString()}</texto>
+			#end
+			#if(${acumulado.getDescuadre()})
+			<texto size="10" align="right">${acumulado.getDescuadreAsString()}</texto>
+			#end
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto>                 TOTALES</texto>
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto>     TOTAL     DECLARADO       DESCUADRE</texto> 
+		</linea>
+		<linea> 
+			<texto>----------------------------------------</texto> 
+		</linea>
+		<linea>
+			#if(${caja.getTotalAsString()}) 
+			<texto size="13" align="right">${caja.getTotalAsString()}</texto>
+			#end
+			#if(${caja.getTotalRecuentoAsString()})
+			<texto size="13" align="right">${caja.getTotalRecuentoAsString()}</texto>
+			#end
+			#if(${caja.getDescuadreAsString()})
+			<texto size="13" align="right">${caja.getDescuadreAsString()}</texto> 
+			#end
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>

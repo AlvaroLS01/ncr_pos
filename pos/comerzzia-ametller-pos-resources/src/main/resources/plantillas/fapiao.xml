@@ -1,0 +1,32 @@
+<plantilla> 
+  <documento salida="impresora1" charset="GB18030">
+  
+  	#if(!${salida.equals("pantalla")})
+    	<apertura-cajon></apertura-cajon>
+    #end
+    
+    #parse("./plantillas/datos_cabecera_fapiao.xml")
+    
+	<linea> <texto> </texto> </linea>
+	
+    <linea>
+        <texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+	</linea>    
+	<linea>
+        <texto align="left">${ticket.getCabecera().getDesTipoDocumento()}</texto>
+    </linea>
+    <linea>
+        <texto align="left" fontsize="4">${ticket.getCabecera().getCodTicket()}</texto>
+    </linea>
+
+      <linea> <texto> </texto> </linea>
+
+	<corte></corte>
+
+    #set($esBoletaCompleta = true)
+    #foreach ($pago in $ticket.getPagos())
+      #parse("./plantillas/detalle_pagos_boletas_zh.xml")
+    #end
+	#parse("./plantillas/detalle_comprobantes_giftcard_zh.xml")
+   </documento>
+</plantilla>

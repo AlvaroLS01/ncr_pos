@@ -1,0 +1,148 @@
+#if(!$paperLess)
+	#if (${ticket.getCabecera().getTarjetaRegalo().getNumTarjetaRegalo()})
+		<linea> <texto style ="1" size="39" align="center">***************************************</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">PROOF USING GIFTCARD</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">COPY  CUSTOMER</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">***************************************</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		
+		#set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+		#parse("./plantillas/datos_cabecera.xml")
+
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea><texto size="39" align="center">${ticket.getCabecera().getDesTipoDocumento()}</texto></linea>
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea><texto>Documento: ${ticket.getCabecera().getCodTicket()}</texto></linea>
+		<linea><texto>Fecha: ${ticket.getCabecera().getFechaAsLocale()}</texto></linea> 
+			
+		<linea> <texto> </texto> </linea>
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea> <texto style ="1" size="39" align="left">Card Number:	${ticket.getCabecera().getTarjetaRegalo().getNumTarjetaRegalo()}</texto> </linea>
+		<linea> 
+			<texto style ="1" size="26" align="left">Balance before recharge:</texto>
+			<texto size="13" align="right">${ticket.getCabecera().getTarjetaRegalo().getSaldoAnteriorAsString()}</texto> 
+		</linea>
+		<linea>
+			<texto style ="1" size="8" align="left">Recharge:</texto>
+			<texto size="31" align="right">${ticket.getTotales().getTotalAPagarAsString()}</texto>
+		</linea>
+		<linea> 
+			<texto style ="1" size="17" align="left">Balance available:</texto>
+			<texto size="22" align="right">${ticket.getCabecera().getTarjetaRegalo().getSaldoTotalAsString()}</texto> 
+		</linea>
+		<linea><texto style ="1" size="39" align="left">OP:${ticket.getCabecera().getTarjetaRegalo().getUidTransaccion()}</texto></linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<corte></corte>
+	#end
+#end
+#foreach ($pago in $ticket.getPagos())
+	#if (${pago.isPagoTarjetaRegalo()})
+	    <linea> <texto style ="1" size="39" align="center">***************************************</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">PROOF USING GIFTCARD</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">COPY ESTABLISHMENT</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">***************************************</texto> </linea>
+	    <linea> <texto> </texto> </linea>
+	
+	    #set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+        #parse("./plantillas/datos_cabecera.xml")
+
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea><texto size="39" align="center">${ticket.getCabecera().getDesTipoDocumento()}</texto></linea>
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea><texto>Documento: ${ticket.getCabecera().getCodTicket()}</texto></linea>
+		<linea><texto>Fecha: ${ticket.getCabecera().getFechaAsLocale()}</texto></linea> 
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea>
+			<texto size="17" align="right">${pago.getDesMedioPago()} </texto>
+			<texto size="22" align="right">${pago.getImporteAsString()}</texto> 
+		</linea>	
+		#if(${pago.getGiftcard()})
+		    <linea><texto>---------------------------------------</texto></linea>
+			<linea> <texto size="39" align="left" style ="1">Card number:	${pago.getGiftcard().getNumTarjetaRegalo()}</texto> </linea>
+			<linea>
+				<texto align="left" style ="1" size="10">Payment:</texto>
+				<texto size="29" align="right">${pago.getImporteAsString()}</texto>
+			</linea>
+			<linea> 
+				<texto align="left" style ="1" size="17">Balance available:</texto>
+				<texto size="22" align="right">${pago.getGiftcard().getSaldoTotalAsString()}</texto> 
+			</linea>
+			<linea><texto size="39" align="left">OP:${pago.getGiftcard().getUidTransaccion()}</texto></linea>
+		#else		
+			#foreach ($giftcard in $pago.getGiftcards())
+			    <linea><texto>---------------------------------------</texto></linea>
+				<linea><texto size="39" align="left">Card number: ${giftcard.getNumTarjetaRegalo()}</texto></linea>
+				
+				#set($importePago = $giftcard.getImportePago())
+				<linea>
+					<texto align="left" style ="1" size="10">Payment:</texto>
+					<texto size="29" align="right">$fmt.formateaImporte($importePago)</texto>
+				</linea>
+				<linea> 
+					<texto align="left" style ="1" size="17">Balance available:</texto>
+					<texto size="22" align="right">${giftcard.getSaldoDisponibleAsString()}</texto> 
+				</linea>
+				<linea><texto size="39" align="left">OP:${giftcard.getUidTransaccion()}</texto></linea>
+			#end;
+		#end
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<corte></corte>
+		
+		<linea> <texto style ="1" size="39" align="center">***************************************</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">PROOF USING GIFTCARD</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">COPY CUSTOMER</texto> </linea>
+		<linea> <texto style ="1" size="39" align="center">***************************************</texto> </linea>
+	    <linea> <texto> </texto> </linea>
+	
+	    #set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+        #parse("./plantillas/datos_cabecera.xml")
+
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea><texto size="39" align="center">${ticket.getCabecera().getDesTipoDocumento()}</texto></linea>
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea><texto>Documento: ${ticket.getCabecera().getCodTicket()}</texto></linea>
+		<linea><texto>Fecha: ${ticket.getCabecera().getFechaAsLocale()}</texto></linea> 
+		<linea><texto>---------------------------------------</texto></linea>
+		<linea>
+			<texto size="17" align="right">${pago.getDesMedioPago()} </texto>
+			<texto size="22" align="right">${pago.getImporteAsString()}</texto> 
+		</linea>	
+		#if(${pago.getGiftcard()})
+		    <linea><texto>---------------------------------------</texto></linea>
+			<linea> <texto size="39" align="left" style ="1">Card number:	${pago.getGiftcard().getNumTarjetaRegalo()}</texto> </linea>
+			<linea>
+				<texto align="left" style ="1" size="10">Payment:</texto>
+				<texto size="29" align="right">${pago.getImporteAsString()}</texto>
+			</linea>
+			<linea> 
+				<texto align="left" style ="1" size="17">Balance available:</texto>
+				<texto size="22" align="right">${pago.getGiftcard().getSaldoTotalAsString()}</texto> 
+			</linea>
+			<linea><texto size="39" align="left">OP:${pago.getGiftcard().getUidTransaccion()}</texto></linea>
+		#else		
+			#foreach ($giftcard in $pago.getGiftcards())
+			    <linea><texto>---------------------------------------</texto></linea>
+				<linea><texto size="39" align="left">Card number: ${giftcard.getNumTarjetaRegalo()}</texto></linea>
+				
+				#set($importePago = $giftcard.getImportePago())
+				<linea>
+					<texto align="left" style ="1" size="10">Payment:</texto>
+					<texto size="29" align="right">$fmt.formateaImporte($importePago)</texto>
+				</linea>
+				<linea> 
+					<texto align="left" style ="1" size="17">Balance available:</texto>
+					<texto size="22" align="right">${giftcard.getSaldoDisponibleAsString()}</texto> 
+				</linea>
+				<linea><texto size="39" align="left">OP:${giftcard.getUidTransaccion()}</texto></linea>
+			#end;
+		#end
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<corte></corte>
+	#end
+#end

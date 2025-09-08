@@ -1,0 +1,236 @@
+
+	#if (${pago.tieneDatosRespuestaPagoTarjeta()})
+		<!--
+		   a) Tratamiento de texto a incluir en Detalle de pagos
+		   b) Tratamiento de texto a incluir en el justificante a parte
+		-->
+
+		<!-- ****** TRATAMIENTO DE IMPRESION EN DETALLE DE PAGOS ******-->
+		#if (!$esBoletaCompleta)
+			  <!-- DATOS DE LA TRANSACCION -->
+				<linea>
+					<texto size="5" align="left" fontsize="4">Trj: </texto>
+					<texto size="30" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getTarjeta()}</texto> 
+				</linea>
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneTitular()})
+				<linea>
+					<texto size="5" align="left" fontsize="4">Tit: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getTitular()}</texto> 
+				</linea>
+				#end
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneAID()})
+				<linea>
+					<texto size="5" align="left" fontsize="4">AID: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAID()}</texto> 
+				</linea>
+				#end
+				<linea>
+					<texto size="5" align="left" fontsize="4">LBL: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getApplicationLabel()}</texto> 
+				</linea>
+				<linea>
+					<texto size="5" align="left" fontsize="4">ARC: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getARC()}</texto> 
+				</linea>
+				<linea>
+					<texto size="8" align="left" fontsize="4">Cuenta: </texto>
+					<texto size="32" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getDescBanco()}</texto> 
+				</linea>
+				
+				<linea>
+					<texto size="8" align="left" fontsize="4">COMER.: </texto>
+					<texto size="12" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getComercio()}</texto> 
+					<texto size="10" align="left" fontsize="4">Terminal: </texto>
+					<texto size="10" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getTerminal()}</texto> 
+				</linea>
+				<linea>
+					<texto size="8" align="left" fontsize="4">Num.OP: </texto>
+					<texto size="12" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getNumOperacion()}</texto> 
+					<texto size="10" align="left" fontsize="4">Cod.Aut: </texto>
+					<texto size="10" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getCodAutorizacion()}</texto> 
+				</linea>
+				<linea>
+					<texto size="5" align="left" fontsize="4">RTS: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getNumOperacionBanco()}</texto> 
+				</linea>
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneNumTransaccion()})
+				<linea>
+					<texto size="13" align="left" fontsize="4">N.Trans: </texto>
+					<texto size="27" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getNumTransaccion()}</texto> 
+				</linea>
+				#end
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneVerificacion()})
+				<linea>
+					<texto size="5" align="left" fontsize="4">TVR: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getVerificacion()}</texto> 
+				</linea>
+				#end
+				#if (${pago.getDatosRespuestaPagoTarjeta().isDCC()})
+					<linea><texto> </texto> </linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitTrans")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitDivisa")} ${pago.getDatosRespuestaPagoTarjeta().getImporteDivisa()}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linMarca")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linMarkUp")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitComision")}</texto></linea>
+					<linea><texto align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitEntidad")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linCambio")}</texto></linea>
+					<linea><texto align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitInfCambio")}</texto></linea>
+				#end
+			
+			<!-- FIN DATOS DE LA TRANSACCION -->
+		  
+			<!-- TRATAMIENTO DEVOLUCIONES: Si es devolución se imprime firma establecimiento -->
+			set ($esDevolucion = ($ticket.getCabecera().getTotal().compareTo(0) > 0) || ($ticket.getCabecera().getCodTipoDocumento().equals("NC")))
+			#if ($esDevolucion)
+				<linea>
+					<texto size="40" align="center" fontsize="4">Firma establecimiento</texto> 
+				</linea>
+				<linea ><texto size="40" align="center">------------------------------</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">------------------------------</texto></linea>
+			#end
+			<!-- FIN TRATAMIENTO DEVOLUCIONES -->
+			<!-- TRATAMIENTO VERIFICACION -->
+			#if($pago.getDatosRespuestaPagoTarjeta().getVerificacion().equals("1"))
+				<linea><texto size="40" align="center"></texto></linea>
+				<linea><texto size="55" align="center" fontsize="4">Operación con PIN, firma no necesaria</texto></linea>
+				<linea><texto size="40" align="center"></texto></linea>
+			#elseif($pago.getDatosRespuestaPagoTarjeta().getVerificacion().equals("2"))
+				<linea><texto size="40" align="center"></texto></linea>
+				<linea><texto size="55" align="center" fontsize="4">Operación contactless, firma no necesaria</texto></linea>
+				<linea><texto size="40" align="center"></texto></linea>
+			#end
+			<!-- FIN TRATAMIENTO VERIFICACION --> 
+		#end 
+
+		<!-- ****** FIN TRATAMIENTO DE IMPRESION EN DETALLE DE PAGOS ******-->
+
+
+		<!-- ****** TRATAMIENTO DE IMPRESION JUSTIFICANTE ESTABLECIMIENTO ******-->
+		#if ($esBoletaCompleta && ( ${pago.getDatosRespuestaPagoTarjeta().getPedirFirma()}))
+
+			#parse("./plantillas/datos_cabecera.xml")
+
+			<linea><texto></texto> </linea>
+			<linea><texto>${ticket.getCabecera().getFechaAsLocale()}</texto></linea>    
+			<linea>
+				<texto size="29" align="left">${pago.getDesMedioPago()} </texto>
+				<texto size="11" align="right">${pago.getImporteAsString()}</texto> 
+			</linea>
+			
+			<!-- DATOS DE LA TRANSACCION -->
+				<linea>
+					<texto size="5" align="left" fontsize="4">Trj: </texto>
+					<texto size="30" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getTarjeta()}</texto> 
+				</linea>
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneTitular()})
+				<linea>
+					<texto size="5" align="left" fontsize="4">Tit: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getTitular()}</texto> 
+				</linea>
+				#end
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneAID()})
+				<linea>
+					<texto size="5" align="left" fontsize="4">AID: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAID()}</texto> 
+				</linea>
+				#end
+				<linea>
+					<texto size="5" align="left" fontsize="4">LBL: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getApplicationLabel()}</texto> 
+				</linea>
+				<linea>
+					<texto size="5" align="left" fontsize="4">ARC: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getARC()}</texto> 
+				</linea>
+				<linea>
+					<texto size="8" align="left" fontsize="4">Cuenta: </texto>
+					<texto size="32" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getDescBanco()}</texto> 
+				</linea>
+				
+				<linea>
+					<texto size="8" align="left" fontsize="4">COMER.: </texto>
+					<texto size="12" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getComercio()}</texto> 
+					<texto size="10" align="left" fontsize="4">Terminal: </texto>
+					<texto size="10" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getTerminal()}</texto> 
+				</linea>
+				<linea>
+					<texto size="8" align="left" fontsize="4">Num.OP: </texto>
+					<texto size="12" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getNumOperacion()}</texto> 
+					<texto size="10" align="left" fontsize="4">Cod.Aut: </texto>
+					<texto size="10" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getCodAutorizacion()}</texto> 
+				</linea>
+				<linea>
+					<texto size="5" align="left" fontsize="4">RTS: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getNumOperacionBanco()}</texto> 
+				</linea>
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneNumTransaccion()})
+				<linea>
+					<texto size="13" align="left" fontsize="4">N.Trans: </texto>
+					<texto size="27" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getNumTransaccion()}</texto> 
+				</linea>
+				#end
+				#if (${pago.getDatosRespuestaPagoTarjeta().tieneVerificacion()})
+				<linea>
+					<texto size="5" align="left" fontsize="4">TVR: </texto>
+					<texto size="35" align="left" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getVerificacion()}</texto> 
+				</linea>
+				#end
+				#if (${pago.getDatosRespuestaPagoTarjeta().isDCC()})
+					<linea><texto> </texto> </linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitTrans")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitDivisa")} ${pago.getDatosRespuestaPagoTarjeta().getImporteDivisa()}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linMarca")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linMarkUp")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitComision")}</texto></linea>
+					<linea><texto align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitEntidad")}</texto></linea>
+					<linea><texto size="40" align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linCambio")}</texto></linea>
+					<linea><texto align="center" fontsize="4">${pago.getDatosRespuestaPagoTarjeta().getAdicionales().get("linLitInfCambio")}</texto></linea>
+				#end
+			
+			<!-- FIN DATOS DE LA TRANSACCION -->
+
+			#if (${pago.getDatosRespuestaPagoTarjeta().getPedirFirma()})	
+				<linea><texto size="40" align="center" fontsize="4">Firma cliente</texto></linea>
+				<linea ><texto size="40" align="center">------------------------------</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">|                            |</texto></linea>
+				<linea><texto size="40" align="center">------------------------------</texto></linea>
+			#end
+			<!-- TRATAMIENTO VERIFICACION -->
+			#if($pago.getDatosRespuestaPagoTarjeta().getVerificacion().equals("1"))
+				<linea><texto size="40" align="center"></texto></linea>
+				<linea><texto size="55" align="center" fontsize="4">Operación con PIN, firma no necesaria</texto></linea>
+				<linea><texto size="40" align="center"></texto></linea>
+			#elseif($pago.getDatosRespuestaPagoTarjeta().getVerificacion().equals("2"))
+				<linea><texto size="40" align="center"></texto></linea>
+				<linea><texto size="55" align="center" fontsize="4">Operación contactless, firma no necesaria</texto></linea>
+				<linea><texto size="40" align="center"></texto></linea>
+			#end
+			<!-- FIN TRATAMIENTO VERIFICACION --> 
+
+			#if(${pago.getDatosRespuestaPagoTarjeta().getPedirFirma()})
+				<linea><texto></texto></linea>
+				<linea>
+					<texto size="50" align="left">${ticket.getCabecera().getDesTipoDocumento()} : ${ticket.getCabecera().getCodTicket()}</texto>
+				</linea>
+				<linea><texto size="40" align="center" fontsize="4">Copia para el establecimiento</texto></linea>
+				<corte></corte>
+			#end	
+
+		#end 
+		<!-- ****** FIN TRATAMIENTO DE IMPRESION JUSTIFICANTE ESTABLECIMIENTO ******-->
+	#end

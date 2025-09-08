@@ -1,0 +1,49 @@
+<!--Esta plantilla usa un parámetro $imprimirDatosFacturacion que no llega desde el POS. Se debe asignar como (con un solo corchete): ##set( $imprimirDatosFacturacion = true )
+-->
+<plantilla>
+	#printIfLinea(${ticket.getCabecera().getEmpresa().getDesEmpresa()})
+	#if(!${ticket.getCabecera().getEmpresa().getNombreComercial().equals(${ticket.getCabecera().getEmpresa().getDesEmpresa()})}) 
+	   #printIfLinea(${ticket.getEmpresa().getNombreComercial()})
+	#end
+	#printIfLineaEtiqueta("一般纳税人编号" ${ticket.getCabecera().getEmpresa().getCif()})
+	<!--#printIfLinea(${ticket.getCabecera().getEmpresa().getDomicilio()})
+	#printIfLinea(${ticket.getCabecera().getEmpresa().getPoblacion()})
+	#codigoPostalProvincia(${ticket.getCabecera().getEmpresa().getCp()} ${ticket.getCabecera().getEmpresa().getProvincia()})
+	#printIfLinea(${ticket.getCabecera().getEmpresa().getTelefono1()})-->
+	<linea><texto></texto></linea>
+	
+	#if (${ticket.getCabecera().getTienda().getDesAlmacen()})
+		#if (!${ticket.getCabecera().getTienda().getDesAlmacen().equals(${ticket.getCabecera().getEmpresa().getDesEmpresa()})}) 
+		  <linea><texto>店:${ticket.getCabecera().getTienda().getCodAlmacen()}</texto></linea>
+		  #printIfLinea(${ticket.getCabecera().getTienda().getDesAlmacen()})
+		  #printIfLinea(${ticket.getCabecera().getTienda().getDomicilio()})
+		  #printIfLinea(${ticket.getCabecera().getTienda().getPoblacion()})
+		  #codigoPostalProvincia(${ticket.getCabecera().getTienda().getCp()} ${ticket.getCabecera().getTienda().getProvincia()})
+		  #printIfLinea(${ticket.getCabecera().getTienda().getTelefono1()})
+		  <linea><texto></texto></linea>
+		#end
+	#end
+	
+	<!-- Inicio Datos Factura -->
+	#if ($imprimirDatosFacturacion)
+		<linea><texto>客户发票:</texto></linea>
+		#printIfLinea(${ticket.getCabecera().getCliente().getDatosFactura().getNombre()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getDatosFactura().getDomicilio()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getDatosFactura().getPoblacion()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getDatosFactura().getLocalidad()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getDatosFactura().getTelefono()})
+		#printIfLineaEtiqueta(${ticket.getCabecera().getCliente().getDatosFactura().getTipoIdentificacion()} ${ticket.getCabecera().getCliente().getDatosFactura().getCif()})
+		<linea><texto></texto></linea>
+	#end	
+	
+	#if(!${ticket.getCabecera().getCliente().getDesCliente().equals(${aplicacion.getTienda().getCliente().getDesCliente()})})
+		<linea><texto>顾客:</texto></linea>
+		#printIfLinea(${ticket.getCabecera().getCliente().getDesCliente()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getDomicilio()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getPoblacion()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getLocalidad()})
+		#printIfLinea(${ticket.getCabecera().getCliente().getTelefono1()})
+		#printIfLineaEtiqueta(${ticket.getCabecera().getCliente().getTipoIdentificacion()} ${ticket.getCabecera().getCliente().getCif()})
+		<linea><texto></texto></linea>
+	#end
+</plantilla>

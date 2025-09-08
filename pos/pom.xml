@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>com.comerzzia.ametller.pos</groupId>
+	<artifactId>comerzzia-ametller-pos</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
+		<java.version>1.8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<comerzzia.pos.version>4.8.1-SNAPSHOT</comerzzia.pos.version>
+	</properties>
+	
+ 	<repositories>
+		<repository>
+			<id>comerzzia</id>
+			<url>http://repo.comerzzia.com/artifactory/comerzzia/</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>comerzzia</id>
+			<url>http://repo.comerzzia.com/artifactory/comerzzia/</url>
+		</pluginRepository>
+	</pluginRepositories>
+	
+ 	<dependencies>
+        <!-- map all log systems to logback -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-to-slf4j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>	
+		<!-- javafx dependences -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>jfxrt</artifactId>
+			<scope>provided</scope>
+		</dependency>  
+		<!-- global libraries -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+		</dependency>        
+	</dependencies>
+	
+	<dependencyManagement>
+	   <dependencies>
+	      <dependency>
+	        <groupId>com.comerzzia.pos</groupId>
+            <artifactId>comerzzia-pos-dependencies</artifactId>
+            <version>${comerzzia.pos.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+	      </dependency>
+	   </dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+ 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>	
+  <modules>
+    <module>comerzzia-ametller-pos-gui</module>
+    <module>comerzzia-ametller-pos-application</module>
+    <module>comerzzia-ametller-pos-resources</module>
+  </modules>
+</project>

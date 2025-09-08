@@ -1,0 +1,63 @@
+<plantilla>
+	#if(!$paperLess)
+		<documento charset="GB18030">
+			<logo alignLogo="center"></logo>    
+
+			#set( $imprimirDatosFacturacion = false )
+			#parse("./plantillas/datos_cabecera_zh.xml")
+			
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto size="5" align="left"></texto>
+				<texto style="2" size="30" align="left">${cupon.getTituloCupon()}</texto>
+				<texto size="5" align="left"></texto>
+			</linea>
+			<linea>
+				<texto>----------------------------------------</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			#foreach($lineaDescripcion in ${cupon.getDescripcionFormateada()})
+			<linea>
+				<texto size="40" align="left">${lineaDescripcion}</texto>
+			</linea>
+			#end
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<codbar align="center">${cupon.getCodigoCupon()}</codbar>
+			</linea>
+			<linea>
+				<texto size="8" align="left"></texto>
+				<texto size="23" align="left">${cupon.getCodigoCupon()}</texto>
+				<texto size="9" align="left"></texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea lineSize="4">
+				<texto size="40" align="left" fontsize="4">优惠券发布日期 ${cupon.getFechaEmision()}</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea lineSize="4">
+				<texto size="21" align="left">促销源:</texto>
+				<texto size="19" align="right">${cupon.getIdPromocionOrigen()}</texto>
+			</linea>
+			<linea lineSize="4">
+				<texto size="21" align="left">接收促销: </texto>
+				<texto size="19" align="right">${cupon.getIdPromocionAplicacion()}</texto>
+			</linea>
+			<linea> 
+				<texto> 
+				</texto> 
+			</linea>
+			<corte></corte>
+		</documento>
+	#end
+</plantilla>

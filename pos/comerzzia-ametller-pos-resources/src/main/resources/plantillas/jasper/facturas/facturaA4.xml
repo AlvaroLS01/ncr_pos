@@ -1,0 +1,4 @@
+<plantilla>
+	<documento salida="impresora2" titulo="Factura" procesador="JASPER" fichero="facturas/facturaA4">		
+	</documento>
+</plantilla>

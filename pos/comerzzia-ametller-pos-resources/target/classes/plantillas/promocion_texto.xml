@@ -1,0 +1,13 @@
+<plantilla>
+	#foreach ($promocion in $ticket.getPromociones())
+			#if(${promocion.getIdTipoPromocion()} == 13)    
+				#foreach ($lineaTexto in $textUtils.divideLines(${promocion.getTextoPromocion()}, 40))
+					<linea>
+						<texto size="40" align="center">${lineaTexto}</texto> 
+					</linea>
+				#end
+				<linea> <texto> </texto> </linea>
+				<linea> <texto> </texto> </linea>
+			#end
+	#end
+</plantilla>

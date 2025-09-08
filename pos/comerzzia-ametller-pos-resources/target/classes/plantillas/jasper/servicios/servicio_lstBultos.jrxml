@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="servicio_lstBultos" pageWidth="802" pageHeight="555" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="31e3bb23-1911-4dec-b042-51215b2d796c">
+	<property name="ireport.zoom" value="3.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="desTipoEmbalaje" class="java.lang.String"/>
+	<field name="contenido" class="java.lang.String"/>
+	<field name="bultos" class="java.lang.Short"/>
+	<field name="peso" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="27">
+			<staticText>
+				<reportElement uuid="734ebb1b-0f85-484d-ba33-42e1ad3c67c1" x="0" y="0" width="230" height="20" forecolor="#7DB041"/>
+				<textElement>
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[EMBALAJE ASOCIADO A LA PREPARACIÓN]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="ee8f11ad-65d0-4384-9124-7050d75c55b2" x="0" y="15" width="499" height="1" forecolor="#7DB041"/>
+			</line>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="21" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="2287e60b-b7ca-4045-839d-1cbce0364e79" x="0" y="0" width="320" height="15" forecolor="#7DB041" backcolor="#7DB041"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="af24779b-21c0-4f4f-8cec-6b6e96241e4c" x="0" y="0" width="80" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[TIPO DE EMBALAJE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b4f15d82-8b5b-440a-a74f-8d336abd555f" x="154" y="0" width="84" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Nº BULTOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="dbcbb870-4ccb-4f89-b32b-4e1fae94b34e" x="80" y="0" width="74" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[CONTENIDO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c78463cd-c54d-425d-9966-bee8192dbcf0" x="238" y="0" width="82" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[PESO]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="f20329b5-a5e0-45a4-b38e-ba4e2142867c" x="0" y="0" width="80" height="10"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desTipoEmbalaje}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="1c59f812-f9a4-4d37-9aa1-2420f371dede" x="80" y="0" width="74" height="10"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contenido}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2e30c967-76f9-4018-b981-f3c96de8e429" x="154" y="0" width="84" height="10"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bultos}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="3d8d2d83-1c34-418a-9433-9cc4251c7756" x="238" y="0" width="82" height="10"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{peso}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<noData>
+		<band height="8"/>
+	</noData>
+</jasperReport>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SubInfPedidoCompras_DetalleImpuestos" pageWidth="390" pageHeight="802" whenNoDataType="AllSectionsNoDetail" columnWidth="390" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Key" uuid="5dc342dc-8592-4307-8f8d-bdbffe06044f">
+	<property name="ireport.zoom" value="1.8150000000000046"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="cuota" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[cuota]]></fieldDescription>
+	</field>
+	<field name="recargo" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[cuotaRecargo]]></fieldDescription>
+	</field>
+	<field name="total" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[total]]></fieldDescription>
+	</field>
+	<field name="cuotaPorcentaje" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[porcentaje]]></fieldDescription>
+	</field>
+	<field name="recargoPorcentaje" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[porcentajeRecargo]]></fieldDescription>
+	</field>
+	<field name="codimpuesto" class="java.lang.String">
+		<fieldDescription><![CDATA[codImpuesto]]></fieldDescription>
+	</field>
+	<field name="base" class="java.math.BigDecimal"/>
+	<variable name="total_base" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cuota}]]></variableExpression>
+	</variable>
+	<variable name="total_recargo" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{recargo}]]></variableExpression>
+	</variable>
+	<variable name="total_impuestos" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<variable name="total_bases" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{base}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="41">
+			<staticText>
+				<reportElement uuid="7a0ceda5-c9e6-46c6-b42e-f902a810a747" x="5" y="0" width="121" height="11"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Especificación importe IVA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0800fab0-bed4-4837-b20e-f986c71b91f0" x="234" y="29" width="81" height="11"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Recargo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b484a45a-8187-4ec6-872f-499dbd01b2a4" x="322" y="29" width="57" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="fcffd60d-2cf3-4031-885e-1d3d475c0773" x="146" y="29" width="87" height="11"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Imposto]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="b6432d43-d38e-4862-a801-95653bdbc355" x="5" y="40" width="385" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="fcffd60d-2cf3-4031-885e-1d3d475c0773" x="76" y="29" width="69" height="11"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Base]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="ab5651ad-33f2-4564-90a9-45a55ac7c566" x="234" y="0" width="37" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{recargoPorcentaje}) + "%"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="8702888f-84b6-469c-872a-f696004598b3" mode="Transparent" x="146" y="0" width="37" height="11" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="Tahoma" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0.00").format($F{cuotaPorcentaje}) + "%"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="267c9596-2cc5-4d58-93bc-9f42a64c38aa" x="322" y="0" width="57" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="8f84b99e-44b1-4b91-8a2b-6eb209634d01" x="183" y="0" width="42" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cuota}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="ab5651ad-33f2-4564-90a9-45a55ac7c566" x="271" y="0" width="38" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{recargo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+				<reportElement uuid="8f84b99e-44b1-4b91-8a2b-6eb209634d01" x="76" y="0" width="60" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{base}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="17">
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="313a4247-9288-426c-a072-16d2def38c5a" x="234" y="4" width="75" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_recargo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="d7d534f0-c9a9-4580-bdc6-d4dd190de1be" x="146" y="4" width="79" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_base}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="b6432d43-d38e-4862-a801-95653bdbc355" x="76" y="3" width="314" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="ab0b8333-43c8-46f2-be48-f961e249bcab" x="5" y="4" width="52" height="11"/>
+				<textElement>
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="a151fa54-8c21-4ebd-9557-f81314cd3d56" x="322" y="4" width="57" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_impuestos}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="d7d534f0-c9a9-4580-bdc6-d4dd190de1be" x="76" y="4" width="60" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_bases}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

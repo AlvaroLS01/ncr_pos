@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuracion fecha="10/02/2014" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+	<BaseDatos>
+        <Driver>com.mysql.jdbc.Driver</Driver>
+    	<URL>jdbc:mysql://172.16.102.35:33062/ametller_des</URL>
+        <Usuario>ametller_des</Usuario>
+		<Password>3ueD2L5HnbRI</Password>
+    </BaseDatos>
+    
+     <!-- TIENDA -->
+<!-- 	<BaseDatos> -->
+<!-- 		<Driver>com.mysql.jdbc.Driver</Driver> -->
+<!-- 		<URL>jdbc:mysql://host:port/database</URL> -->
+<!-- 		<Usuario>user</Usuario> -->
+<!-- 		<Password>password</Password> -->
+<!--     </BaseDatos> -->
+    
+     <Localizacion>
+    	<pais>ES</pais>
+    	<idioma>es</idioma>
+    </Localizacion>
+   
+    <!-- Eliminar tag para eliminar modo desarrollo -->
+    <Desarrollo> 
+        <Usuario>administrador</Usuario>
+        <Password>cmz</Password>
+    </Desarrollo>
+    <Interfaz>
+        <Ancho>1400</Ancho>
+        <Alto>900</Alto>    
+        <PantallaCompleta>false</PantallaCompleta>
+        <EfectoFondoVentanaModales>true</EfectoFondoVentanaModales>
+        <MostrarTecladoAlfanumerico>false</MostrarTecladoAlfanumerico>
+        <OcultarConfiguracion>
+        	<Opcion>btRecargaMovil</Opcion>
+        </OcultarConfiguracion>
+        <ShowLoggedIn>false</ShowLoggedIn>
+    </Interfaz>
+    <login>BIENVENIDA</login>
+    <Skin>ametller</Skin>
+    <!-- <AccionInicio>210</AccionInicio> -->
+
+    <InStoreEngine>
+    	<RestUrl></RestUrl>
+    	<SegundosPeticionNotificaciones></SegundosPeticionNotificaciones>
+    </InStoreEngine>
+	<!-- <SegundosInactividad>10</SegundosInactividad> -->
+    <!--
+	<ImagenesArticulos> 
+		<RutaImagenes></RutaImagenes>
+		<ImagenDefecto></ImagenDefecto>
+	</ImagenesArticulos>
+	-->
+	<SystemProperties>
+		<!-- <prism.verbose>true</prism.verbose> -->
+ 		<!-- <prism.order>j2d</prism.order> -->
+	</SystemProperties>
+	<!--
+	<KeyCodes>
+		<Tablas>
+			<Accion>E</Accion>
+			<AccionGeneral>CTRL+E</AccionGeneral>
+			<UltimoGeneral>CTRL+SHIFT+RIGHT</UltimoGeneral>
+			<PrimeroGeneral>CTRL+SHIFT+LEFT</PrimeroGeneral>
+			<SiguienteGeneral>CTRL+K</SiguienteGeneral>
+			<AnteriorGeneral>CTRL+L</AnteriorGeneral>
+		</Tablas>
+	</KeyCodes>
+	-->
+	
+	<!-- Esta etiqueta es un campo opcional, en el cual se especifica el id de la acción
+		par acceder a la pantalla de fidelizado, en el caso de que se haya cambiado el id 
+		que trae la misma acción por defecto -->
+	<!--<AccionFidelizado>75676</AccionFidelizado> -->
+	
+</configuracion>

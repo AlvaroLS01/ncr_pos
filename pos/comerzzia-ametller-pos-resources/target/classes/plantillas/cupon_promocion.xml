@@ -1,0 +1,77 @@
+<plantilla>
+	#if(!$paperLess)
+		<documento>
+			<logo alignLogo="center"></logo>    
+
+			#set( $imprimirDatosFacturacion = false )
+			#parse("./plantillas/datos_cabecera.xml")
+			
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto size="5" align="left"></texto>
+				<texto style="2" size="30" align="left">${cupon.getTituloCupon()}</texto>
+				<texto size="5" align="left"></texto>
+			</linea>
+			<linea>
+				<texto>----------------------------------------</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			#foreach($lineaDescripcion in $textUtils.divideLines(${cupon.getDescripcionCupon()}, 40))
+			<linea>
+				<texto size="40" align="center">${lineaDescripcion}</texto>
+			</linea>
+			#end
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+			<!-- De manera estándar se imprime el código del cupón tanto como qr como código de barras.
+				Se puede elegir borrar uno de los dos en la implantación según las necesidades del cliente. 
+				Si se decide mantener el código de barras, se debe tener en cuenta que este código será 
+				bastante extenso y la impresora podría requerir ajustes para poder imprimirlo -->
+				<codbar align="center">${cupon.getCodigoCupon()}</codbar>
+				<codbar type="QR" align="center">${cupon.getCodigoCupon()}</codbar>
+				
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea lineSize="4">
+					<texto size="40" align="left">Cupón emitido el día ${fechaEmision}</texto>
+			</linea>
+			
+			<!-- tenemos en cuenta las fechas de inicio y fin de activación -->
+			#if(${fechaInicio}!="" || ${fechaFin}!="")
+			<linea>
+					<texto size="40" align="left">Válido desde: ${fechaInicio} hasta: ${fechaFin}</texto>
+			</linea>
+			#end
+			#if(${maximoUsos}!="")
+			<linea lineSize="4">
+					<texto size="40" align="left">Número máximo de usos ${maximoUsos}</texto>
+			</linea>
+			#end
+			
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea lineSize="4">
+				<texto size="21" align="left">Promocion emisora:</texto>
+				<texto size="19" align="right">${cupon.getIdPromocionOrigen()}</texto>
+			</linea>
+			<linea lineSize="4">
+				<texto size="21" align="left">Promocion receptora: </texto>
+				<texto size="19" align="right">${cupon.getIdPromocionAplicacion()}</texto>
+			</linea>
+			<linea> 
+				<texto> 
+				</texto> 
+			</linea>
+			<corte></corte>
+		</documento>
+	#end
+</plantilla>

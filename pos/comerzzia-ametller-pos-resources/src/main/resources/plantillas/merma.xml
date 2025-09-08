@@ -1,0 +1,54 @@
+<plantilla>
+#set($tienePagoGiftcard = false)
+	#foreach ($pago in $ticket.getPagos())
+		#if (${pago.isPagoTarjetaRegalo()})
+			#set($tienePagoGiftcard = true)
+			#break
+		#end
+	#end
+	#if(!$paperLess || ( $paperLess && ($ticket.getCabecera().getDatosEnvio() || $tienePagoGiftcard)))
+		<documento salida="impresora1">
+		#if(!$paperLess)
+			#if( !${esCopia} && !${salida.equals("pantalla")})
+				<apertura-cajon></apertura-cajon>
+			#end
+			<logo></logo>    
+			<linea> <texto> </texto> </linea>
+			<linea line-size = "1"> 
+				<texto size="40" align="center" >COMPROVANT MERMA</texto>
+			</linea>
+			#parse("./plantillas/datos_cabecera_merma.xml")
+			<linea><texto>caixa: ${ticket.getCabecera().getCodCaja()}</texto></linea>
+			<linea> <texto> </texto> </linea>
+			<linea>
+				<texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+			</linea>    
+			<linea>
+				<texto align="left" fontsize="4">${ticket.getCabecera().getDesTipoDocumento()}: ${ticket.getCabecera().getCodTicket()}</texto>
+			</linea>
+			<linea> <texto> </texto> </linea>
+			<linea> <texto style ="1" size="40" align="left">DESCRIPCIO                        IMPORT</texto> </linea>
+			<linea> <texto size="40" align="left">----------------------------------------</texto> </linea>
+			## LINEAS
+			#foreach ($linea in $ticket.getLineas())
+				#parse("./plantillas/linea_ticket.xml")
+			#end
+			<linea> <texto> </texto> </linea>
+			## TOTALES    
+			<linea line-size = "1"> 
+				<texto size="29" align="right" >TOTAL MERMA: </texto>
+				<texto size="11" align="right" >${ticket.getTotales().getTotalAPagarAsString()}</texto> 
+			</linea>
+		#end
+		#if(!$paperLess)
+			<codbar align="center" tipo-leyenda="0" >${ticket.getCabecera().getLocalizador()}</codbar>
+			<linea> </linea>
+			<linea> <texto size="40" align="left">Realitzat per: ${ticket.getCabecera().getCajero().getDesusuario()}</texto> </linea>
+			<linea> </linea>		
+			<linea><texto></texto></linea>
+		#end	
+		<corte></corte>	
+	   </documento>   
+	#end
+## #end 
+</plantilla>

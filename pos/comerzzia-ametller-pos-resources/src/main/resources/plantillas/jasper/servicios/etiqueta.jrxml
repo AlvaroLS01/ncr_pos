@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="etiqueta" columnCount="2" pageWidth="595" pageHeight="842" whenNoDataType="BlankPage" columnWidth="277" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="10" uuid="fa9b5ad3-ef1d-4cc3-95c8-d1c076e4097b">
+	<property name="ireport.zoom" value="3.897434200000013"/>
+	<property name="ireport.x" value="198"/>
+	<property name="ireport.y" value="73"/>
+	<parameter name="SERVICIO" class="com.comerzzia.api.model.omnichannel.ServicioBean"/>
+	<parameter name="TOTAL" class="java.lang.Integer"/>
+	<field name="desTipoEmbalaje" class="java.lang.String"/>
+	<variable name="NUM_BULTO" class="java.lang.Integer">
+		<variableExpression><![CDATA[$V{NUM_BULTO}+1]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<detail>
+		<band height="135" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="a9d38cbd-f81d-4102-b971-11b1b5cfa989" x="126" y="25" width="24" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Rango:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c7e385b7-9e59-403f-9b83-7a13765ad4e3" x="126" y="15" width="20" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="eda98c7d-82b4-4e7d-8039-ef8efb312905" x="34" y="15" width="32" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Doc. origen:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="2690f866-fb02-4fa1-9f07-df9d21bc9f72" x="34" y="25" width="32" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Nº servicio:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="0b056ab8-d233-4b41-95c1-b297d0808203" x="66" y="15" width="60" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getCodDocumentoOrigen()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="d1ccb913-f179-4239-a442-7d87b0c2df66" x="66" y="25" width="60" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getCodservicio()]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="f4294b22-852d-47e9-a638-21d737f388c5" x="150" y="15" width="31" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getFechaServicioSolicitada()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="dfd666d7-2cff-4f58-9553-6900d74165bd" x="150" y="25" width="14" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getHoraDesdeServicioSolicitada()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="8dd933e9-20f3-482d-8dca-67230aff3a0f" x="170" y="25" width="17" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getHoraHastaServicioSolicitada()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="07a3cc8e-c9a9-4d21-92cc-4dee94f8cbe7" x="34" y="45" width="210" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{SERVICIO}.getNombre() != null ? $P{SERVICIO}.getNombre() : " ")+" "+
+($P{SERVICIO}.getApellidos() != null ? $P{SERVICIO}.getApellidos() : " ")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="1d24db70-9fc5-4490-a8a4-f8b6b459b4c4" x="34" y="55" width="210" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getDomicilio()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="8f1f224e-e1f9-4121-a50e-39015124c47a" x="34" y="65" width="32" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getCp()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="fe1d2b74-b4a6-4508-ad29-474e2774ae86" x="66" y="65" width="178" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getPoblacion()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="c5be4719-5010-4533-9513-aae7e69cb67d" x="104" y="85" width="22" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Nº bulto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c1eb0a12-f388-49ce-bcd7-8d5b0309c205" x="126" y="85" width="30" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Total bultos]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5bd435fd-462a-4b95-ad07-ed173330626d" x="126" y="95" width="30" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TOTAL}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="8dd933e9-20f3-482d-8dca-67230aff3a0f" x="194" y="15" width="50" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desTipoEmbalaje}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="2690f866-fb02-4fa1-9f07-df9d21bc9f72" x="164" y="25" width="6" height="10"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[-]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="f87f4d5c-5219-410d-a029-7413c765272a" x="104" y="95" width="22" height="10"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{NUM_BULTO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="c5be4719-5010-4533-9513-aae7e69cb67d" x="34" y="85" width="32" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<text><![CDATA[Proveedor]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5bd435fd-462a-4b95-ad07-ed173330626d" x="34" y="95" width="65" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{SERVICIO}.getDestrans()]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement uuid="4dc58c5c-5029-4273-a0cd-5f2257dffba9" x="170" y="85" width="74" height="25"/>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$P{SERVICIO}.getCodservicio()]]></jr:codeExpression>
+				</jr:Code128>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

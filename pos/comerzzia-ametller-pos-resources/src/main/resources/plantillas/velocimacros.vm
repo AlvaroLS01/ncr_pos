@@ -1,0 +1,40 @@
+##<!-- Macro que imprime una linea solo si viene rellena -->
+#macro (printIfLinea $linea)	
+	#if ($linea)
+		<linea><texto size="40" align="left">$esc.xml($linea)</texto></linea>
+	#end
+#end
+##<!-- Macro que imprime una etiqueta y una linea solo si la linea viene rellena -->
+#macro (printIfLineaEtiqueta $etiqueta $linea)	
+	#if ($linea)
+		<linea>
+			#if ($etiqueta)
+			<texto align="left">$etiqueta: </texto>
+			#end
+			<texto align="left">$esc.xml($linea)</texto>
+		</linea>
+	#end
+#end
+##<!-- Macro que imprime una linea solo si viene rellena o otro por defecto -->
+#macro (printIfLineaOr $linea $or)	
+	#if ($linea)
+		<linea><texto size="40" align="left">$esc.xml($linea)</texto></linea>
+	#else
+		#if($or)
+				<linea><texto size="40" align="left">$or</texto></linea>
+		#end
+	#end
+#end
+##<!-- Macro para formatear codigo postal y provincia -->
+#macro (codigoPostalProvincia $cp $provincia)	
+	#if ($cp && $provincia)
+		<linea><texto size="40" align="left">$cp ($provincia)</texto></linea>
+	#else
+		#if($cp)
+			<linea><texto size="40" align="left">$cp</texto></linea>
+		#end
+		#if($provincia)
+			<linea><texto size="40" align="left">$esc.xml($provincia)</texto></linea>
+		#end
+	#end
+#end

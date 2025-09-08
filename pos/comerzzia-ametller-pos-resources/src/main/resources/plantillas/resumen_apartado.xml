@@ -1,0 +1,163 @@
+<plantilla>
+	<documento>
+		#set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+		#parse("./plantillas/datos_cabecera.xml")
+
+		#if (${empresa.getDesEmpresa()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDesEmpresa()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDomicilio()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getPoblacion()}</texto>
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} )
+		<linea>
+			#if (${empresa.getProvincia()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getProvincia()}</texto>
+			#end
+		</linea>
+		<linea>
+			#if (${empresa.getCp()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getCp()}</texto>
+			#end
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="left" size="40">CLIENTE</texto>
+		</linea>
+		<linea>
+			<texto align="left" size="40">${apartado.getDesCliente()}</texto>
+		</linea>
+		<linea>
+			<texto align="left" size="40">${apartado.getDomicilio()}</texto>
+		</linea>
+		#if(${apartado.getTelefono1()})
+		<linea>
+			<texto align="left" size="40">${apartado.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+		</linea>
+		<linea>
+			<texto align="center" size="40">${fecha}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto size="24" align="right">TOTALES</texto>
+		</linea>
+		<linea>
+			<texto size="15" align="left">SERVIDO:</texto>
+			<texto size="25" align="right">${servido}</texto>
+		</linea>
+		<linea>
+			<texto size="15" align="left">ABONADO:</texto>
+			<texto size="25" align="right">${abonado}</texto>
+		</linea>
+		<linea>
+			<texto size="15" align="left">SALDO CLIENTE:</texto>
+			<texto size="25" align="right">${saldo}</texto>
+		</linea>
+		<linea>
+			<texto size="15" align="left">PENDIENTE:</texto>
+			<texto size="25" align="right">${pendiente}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align="left" size="40">APARTADO:${apartado.getIdApartado()}</texto>
+		</linea>
+		
+		#foreach ($articulo in $articulos)
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="25" align="left">${articulo.getDesart()}</texto>
+			<texto size="15" align="right">${articulo.getEstadoTicket()}</texto>
+		</linea>
+		<linea>
+			<texto size="25" align="left">${articulo.getCodart()}</texto>
+			<texto size="15" align="right">${articulo.getImporteTotalAsString()}</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+		</linea>
+		#end
+		<linea>
+		</linea>
+		<linea>
+		</linea>
+		#if(${pagos})
+		<linea>
+			<texto size="23" align="right">PAGOS</texto>
+		</linea>
+		#foreach ($pago in $pagos)
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="14" align="left">FORMA DE PAGO:</texto>
+			<texto size="26" align="right">${pago.getDesMedioPago()}</texto>
+		</linea>
+		<linea>
+			<texto size="8" align="left">IMPORTE:</texto>
+			#if(${pago.getCargoTicket()})
+			<texto size="32" align="right">${pago.getCargoTicket()}</texto>
+			#end
+			#if(${pago.getAbonoTicket()})
+			<texto size="32" align="right">-${pago.getAbonoTicket()}</texto>
+			#end
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		#end
+		#end
+		<linea>
+			<texto align="center" size="40">GRACIAS POR SU VISITA</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto align="center" size="40">LE ATENDIO..... ${cajero}</texto>
+		</linea>
+
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>

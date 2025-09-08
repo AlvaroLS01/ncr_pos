@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dispositivos xmlns="http://www.comerzzia.com/xml/ns/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.comerzzia.com/xml/ns/ http://www.comerzzia.com/xml/ns/dispositivosTPV_1_0.xsd">
+	<balanzas>
+		<balanza modelo="BALANZA EMULACION TISA">
+			<metodosconexion>
+				<metodoconexion nombreconexion="COM1-9600-8-N-1"
+					tipoconexion="puertoSerie"
+					manejador="com.comerzzia.pos.dispositivo.balanza.BalanzaEmulacionTISA">
+					<puertoSerie>
+						<PuertoCOM>COM1</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+						<IntervaloPeticion>200</IntervaloPeticion>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM2-9600-8-N-1"
+					tipoconexion="puertoSerie"
+					manejador="com.comerzzia.pos.dispositivo.balanza.BalanzaEmulacionTISA">
+					<puertoSerie>
+						<PuertoCOM>COM2</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+						<IntervaloPeticion>200</IntervaloPeticion>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM3-9600-8-N-1"
+					tipoconexion="puertoSerie"
+					manejador="com.comerzzia.pos.dispositivo.balanza.BalanzaEmulacionTISA">
+					<puertoSerie>
+						<PuertoCOM>COM3</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+						<IntervaloPeticion>200</IntervaloPeticion>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM4-9600-8-N-1"
+					tipoconexion="puertoSerie"
+					manejador="com.comerzzia.pos.dispositivo.balanza.BalanzaEmulacionTISA">
+					<puertoSerie>
+						<PuertoCOM>COM4</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+						<IntervaloPeticion>100</IntervaloPeticion>
+					</puertoSerie>
+				</metodoconexion>
+			</metodosconexion>
+		</balanza>
+		<balanza modelo="BALANZA BIZERBA">
+			<metodosconexion>
+				<metodoconexion nombreconexion="COM4-9600-7-N-1"
+					tipoconexion="puertoSerie"
+					manejador="com.comerzzia.pos.dispositivo.balanza.BalanzaBizerba">
+					<puertoSerie>
+						<PuertoCOM>COM4</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>7</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>1</Paridad>
+						<IntervaloPeticion>200</IntervaloPeticion>
+						<MilisegundosEspera>6000</MilisegundosEspera>
+					</puertoSerie>
+				</metodoconexion>
+			</metodosconexion>
+		</balanza>
+		<balanza modelo="BALANZA VIRTUAL">
+			<metodosconexion>
+				<metodoconexion nombreconexion="VIRTUAL" tipoconexion="VIRTUAL" manejador="com.comerzzia.pos.dispositivo.balanza.virtual.BalanzaVirtual">
+					<configuracion>
+						<pesoFijo>0.0</pesoFijo> <!-- Posibles valores: El valor del peso fijo o N si se quiere un valor aleatorio en cada pesada -->
+						<mostrarPesoEnPantalla>false</mostrarPesoEnPantalla>						
+					</configuracion>
+				</metodoconexion>
+			</metodosconexion>
+		</balanza>
+	</balanzas>
+	<visores>
+		<visor modelo="GENERICO">
+			<metodosconexion>
+				<metodoconexion nombreconexion="COM1-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorEscPos">
+					<puertoSerie>
+						<PuertoCOM>1</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM2-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorEscPos">
+					<puertoSerie>
+						<PuertoCOM>2</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM3-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorEscPos">
+					<puertoSerie>
+						<PuertoCOM>3</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM4-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorEscPos">
+					<puertoSerie>
+						<PuertoCOM>4</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="USB"
+					tipoconexion="USB" manejador="com.comerzzia.pos.dispositivo.visor.VisorEscPos">
+					<USB>
+						<VendorId>04B3</VendorId>
+						<ProductId>4526</ProductId>
+						<Bus>null</Bus>
+						<Filename>null</Filename>
+						<WritingZone>01</WritingZone>
+						<Numero>1</Numero>
+					</USB>
+				</metodoconexion>
+			</metodosconexion>
+		</visor>
+		<visor modelo="Pantalla">
+			<metodosconexion>
+				<metodoconexion nombreconexion="Pantalla" tipoconexion="pantalla" manejador="com.comerzzia.pos.dispositivo.visor.VisorPantallaSecundaria">
+					<config>
+						<paginaEspera>modoEspera/modoEspera.html</paginaEspera>
+						<lineasVenta>6</lineasVenta>
+					</config>
+				</metodoconexion>
+			</metodosconexion>
+		</visor>
+		<visor modelo="PosiFlex Display">
+			<metodosconexion>
+				<metodoconexion nombreconexion="LD Demo" tipoconexion="UPOS" manejador="com.comerzzia.pos.dispositivo.visor.VisorUPOS" />
+			</metodosconexion>
+		</visor>
+		<visor modelo="IBM LineDisplay">
+			<metodosconexion>
+				<metodoconexion nombreconexion="defaultLineDisplay" tipoconexion="UPOS" manejador="com.comerzzia.pos.dispositivo.visor.VisorUPOS" />
+			</metodosconexion>
+		</visor>
+		<visor modelo="NCR">
+			<metodosconexion>
+				<metodoconexion nombreconexion="COM1-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorNCR">
+					<puertoSerie>
+						<PuertoCOM>1</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM2-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorNCR">
+					<puertoSerie>
+						<PuertoCOM>2</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM3-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorNCR">
+					<puertoSerie>
+						<PuertoCOM>3</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM4-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorNCR">
+					<puertoSerie>
+						<PuertoCOM>4</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+				</metodoconexion>
+				<metodoconexion nombreconexion="USB"
+					tipoconexion="USB" manejador="com.comerzzia.pos.dispositivo.visor.VisorNCR">
+					<USB>
+						<VendorId>04B3</VendorId>
+						<ProductId>4526</ProductId>
+						<Bus>null</Bus>
+						<Filename>null</Filename>
+						<WritingZone>01</WritingZone>
+						<Numero>1</Numero>
+					</USB>
+				</metodoconexion>
+			</metodosconexion>
+		</visor>
+		<visor modelo="GENERICO DE TEXTO">
+			<metodosconexion>
+				<metodoconexion nombreconexion="COM1-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorTexto">
+					<puertoSerie>
+						<PuertoCOM>1</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+					<numeroCaracteresLinea>20</numeroCaracteresLinea>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM2-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorTexto">
+					<puertoSerie>
+						<PuertoCOM>2</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+					<numeroCaracteresLinea>20</numeroCaracteresLinea>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM3-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorTexto">
+					<puertoSerie>
+						<PuertoCOM>3</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+					<numeroCaracteresLinea>20</numeroCaracteresLinea>
+				</metodoconexion>
+				<metodoconexion nombreconexion="COM4-9600-8-N-1"
+					tipoconexion="puertoSerie" manejador="com.comerzzia.pos.dispositivo.visor.VisorTexto">
+					<puertoSerie>
+						<PuertoCOM>4</PuertoCOM>
+						<Baudios>9600</Baudios>
+						<BitsDatos>8</BitsDatos>
+						<BitsParada>1</BitsParada>
+						<Paridad>0</Paridad>
+					</puertoSerie>
+					<numeroCaracteresLinea>20</numeroCaracteresLinea>
+				</metodoconexion>
+				<metodoconexion nombreconexion="USB"
+					tipoconexion="USB" manejador="com.comerzzia.pos.dispositivo.visor.VisorTexto">
+					<USB>
+						<VendorId>04B3</VendorId>
+						<ProductId>4526</ProductId>
+						<Bus>null</Bus>
+						<Filename>null</Filename>
+						<WritingZone>01</WritingZone>
+						<Numero>1</Numero>
+					</USB>
+					<numeroCaracteresLinea>20</numeroCaracteresLinea>
+				</metodoconexion>
+			</metodosconexion>
+		</visor>
+	</visores>
+	<cajones>
+		<cajon modelo="GENERICO">
+			<metodosconexion>
+				<metodoconexion nombreconexion="Impresora-LPT1"
+					tipoconexion="printer" manejador="com.comerzzia.pos.dispositivo.cajon.CajonImpresora">
+					<secuenciaapertura>027;112;048;055;121;</secuenciaapertura>
+				</metodoconexion>
+			</metodosconexion>
+		</cajon>
+		<cajon modelo="Cajon UPOS">
+			<metodosconexion>
+				<metodoconexion nombreconexion="CashDrawerHID 4610-A-POSPrinter1"
+					tipoconexion="printer" manejador="com.comerzzia.pos.dispositivo.cajon.CajonJPOS">
+				</metodoconexion>
+			</metodosconexion>
+		</cajon>
+	</cajones>
+	<impresoras>
+		<impresora modelo="PANTALLA">
+			<metodosconexion>
+				<metodoconexion nombreconexion="Pantalla" tipoconexion="pantalla" manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraPantalla" />
+			</metodosconexion>
+			<juegoscomandos></juegoscomandos>
+		</impresora>
+		<impresora modelo="Posiflex POS Printer">
+			<metodosconexion>
+				<metodoconexion nombreconexion="PP 8000" tipoconexion="UPOS" manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraJPOS" />
+			</metodosconexion>
+			<juegoscomandos></juegoscomandos>
+		</impresora>
+		<impresora modelo="IBM UPOS Printer">
+			<metodosconexion>
+				<metodoconexion nombreconexion="POSPrinter1" tipoconexion="UPOS" manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraJPOS" />
+			</metodosconexion>
+			
+		</impresora>
+		<impresora modelo="TM T20">
+			<metodosconexion>
+				<metodoconexion nombreconexion="DRIVER - Impresora Por Defecto"
+					tipoconexion="driver"
+					manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraDriver">
+				</metodoconexion>
+				<metodoconexion nombreconexion="DRIVER - IMPRESORA1"
+					tipoconexion="driver"
+					manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraDriver">
+					<nombreImpresora>IMPRESORA1</nombreImpresora>
+				</metodoconexion>
+				<metodoconexion nombreconexion="DRIVER - IMPRESORA2"
+					tipoconexion="driver"
+					manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraDriver">
+					<nombreImpresora>IMPRESORA2</nombreImpresora>
+				</metodoconexion>
+			</metodosconexion>
+			<comandos>
+				<comando nombre="ENCODING" valor="27;116;16" />
+				<comando nombre="SELECT_PRINTER" valor="27;61;1" />
+				<comando nombre="PARTIAL_CUT" valor="27;64;29;86;1" />
+				<comando nombre="NEW_LINE" valor="13;10" />
+				<comando nombre="CHAR_SIZE_0" valor="29;33;0" />
+				<comando nombre="CHAR_SIZE_1" valor="29;33;1" />
+				<comando nombre="CHAR_SIZE_2" valor="29;33;48" />
+				<comando nombre="CHAR_SIZE_3" valor="29;33;49" />
+				<comando nombre="CHAR_SIZE_CONDENSED" valor="27;33;5" />
+				<comando nombre="BOLD_SET" valor="27;69;1" />
+				<comando nombre="BOLD_RESET" valor="27;69;0" />
+				<comando nombre="UNDERLINE_SET" valor="27;45;1" />
+				<comando nombre="UNDERLINE_RESET" valor="27;45;0" />
+				<comando nombre="OPEN_DRAWER" valor="27;112;0;26;100" />
+				<comando nombre="IMAGE_HEADER" valor="29;40;76;6;0;48;69;50;50;1;1" />
+				<comando nombre="FONT_SELECT" valor="27;77" />
+				<comando nombre="FONT_A" valor="27;77;0" />
+				<comando nombre="FONT_B" valor="27;77;1" />
+				<comando nombre="FONT_C" valor="27;77;2" />
+				<comando nombre="FONT_D" valor="27;77;3" />
+				<comando nombre="BAR_HEIGHT" valor="29;104;96" />
+				<comando nombre="BAR_WIDTH" valor="29;119;2" />
+				<comando nombre="BAR_PSOITION_NONE" valor="29;72;0" />
+				<comando nombre="BAR_PSOITION_DOWN" valor="29;72;2" />
+				<comando nombre="BAR_HR_FONT" valor="29;102;1" />
+				<comando nombre="BAR_CODE_LENGHT" valor="29;107;73" />
+				<comando nombre="LEFT_MARGIN_DOTS" valor="29;76" />
+				<comando nombre="BAR_CODE_NUMBER" valor="29;72" />
+				<comando nombre="BAR_CODE_ALIGN_LEFT" valor="27;97;0" />
+				<comando nombre="BAR_CODE_ALIGN_RIGHT" valor="27;97;2" />
+				<comando nombre="BAR_CODE_ALIGN_CENTER" valor="27;97;1" />
+				<comando nombre="QR_CODE_PREFIX" valor="29;40;107" />
+				<comando nombre="LEFT_MARGIN_CHARS" valor="0" />
+				<comando nombre="BOTTOM_MARGIN" valor="3" />
+			</comandos>
+		</impresora>
+
+		<impresora modelo="TM T88V">
+			<metodosconexion>
+				<metodoconexion nombreconexion="DRIVER - Impresora Por Defecto"
+					tipoconexion="driver"
+					manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraDriver">
+				</metodoconexion>
+				<metodoconexion nombreconexion="DRIVER - IMPRESORA1"
+					tipoconexion="driver"
+					manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraDriver">
+					<nombreImpresora>IMPRESORA1</nombreImpresora>
+				</metodoconexion>
+				<metodoconexion nombreconexion="DRIVER - IMPRESORA2"
+					tipoconexion="driver"
+					manejador="com.comerzzia.pos.dispositivo.impresora.ImpresoraDriver">
+					<nombreImpresora>IMPRESORA2</nombreImpresora>
+				</metodoconexion>
+			</metodosconexion>
+			<comandos>
+				<comando nombre="ENCODING" valor="27;116;16" />
+				<comando nombre="SELECT_PRINTER" valor="27;61;1" />
+				<comando nombre="PARTIAL_CUT" valor="27;64;29;86;1" />
+				<comando nombre="NEW_LINE" valor="13;10" />
+				<comando nombre="CHAR_SIZE_0" valor="29;33;0" />
+				<comando nombre="CHAR_SIZE_1" valor="29;33;1" />
+				<comando nombre="CHAR_SIZE_2" valor="29;33;48" />
+				<comando nombre="CHAR_SIZE_3" valor="29;33;49" />
+				<comando nombre="CHAR_SIZE_CONDENSED" valor="27;33;5" />
+				<comando nombre="BOLD_SET" valor="27;69;1" />
+				<comando nombre="BOLD_RESET" valor="27;69;0" />
+				<comando nombre="UNDERLINE_SET" valor="27;45;1" />
+				<comando nombre="UNDERLINE_RESET" valor="27;45;0" />
+				<comando nombre="OPEN_DRAWER" valor="27;112;0;26;100" />
+				<comando nombre="IMAGE_HEADER" valor="29;40;76;6;0;48;69;50;50;1;1" />
+				<comando nombre="FONT_SELECT" valor="27;77" />
+				<comando nombre="FONT_A" valor="27;77;0" />
+				<comando nombre="FONT_B" valor="27;77;1" />
+				<comando nombre="FONT_C" valor="27;77;2" />
+				<comando nombre="FONT_D" valor="27;77;3" />
+				<comando nombre="BAR_HEIGHT" valor="29;104;96" />
+				<comando nombre="BAR_WIDTH" valor="29;119;2" />
+				<comando nombre="BAR_PSOITION_NONE" valor="29;72;0" />
+				<comando nombre="BAR_PSOITION_DOWN" valor="29;72;2" />
+				<comando nombre="BAR_HR_FONT" valor="29;102;1" />
+				<comando nombre="BAR_CODE_LENGHT" valor="29;107;73" />
+				<comando nombre="LEFT_MARGIN_DOTS" valor="29;76" />
+				<comando nombre="BAR_CODE_NUMBER" valor="29;72" />
+				<comando nombre="BAR_CODE_ALIGN_LEFT" valor="27;97;0" />
+				<comando nombre="BAR_CODE_ALIGN_RIGHT" valor="27;97;2" />
+				<comando nombre="BAR_CODE_ALIGN_CENTER" valor="27;97;1" />
+				<comando nombre="QR_CODE_PREFIX" valor="29;40;107" />
+				<comando nombre="LEFT_MARGIN_CHARS" valor="0" />
+				<comando nombre="BOTTOM_MARGIN" valor="3" />
+			</comandos>
+		</impresora>
+	</impresoras>
+
+	<fidelizaciones>
+		<fidelizacion modelo="Tarjeta generica con código de barras">
+			<metodosconexion>
+				<metodoconexion nombreconexion="Codigo de barras"
+					tipoconexion="Codigo de barras"
+					manejador="com.comerzzia.pos.dispositivo.fidelizacion.FidelizacionCodigoBarras">
+					<ConfigFidelizacion>
+					<prefijos>
+						<prefijo>2020</prefijo>
+						</prefijos>
+					</ConfigFidelizacion>
+				</metodoconexion>
+			</metodosconexion>
+		</fidelizacion>
+		<fidelizacion modelo="Tarjeta generica con banda magnetica">
+			<metodosconexion>
+				<metodoconexion nombreconexion="Banda magnetica"
+					tipoconexion="Banda magnetica"
+					manejador="com.comerzzia.pos.dispositivo.fidelizacion.FidelizacionBandaMagnetica">
+					<ConfigFidelizacion>
+						<prefijos>
+							<prefijo>2020</prefijo>
+						</prefijos>
+					</ConfigFidelizacion>
+				</metodoconexion>
+			</metodosconexion>
+		</fidelizacion>
+	</fidelizaciones>
+	
+	<!--
+	<recargas_movil>
+		<recarga_movil modelo="Recarga de tarjetas mediante REST">
+			<metodosconexion>
+				<metodoconexion nombreconexion="Euronet"
+					tipoconexion="Euronet"
+					manejador="com.comerzzia.pos.dispositivo.giftcard.GiftCardCodigoBarras">
+					<ConfigRecargaMovil>
+						
+						
+					</ConfigRecargaMovil>
+				</metodoconexion>
+			</metodosconexion>
+		</recarga_movil>
+	</recargas_movil>
+	-->
+	
+	<escaneres>
+		<escaner modelo="Escáner UPOS">
+			<metodosconexion>
+				<metodoconexion nombreconexion="DL-Magellan-9400i-USB-OEM-Scanner-Scale" tipoconexion="UPOS" manejador="com.comerzzia.pos.dispositivo.escaner.upos.EscanerUPOS" />
+			</metodosconexion>
+		</escaner>
+	</escaneres>
+	
+</dispositivos>

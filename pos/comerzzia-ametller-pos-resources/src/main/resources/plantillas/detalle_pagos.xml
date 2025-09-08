@@ -1,0 +1,11 @@
+﻿#foreach ($pago in $ticket.getPagos())
+	<linea>
+		<texto size="29" align="right">${pago.getDesMedioPago()} </texto>
+		<texto size="11" align="right">${pago.getImporteAsString()}</texto> 
+	</linea>
+	
+	#set($esBoletaCompleta = false)
+	#parse("./plantillas/detalle_pagos_boletas.xml")
+#end    
+
+

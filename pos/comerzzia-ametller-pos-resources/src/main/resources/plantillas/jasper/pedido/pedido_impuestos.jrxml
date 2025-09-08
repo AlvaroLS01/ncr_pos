@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Pedido [Promociones]" pageWidth="157" pageHeight="802" columnWidth="157" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="d41959d9-138f-473a-90e2-316607e40180">
+	<property name="ireport.zoom" value="5.696247503748621"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\vistas\\PRODUCTO\\COMERZZIA\\branches\\v4.0.0\\SolucionTienda\\Portal\\comerzzia-tiendavirtual-recursos\\informes\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MONEDA_PAIS" class="java.lang.String"/>
+	<field name="base" class="java.math.BigDecimal"/>
+	<field name="cuota" class="java.math.BigDecimal"/>
+	<field name="porcentaje" class="java.math.BigDecimal"/>
+	<variable name="TOTAL_IMPUESTOS" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cuota}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL_BASE" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{base}]]></variableExpression>
+	</variable>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="410b16df-3b4b-4261-be65-e630475127c7" x="1" y="0" width="62" height="12" forecolor="#7DB041"/>
+				<textElement>
+					<font size="8" isBold="false" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[Tipo Impuesto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c2512978-26a0-48be-aece-7bb24af4367b" x="104" y="1" width="52" height="12" forecolor="#7DB041"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Cuota]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="5fb0e70c-d827-42fb-b31b-17ba082f53a1" x="1" y="12" width="155" height="1" forecolor="#7DB041"/>
+			</line>
+			<staticText>
+				<reportElement uuid="410b16df-3b4b-4261-be65-e630475127c7" x="63" y="0" width="41" height="12" forecolor="#7DB041"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="false" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[Base]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField>
+				<reportElement uuid="12f953cc-eeb0-42ab-89ad-634ffc2135d7" x="1" y="1" width="62" height="12" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Left">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{porcentaje} + "%"]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="12f953cc-eeb0-42ab-89ad-634ffc2135d7" x="63" y="1" width="41" height="12" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{base}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="958d12d2-00dc-4d21-a26f-1ddb3dd550ea" x="104" y="1" width="46" height="12" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cuota}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2e69f899-4017-4d5b-b466-01b3c14839e4" x="150" y="1" width="6" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="23" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="410b16df-3b4b-4261-be65-e630475127c7" x="1" y="3" width="62" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[TOTAL]]></text>
+			</staticText>
+			<textField pattern="###0.00">
+				<reportElement uuid="8b66037d-0c2d-40d3-9704-3f4c85932972" x="104" y="3" width="46" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{TOTAL_IMPUESTOS}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="8b66037d-0c2d-40d3-9704-3f4c85932972" x="63" y="3" width="41" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{TOTAL_BASE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2e69f899-4017-4d5b-b466-01b3c14839e4" x="150" y="3" width="6" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+</jasperReport>

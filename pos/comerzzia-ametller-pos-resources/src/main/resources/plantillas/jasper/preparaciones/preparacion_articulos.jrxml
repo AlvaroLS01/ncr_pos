@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="preparacion_articulos" pageWidth="802" pageHeight="555" orientation="Landscape" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="abe617cc-8d28-49be-97d7-9196fbe4578a">
+	<property name="ireport.zoom" value="3.0"/>
+	<property name="ireport.x" value="48"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="PREPARACION" class="com.comerzzia.api.model.oms.ServicioPreparacionesBean"/>
+	<field name="codArticulo" class="java.lang.String"/>
+	<field name="desArticulo" class="java.lang.String"/>
+	<field name="unidadMedida" class="java.lang.String"/>
+	<field name="destipoSustitucion" class="java.lang.String"/>
+	<field name="metodoPreparacion" class="java.lang.String"/>
+	<field name="_THIS" class="com.comerzzia.api.model.oms.DetallePreparacionBean"/>
+	<field name="requierePeso" class="java.lang.Boolean"/>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="cantidadMedida" class="java.math.BigDecimal"/>
+	<variable name="CANT_PREP" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$F{requierePeso} ? $P{PREPARACION}.getCantidadMedidaPreparada($F{_THIS}) : $P{PREPARACION}.getCantidadPreparada($F{_THIS})]]></variableExpression>
+	</variable>
+	<variable name="CANT_PTE" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$F{requierePeso} ? $F{cantidad}.subtract($V{CANT_PREP}).subtract($V{CANT_NO_SERV}).subtract($V{CANT_SUST}) : $F{cantidadMedida}.subtract($V{CANT_PREP}).subtract($V{CANT_NO_SERV}).subtract($V{CANT_SUST})]]></variableExpression>
+	</variable>
+	<variable name="CANT_NO_SERV" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$F{requierePeso} ? $P{PREPARACION}.getCantidadMedidaNoServida($F{_THIS}) : $P{PREPARACION}.getCantidadNoServida($F{_THIS})]]></variableExpression>
+	</variable>
+	<variable name="CANT_SUST" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$F{requierePeso} ? $P{PREPARACION}.getCantidadMedidaSustituida($F{_THIS}) : $P{PREPARACION}.getCantidadSustituida($F{_THIS})]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="0" y="0" width="144" height="20" forecolor="#7DB041"/>
+				<textElement>
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LISTADO DE ARTÍCULOS]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="d48d972b-5a60-4d3e-84f2-efbefb1a3f06" x="0" y="14" width="549" height="1" forecolor="#7DB041"/>
+			</line>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="18" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="a672d074-4d51-4d12-83c5-302e5465337a" mode="Opaque" x="0" y="0" width="549" height="15" forecolor="#7DB041" backcolor="#7DB041"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="14" y="0" width="42" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CÓDIGO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="56" y="0" width="150" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[DESCRIPCIÓN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="251" y="0" width="31" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[UD. MED.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="282" y="0" width="33" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CANT. PTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="445" y="0" width="57" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CRIT. SUSTITUCIÓN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="502" y="0" width="47" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[MOD. PREP.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="355" y="0" width="48" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CANT. NO SERV.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="403" y="0" width="42" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CANT. SUST.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="315" y="0" width="40" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CANT. PREP]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="0" y="0" width="14" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[PTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b8114c1-fc12-401a-92e0-eddd46ca3624" x="206" y="0" width="45" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CANT. PEDIDA]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="b017e14b-82af-474a-bc5b-e28acdacfd56" x="14" y="0" width="42" height="15"/>
+				<textElement>
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codArticulo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="98945163-55b5-4af8-8dcb-a38534a3d5df" x="56" y="0" width="150" height="15"/>
+				<textElement>
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desArticulo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="b5042809-5658-4bd4-9cff-69a3e94e5034" x="251" y="0" width="31" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unidadMedida}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2e964b76-09df-4990-8110-6e1183d64e39" x="445" y="0" width="57" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{destipoSustitucion}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="b2773920-04e0-42f0-b374-69c918be45b2" x="502" y="0" width="47" height="15"/>
+				<textElement>
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{metodoPreparacion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.000;-###0.000" isBlankWhenNull="true">
+				<reportElement uuid="058d2657-e2e9-4698-93d1-4bb43e2ac9f6" x="315" y="0" width="40" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CANT_PREP}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.000;-###0.000" isBlankWhenNull="true">
+				<reportElement uuid="058d2657-e2e9-4698-93d1-4bb43e2ac9f6" x="282" y="0" width="33" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CANT_PTE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.000;-###0.000" isBlankWhenNull="true">
+				<reportElement uuid="058d2657-e2e9-4698-93d1-4bb43e2ac9f6" x="355" y="0" width="48" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CANT_NO_SERV}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.000;-###0.000" isBlankWhenNull="true">
+				<reportElement uuid="058d2657-e2e9-4698-93d1-4bb43e2ac9f6" x="403" y="0" width="42" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CANT_SUST}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="b017e14b-82af-474a-bc5b-e28acdacfd56" x="0" y="0" width="14" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CANT_PTE}.compareTo(BigDecimal.ZERO) == 0 ? "" : "*"]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.000;-###0.000" isBlankWhenNull="true">
+				<reportElement uuid="058d2657-e2e9-4698-93d1-4bb43e2ac9f6" x="206" y="0" width="45" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidadMedida}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

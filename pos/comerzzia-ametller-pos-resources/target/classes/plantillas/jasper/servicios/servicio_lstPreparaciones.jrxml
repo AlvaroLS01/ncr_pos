@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="servicio_lstPreparaciones" pageWidth="802" pageHeight="555" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="981fde09-3493-46d4-aa38-9984e0be442e">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[".//"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="codalmPreparacion" class="java.lang.String"/>
+	<parameter name="desalmPreparacion" class="java.lang.String"/>
+	<field name="rutaPreparacion" class="java.lang.String"/>
+	<field name="usuario" class="java.lang.String"/>
+	<field name="articulosAPreparar" class="java.lang.Short"/>
+	<field name="articulosPendientes" class="java.lang.Short"/>
+	<field name="articulosSustituidos" class="java.lang.Short"/>
+	<field name="articulosNoServidos" class="java.lang.Short"/>
+	<field name="fechaInicioPreparacion" class="java.util.Date"/>
+	<field name="bultos" class="java.util.List"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="50">
+			<staticText>
+				<reportElement uuid="9412280a-5228-4676-b3a2-a6c5bbbb2071" positionType="Float" x="12" y="0" width="221" height="20" forecolor="#7DB041"/>
+				<textElement>
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DATOS DE LA PREPARACIÓN ASOCIADA]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="c8452b19-ecf6-4c7d-a201-ec96e1ebbc92" positionType="Float" x="123" y="31" width="262" height="10"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{codalmPreparacion} != null && $P{desalmPreparacion} != null ? $P{codalmPreparacion}+" - "+$P{desalmPreparacion} : ""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="00bad6bf-08b0-4e2c-acbd-4af075346c8c" positionType="Float" x="12" y="31" width="111" height="10"/>
+				<textElement>
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<text><![CDATA[ALMACÉN PREPARADOR:]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="774ce602-a35e-4475-8d42-c179b6ec1bf1" positionType="Float" x="12" y="14" width="541" height="1" forecolor="#7DB041"/>
+			</line>
+		</band>
+	</title>
+	<detail>
+		<band height="136" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="4c39925e-e203-46f2-aa93-e54427f0ec14" x="12" y="17" width="499" height="15" forecolor="#7DB041" backcolor="#7DB041"/>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="f20329b5-a5e0-45a4-b38e-ba4e2142867c" positionType="Float" x="12" y="37" width="64" height="10"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rutaPreparacion}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="1c59f812-f9a4-4d37-9aa1-2420f371dede" positionType="Float" x="76" y="37" width="74" height="10"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{usuario}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2e30c967-76f9-4018-b981-f3c96de8e429" positionType="Float" x="150" y="37" width="84" height="10"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{articulosAPreparar}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="3d8d2d83-1c34-418a-9433-9cc4251c7756" positionType="Float" x="234" y="37" width="58" height="10"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{articulosPendientes}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5ca4f2ab-df63-4a58-b535-2a52e397fbc4" positionType="Float" x="292" y="37" width="55" height="10"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{articulosSustituidos}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="9f204402-971a-4512-8044-e89977ed9e72" positionType="Float" x="347" y="37" width="87" height="10"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{articulosNoServidos}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="2e71d8c2-8d97-45e7-8d04-d796e00c2d96" positionType="Float" x="434" y="37" width="77" height="10"/>
+				<textElement textAlignment="Center">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechaInicioPreparacion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="af24779b-21c0-4f4f-8cec-6b6e96241e4c" positionType="Float" x="12" y="17" width="64" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[RUTA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="dbcbb870-4ccb-4f89-b32b-4e1fae94b34e" positionType="Float" x="76" y="17" width="74" height="15" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[RESPONSABLE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b4f15d82-8b5b-440a-a74f-8d336abd555f" positionType="Float" x="150" y="17" width="84" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[ARTS. A PREPARAR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c78463cd-c54d-425d-9966-bee8192dbcf0" positionType="Float" x="234" y="17" width="58" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[ARTS. PDTES.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="56f14a7d-c0fc-417d-8f3e-0af33e8292ac" positionType="Float" x="292" y="17" width="55" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[ARTS. SUST.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="267d697c-0f95-4b63-a834-8ffe4a0a6422" positionType="Float" x="347" y="17" width="87" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[ARTS. NO SERV.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="867261de-a8b0-455f-9762-ea5da30b3b8c" positionType="Float" x="434" y="17" width="77" height="15" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[FECHA INICIO]]></text>
+			</staticText>
+			<subreport>
+				<reportElement uuid="46f1c6e0-a1aa-4be6-a993-03802c41ebb0" positionType="Float" x="24" y="69" width="499" height="19"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{bultos})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "servicio_lstBultos.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<noData>
+		<band height="10"/>
+	</noData>
+</jasperReport>

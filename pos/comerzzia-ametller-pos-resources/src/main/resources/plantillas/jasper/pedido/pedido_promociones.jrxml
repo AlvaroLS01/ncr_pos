@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Pedido [Promociones]" pageWidth="218" pageHeight="95" columnWidth="218" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="d41959d9-138f-473a-90e2-316607e40180">
+	<property name="ireport.zoom" value="4.279675059165003"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\vistas\\PRODUCTO\\COMERZZIA\\branches\\v4.0.0\\SolucionTienda\\Portal\\comerzzia-tiendavirtual-recursos\\informes\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MONEDA_PAIS" class="java.lang.String"/>
+	<field name="textoPromocion" class="java.lang.String"/>
+	<field name="importeTotalAhorro" class="java.math.BigDecimal"/>
+	<variable name="total_promociones" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{importeTotalAhorro}]]></variableExpression>
+	</variable>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="410b16df-3b4b-4261-be65-e630475127c7" x="1" y="0" width="140" height="12" forecolor="#7DB041"/>
+				<textElement>
+					<font size="8" isBold="false" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[Promoción]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c2512978-26a0-48be-aece-7bb24af4367b" x="141" y="0" width="73" height="12" forecolor="#7DB041"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Importe promoción]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="5fb0e70c-d827-42fb-b31b-17ba082f53a1" x="1" y="12" width="213" height="1" forecolor="#7DB041"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField>
+				<reportElement uuid="12f953cc-eeb0-42ab-89ad-634ffc2135d7" x="1" y="1" width="140" height="12" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$F{importeTotalAhorro}.compareTo(BigDecimal.ZERO) > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{textoPromocion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="958d12d2-00dc-4d21-a26f-1ddb3dd550ea" x="141" y="1" width="67" height="12" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$F{importeTotalAhorro}.compareTo(BigDecimal.ZERO) > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importeTotalAhorro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2e69f899-4017-4d5b-b466-01b3c14839e4" x="208" y="1" width="6" height="12">
+					<printWhenExpression><![CDATA[$F{importeTotalAhorro}.compareTo(BigDecimal.ZERO) > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="23" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="410b16df-3b4b-4261-be65-e630475127c7" x="1" y="3" width="140" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[TOTAL]]></text>
+			</staticText>
+			<textField pattern="###0.00">
+				<reportElement uuid="8b66037d-0c2d-40d3-9704-3f4c85932972" x="141" y="3" width="67" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_promociones}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2e69f899-4017-4d5b-b466-01b3c14839e4" x="208" y="3" width="6" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+</jasperReport>

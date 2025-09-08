@@ -1,0 +1,157 @@
+#if(!$paperLess)
+	#if (${ticket.getCabecera().getTarjetaRegalo().getNumTarjetaRegalo()})
+		<linea> <texto> </texto> </linea>
+		
+		#set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+		#parse("./plantillas/datos_cabecera_zh.xml")
+		
+		<linea> <texto> </texto> </linea>
+		<linea>
+			<texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+		</linea>    
+		<linea>
+			<texto size="50" align="left">${ticket.getCabecera().getDesTipoDocumento()} : ${ticket.getCabecera().getCodTicket()}</texto>
+		</linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto style ="1" >****************************************</texto> </linea>
+		<linea> <texto style ="1" >证明激活/充值礼金券</texto> </linea>
+		<linea> <texto style ="1" >        **** 复本给客户 ****        </texto> </linea>
+		<linea> <texto style ="1" >****************************************</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto style ="1">卡号:	${ticket.getCabecera().getTarjetaRegalo().getNumTarjetaRegalo()}</texto> </linea>
+		<linea> <texto style ="1">运行数据:		${ticket.getCabecera().getTarjetaRegalo().getUidTransaccion()}</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> 
+			<texto style ="1" size="17">可用余额:</texto>
+			<texto size="23" align="right">${ticket.getCabecera().getTarjetaRegalo().getSaldoTotalAsString()}</texto> 
+		</linea>
+		<linea>
+			<texto style ="1" size="8">充值:</texto>
+			<texto size="32" align="right">${ticket.getTotales().getTotalAPagarAsString()}</texto>
+		</linea>
+		<linea> </linea>
+		<corte></corte>
+	#end
+#end
+#foreach ($pago in $ticket.getPagos())
+	#if (${pago.isPagoTarjetaRegalo()})
+		<linea> <texto> </texto> </linea>
+		#if (${ticket.getCabecera().getTienda().getDesAlmacen()})
+			<linea> <texto fontname='1'>${ticket.getCabecera().getTienda().getDesAlmacen()} </texto> </linea>
+		#end
+		#if (${ticket.getCabecera().getTienda().getDomicilio()})
+			<linea> <texto>${ticket.getCabecera().getTienda().getDomicilio()} </texto> </linea>
+		#end
+		#if (${ticket.getCabecera().getTienda().getPoblacion()})
+			<linea> <texto>${ticket.getCabecera().getTienda().getPoblacion()}</texto> </linea>
+		#end
+		#if (${ticket.getCabecera().getTienda().getProvincia()} || ${ticket.getCabecera().getTienda().getCp()} ) 
+		<linea>
+			 #if (${ticket.getCabecera().getTienda().getProvincia()}) 
+				<texto>${ticket.getCabecera().getTienda().getProvincia()}</texto> 
+			 #end
+			 <texto>  </texto>  
+			 #if (${ticket.getCabecera().getTienda().getCp()}) 
+				<texto>${ticket.getCabecera().getTienda().getCp()}</texto> 
+			 #end            
+		</linea>
+		#end
+		#if (${ticket.getCabecera().getTienda().getTelefono1()})
+			<linea> <texto>${ticket.getCabecera().getTienda().getTelefono1()}</texto> </linea>
+		#end
+		#if (${ticket.getCabecera().getTienda().getCliente().getCif()})
+			<linea> <texto>${ticket.getCabecera().getTienda().getCliente().getCif()}</texto> </linea>
+		#end
+		#if (${ticket.getCabecera().getCliente().getDatosFactura()})
+			<linea>
+				<texto align="center" size="40">客户数据</texto>
+			</linea>
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getNombre()})
+			<linea>
+				<texto>名:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getNombre()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getTipoIdentificacion()})
+			#if(${ticket.getCabecera().getCliente().getDatosFactura().getCif()})
+			<linea>
+				<texto>${ticket.getCabecera().getCliente().getDatosFactura().getTipoIdentificacion()}:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getCif()}</texto>
+			</linea>
+			#end
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getDomicilio()})
+			<linea>
+				<texto>地址:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getDomicilio()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getPoblacion()})
+			<linea>
+				<texto>镇:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getPoblacion()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getProvincia()})
+			<linea>
+				<texto>省:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getProvincia()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getLocalidad()})
+			<linea>
+				<texto>地区:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getLocalidad()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getPais()})
+			<linea>
+				<texto>国家:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getPais()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getCp()})
+			<linea>
+				<texto>邮政编码:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getCp()}</texto>
+			</linea>
+			#end
+			#if (${ticket.getCabecera().getCliente().getDatosFactura().getTelefono()})
+			<linea>
+				<texto>电话:</texto>
+				<texto align="left">${ticket.getCabecera().getCliente().getDatosFactura().getTelefono()}</texto>
+			</linea>
+			#end
+		#end
+		<linea> <texto> </texto> </linea>
+		<linea>
+			<texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+		</linea>    
+		<linea>
+			<texto size="50" align="left">${ticket.getCabecera().getDesTipoDocumento()} : ${ticket.getCabecera().getCodTicket()}</texto>
+		</linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto style ="1" >****************************************</texto> </linea>
+		<linea> <texto style ="1" >   **** 证明使用礼金券****   </texto> </linea>
+		<linea> <texto style ="1" >    **** 复件给店面 ****    </texto> </linea>
+		<linea> <texto style ="1" >****************************************</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto style ="1">卡号:	${pago.getGiftcard().getNumTarjetaRegalo()}</texto> </linea>
+		<linea> <texto style ="1">操作数据:		${pago.getGiftcard().getUidTransaccion()}</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+		<linea> <texto> </texto> </linea>
+		<linea> 
+			<texto style ="1" size="17">可用余额:</texto>
+			<texto size="23" align="right">${pago.getGiftcard().getSaldoTotalAsString()}</texto> 
+		</linea>
+		<linea>
+			<texto style ="1" size="5">付款:</texto>
+			<texto size="35" align="right">${pago.getImporteAsString()}</texto>
+		</linea>
+		<linea> </linea>
+		<corte></corte>
+	#end
+#end

@@ -1,0 +1,52 @@
+<plantilla> 
+    <documento charset="GB18030">
+		<logo></logo>  
+		<linea> <texto> </texto> </linea>
+		#set( $imprimirDatosFacturacion =  false)
+		#parse("./plantillas/datos_cabecera_zh.xml")
+		<linea> <texto> </texto> </linea>
+		<linea>
+			<texto>${ticket.getCabecera().getFechaAsLocale()}</texto>
+		</linea>    
+		<linea>
+			<texto size="16" align="left">礼品券: </texto>
+		</linea>
+		<linea>
+			<texto size="30" align="left">${ticket.getCabecera().getCodTipoDocumento()} ${ticket.getCabecera().getCodTicket()}</texto>
+		</linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto>数量 描述                        </texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+		## LINEAS
+		#foreach ($linea in $ticket.getLineas())   
+		#if(${linea.isImprimirTicketRegalo()}) 
+			<!-- Para entornos FOOD -->
+			<linea> 
+				 <texto size="5" align="right">${linea.getCantidadAsString()}</texto>
+				 <texto size="1" align="right"> </texto>
+				 <texto size="26" align="left">${linea.getArticulo().getDesArticulo()}</texto>
+				 <texto size="8" align="right"></texto> 
+			</linea>   
+			<!-- Para entornos NON-FOOD
+			<linea> 
+				 <texto size="2" align="right" fontsize="4">${linea.getCantidad().intValue().toString().toString()}</texto>
+				 <texto size="1" align="right"> </texto>
+				 <texto size="28" align="left">${linea.getArticulo().getDesArticulo()}</texto>
+				 <texto size="9" align="right"></texto> 
+			</linea>    
+			--> 
+			#end  
+		#end
+		<linea> <texto> </texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+
+		<linea>
+			<texto></texto>
+		</linea>
+		<codbar align="center" tipo-leyenda="0" >${ticket.getCabecera().getLocalizador()}</codbar>	
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>

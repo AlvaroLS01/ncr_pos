@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+	<appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File"   value="../../../../log/comerzzia-jpos.log" />
+        <param name="DatePattern" value="'.'dd-MM-yyyy" />
+		<param name="Threshold" value="TRACE"/>	    	
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p (%-18.18t) [%c] %m%n"/>
+        </layout>
+    </appender>
+
+	<!--
+	<appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="File"   value="${java.io.tmpdir}/Comerzzia/comerzzia-jpos.log" />
+        <param name="DatePattern" value="'.'dd-MM-yyyy" />
+		<param name="Threshold" value="INFO"/>	 
+		<param name="maxFileSize" value="20MB"/>
+		<param name="maxBackupIndex" value="20"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{dd/MM} %d{ABSOLUTE} %-5p (%8t) [%c] %m%n"/>
+        </layout>
+    </appender>
+	-->
+	
+   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+      <param name="Target" value="System.out"/>
+      <param name="Threshold" value="TRACE"/>
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p (%-18.18t) [%c] %m%n"/>
+      </layout>
+   </appender>
+  
+
+   <logger name="org.apache">
+      <level value="WARN"/>
+   </logger>
+
+   <logger name="com.comerzzia.pos.gui.componentes.botonaccion">
+      <level value="INFO"/>
+   </logger>
+   <logger name="com.comerzzia.pos.gui.componentes.botonera">
+      <level value="INFO"/>
+   </logger>
+   <logger  name="org.springframework">
+      <level value="INFO"/>
+   </logger>
+   
+   <logger name="org.mybatis.spring.mapper">
+      <level value="INFO"/>
+   </logger>
+      
+   <logger name="org.mybatis">
+      <level value="DEBUG"/>
+   </logger>
+   
+
+   <root>
+   	  <level value="DEBUG" />	
+      <appender-ref ref="CONSOLE"/>
+   </root>
+
+</log4j:configuration>

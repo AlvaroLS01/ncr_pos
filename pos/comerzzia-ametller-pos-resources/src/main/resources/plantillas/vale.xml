@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<plantilla>
+	#if(!$paperLess || ($paperLess && $esCopia))
+		<documento>
+			<linea>
+				<texto>****************************************</texto>
+			</linea>
+			#set( $imprimirDatosFacturacion =  false)
+			#parse("./plantillas/datos_cabecera.xml")
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto align="left" size="40">${ticket.getCabecera().getFechaAsLocale()}</texto>
+			</linea>    
+			<linea>
+				<texto size="40" align="center">${ticket.getCabecera().getCodCaja()} - ${ticket.getCabecera().getIdTicket()}</texto>
+			</linea>
+			<linea>
+				<texto>----------------------------------------</texto>
+			</linea>
+			<linea>
+				<texto align="center" size ="40">EMISION DE VALE</texto>
+			</linea>
+			#if (${esCopia})
+			<linea>
+				<texto align="center" size ="40">COPIA PARA LA TIENDA</texto>
+			</linea>
+			#end
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto align="center" size ="40">Importe: ${importeVale}</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto>----------------------------------------</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto align="center" size ="40">Emitido por ${ticket.getCabecera().getCajero().getDesusuario()}</texto>
+			</linea>
+			<linea>
+				<texto></texto>
+			</linea>
+			<linea>
+				<texto>****************************************</texto>
+			</linea>
+			<corte></corte>
+		</documento>
+	#end
+</plantilla>

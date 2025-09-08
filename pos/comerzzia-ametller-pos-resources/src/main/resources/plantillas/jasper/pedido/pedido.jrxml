@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Pedido" pageWidth="555" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="505" leftMargin="25" rightMargin="25" topMargin="25" bottomMargin="25" whenResourceMissingType="Key" uuid="d15b1c54-9b8e-4d30-a67f-afb68a1f8dff">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="844"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<parameter name="PEDIDO_MODEL" class="com.comerzzia.omnichannel.documentos.model.pedidos.PedidoModel" isForPrompting="false"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\vistas\\PRODUCTO\\COMERZZIA\\branches\\v4.0.0\\SolucionTienda\\Portal\\comerzzia-tiendavirtual-recursos\\informes\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGO_URL" class="java.lang.String"/>
+	<parameter name="MONEDA_PAIS" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select * from dual]]>
+	</queryString>
+	<variable name="FECHA_SERVICIO" class="java.lang.String">
+		<variableExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getFechaServicioSolicitada()]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="262" splitType="Stretch">
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="199" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Localidad: " + $P{PEDIDO_MODEL}.getServicios().get(0).getDireccion().getLocalidad() + ", " + $P{PEDIDO_MODEL}.getServicios().get(0).getDireccion().getCp() + " (" + $P{PEDIDO_MODEL}.getServicios().get(0).getDireccion().getProvincia() + ")"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="274" y="187" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Dirección: " + $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getDomicilio()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="143" width="230" height="14" forecolor="#7DB041"/>
+				<box>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).isEntregaDomicilio() ? "DATOS DE ENTREGA" : "DATOS DE RECOGIDA"]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy HH:mm">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="25" y="90" width="199" height="12"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getFecha()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="187" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Dirección: " + $P{PEDIDO_MODEL}.getServicios().get(0).getDireccion().getDomicilio()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5fbec46d-8eb5-445a-9d9c-7b41d1502d48" x="0" y="90" width="25" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="175" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{PEDIDO_MODEL}.getCabecera().getCliente().getTipoIdentificacion()!= null ? $P{PEDIDO_MODEL}.getCabecera().getCliente().getTipoIdentificacion()+": " : "Nº Documento: ")
++$P{PEDIDO_MODEL}.getCabecera().getCliente().getCif()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="163" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Nombre: " + $P{PEDIDO_MODEL}.getCabecera().getCliente().getDesCliente()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="274" y="199" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Localidad: " + $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getLocalidad() + ", " + $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getCp() + " (" + $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getProvincia() + ")"]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="71" y="211" width="159" height="12">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getFechaServicioSolicitada() != null]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="5"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getHoraDesdeServicioSolicitada() + " - " + $P{PEDIDO_MODEL}.getServicios().get(0).getHoraHastaServicioSolicitada()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5fbec46d-8eb5-445a-9d9c-7b41d1502d48" x="0" y="211" width="25" height="12">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getFechaServicioSolicitada() != null]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6b4be1a5-f6dc-44c3-943a-57d2b7be56bf" x="0" y="73" width="230" height="14" forecolor="#7DB041"/>
+				<box>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[DATOS DEL PEDIDO]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="102" width="350" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pedido: " + $P{PEDIDO_MODEL}.getIdDocumentoOrigen()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="0" y="114" width="350" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Tipo de servicio: " + $P{PEDIDO_MODEL}.getServicios().get(0).getDesTipoServicio()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="274" y="175" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getTipoIdent() != null ? $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getTipoIdent()+": " : "Nº Documento: ")
++ $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getCifNif()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6b4be1a5-f6dc-44c3-943a-57d2b7be56bf" x="274" y="143" width="230" height="14" forecolor="#7DB041"/>
+				<box>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[DATOS DE FACTURACIÓN]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="274" y="163" width="230" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Nombre: " + $P{PEDIDO_MODEL}.getServicios().get(0).getDatosFactura().getNombreApellidos()]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="25" y="211" width="46" height="12">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getFechaServicioSolicitada() != null]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="5"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getFechaServicioSolicitada()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement uuid="bf1d0600-4033-4830-b713-dcdd4c325789" x="0" y="0" width="120" height="56"/>
+				<imageExpression><![CDATA[$P{LOGO_URL}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="240" y="5" width="265" height="12" forecolor="#999999"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getEmpresa().getDesEmp()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="240" y="17" width="265" height="12" forecolor="#999999"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTienda().getDomicilio()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="240" y="29" width="265" height="12" forecolor="#999999"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTienda().getCp() + ", " + $P{PEDIDO_MODEL}.getCabecera().getTienda().getPoblacion() + " (" + $P{PEDIDO_MODEL}.getCabecera().getTienda().getProvincia() + ")"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="240" y="41" width="265" height="12" forecolor="#999999"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTienda().getTelefono1()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6b4be1a5-f6dc-44c3-943a-57d2b7be56bf" x="0" y="241" width="504" height="14" forecolor="#7DB041"/>
+				<box>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[DETALLES DEL PEDIDO]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<subreport>
+				<reportElement uuid="aba5b3c4-935c-4dad-9a23-3db664c38a3e" x="0" y="0" width="505" height="25"/>
+				<subreportParameter name="MONEDA_PAIS">
+					<subreportParameterExpression><![CDATA[$P{MONEDA_PAIS}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{PEDIDO_MODEL}.getLineas())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pedido_articulos.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="110" splitType="Stretch">
+			<subreport>
+				<reportElement uuid="aba5b3c4-935c-4dad-9a23-3db664c38a3e" x="0" y="9" width="218" height="95"/>
+				<subreportParameter name="MONEDA_PAIS">
+					<subreportParameterExpression><![CDATA[$P{MONEDA_PAIS}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{PEDIDO_MODEL}.getPromociones())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pedido_promociones.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement uuid="aba5b3c4-935c-4dad-9a23-3db664c38a3e" x="347" y="9" width="157" height="95"/>
+				<subreportParameter name="MONEDA_PAIS">
+					<subreportParameterExpression><![CDATA[$P{MONEDA_PAIS}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{PEDIDO_MODEL}.getCabecera().getImpuestos())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pedido_impuestos.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="21" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement uuid="52676fab-bc23-419d-bb2c-8bec47a8acca" key="textField" x="336" y="0" width="170" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{Página} + " "  + $V{PAGE_NUMBER} + " "+ $R{de} + " " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="225">
+			<rectangle>
+				<reportElement uuid="c0d1d800-5fad-4b58-8e5c-0724fa334a4f" x="428" y="80" width="76" height="14" backcolor="#E2E1E1"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<rectangle>
+				<reportElement uuid="c0d1d800-5fad-4b58-8e5c-0724fa334a4f" x="428" y="49" width="76" height="14" backcolor="#E2E1E1"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<textField pattern="###0.00">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" mode="Transparent" x="428" y="80" width="67" height="14" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+					<paragraph spacingBefore="1"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTotales().getTotal()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b31066af-7f4e-4f93-bf29-41734ea9673e" mode="Opaque" x="336" y="80" width="88" height="14" forecolor="#FFFFFF" backcolor="#7DB041"/>
+				<textElement>
+					<font size="9"/>
+					<paragraph leftIndent="2" spacingBefore="1"/>
+				</textElement>
+				<text><![CDATA[TOTAL A PAGAR]]></text>
+			</staticText>
+			<textField pattern="###0.00">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="428" y="21" width="70" height="14"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTotales().getTotalSinPromociones()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="d3af4700-1e54-454f-80b9-331630c15de8" x="336" y="7" width="168" height="12" forecolor="#7DB041"/>
+				<box>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[RESUMEN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7c69e5d6-358c-4710-a16d-aa65836c5956" x="336" y="21" width="92" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Importe de la compra]]></text>
+			</staticText>
+			<textField pattern="###0.00">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="1" y="0" width="182" height="14" forecolor="#7DB041">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getFidelizado().getNumTarjetaFidelizado() != null]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="8"/>
+					<paragraph spacingBefore="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA["PUNTOS ACUMULADOS CON ESTA COMPRA: "]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="7c69e5d6-358c-4710-a16d-aa65836c5956" x="336" y="35" width="92" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Ofertas y promociones]]></text>
+			</staticText>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="428" y="35" width="70" height="14"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTotales().getTotalPromocionesMenosMargen().multiply(new BigDecimal("-1"))]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="428" y="49" width="70" height="14"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTotales().getTotal()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="7c69e5d6-358c-4710-a16d-aa65836c5956" x="336" y="49" width="92" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Subtotal pedido]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7c69e5d6-358c-4710-a16d-aa65836c5956" x="336" y="63" width="92" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Descuentos especiales]]></text>
+			</staticText>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" x="428" y="63" width="70" height="14"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getTotales().getTotalPromocionesMenosIngreso().multiply(new BigDecimal("-1"))]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0">
+				<reportElement uuid="0dd27cae-c7d3-40fd-856e-7892e8fae0a3" mode="Opaque" x="183" y="0" width="51" height="14" forecolor="#000000" backcolor="#E2E1E1">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getFidelizado().getNumTarjetaFidelizado() != null]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+					<paragraph spacingBefore="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getCabecera().getPuntos()]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement uuid="aba5b3c4-935c-4dad-9a23-3db664c38a3e" x="1" y="19" width="233" height="79"/>
+				<subreportParameter name="MONEDA_PAIS">
+					<subreportParameterExpression><![CDATA[$P{MONEDA_PAIS}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{PEDIDO_MODEL}.getPagos().getPagos())]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pedido_pagos.jasper"]]></subreportExpression>
+			</subreport>
+			<textField>
+				<reportElement uuid="2e69f899-4017-4d5b-b466-01b3c14839e4" x="498" y="21" width="6" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4305492b-904b-4eff-9fd7-afa99d01f9b1" x="498" y="63" width="6" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="23d56367-518f-4189-bab8-4c33b687ce32" x="498" y="49" width="6" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4b808231-0d75-4f95-905d-cb28c0bf84fe" x="498" y="35" width="6" height="14"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e41eb717-9701-4b92-bf6a-86bd062b5aa7" x="497" y="80" width="7" height="14"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MONEDA_PAIS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6b4be1a5-f6dc-44c3-943a-57d2b7be56bf" x="2" y="118" width="504" height="14" forecolor="#7DB041">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getObservacionesCliente() != null && !$P{PEDIDO_MODEL}.getServicios().get(0).getObservacionesCliente().isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[OBSERVACIONES]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="f0022d5f-e009-4842-9fd6-1c7a06793247" x="2" y="144" width="502" height="69">
+					<printWhenExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getObservacionesCliente() != null && !$P{PEDIDO_MODEL}.getServicios().get(0).getObservacionesCliente().isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PEDIDO_MODEL}.getServicios().get(0).getObservacionesCliente()]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

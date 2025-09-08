@@ -1,0 +1,27 @@
+<configuration scan="true" scanPeriod="10 seconds">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) \(%thread\) %blue(%logger{100} \(%file:%line\)) - %msg%n</pattern>
+      <!-- <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) \(%thread\)  %cyan([%logger{100}]) - %msg%n</pattern> -->
+      <!-- %blue(%logger{36}\(%class{0}.java:%line\)) -->
+    </encoder>
+  </appender>
+ 
+  <logger name="org.eclipse" level="INFO" /> 
+  <logger name="org.apache" level="INFO" /> 
+  <logger name="org.springframework" level="INFO" /> 
+  <logger name="jndi" level="INFO" /> 
+  <logger name="org.mybatis" level="INFO" /> 
+  <logger name="org.quartz" level="INFO" />
+  <logger name="org.hibernate" level="INFO" />
+  
+  <logger name="org.comtel2000" level="INFO" />  
+  
+  <logger name="com.comerzzia" level="INFO" />
+  <logger name="com.comerzzia.pos.persistence" level="INFO" />
+  <logger name="com.comerzzia.pos" level="DEBUG" />
+  
+  <root level="debug">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>

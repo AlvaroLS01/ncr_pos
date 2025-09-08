@@ -1,0 +1,42 @@
+#if($linea.getCantidad().doubleValue() != 1.0)
+  <linea> 
+       <texto size="31" align="left">${linea.getArticulo().getDesArticulo()}</texto>
+       <texto size="9" align="right">${linea.getImporteTotalConDtoAsString()}</texto> 
+  </linea>
+  <linea>
+  	#if($linea.getDescuentoManual().doubleValue() > 0.0)
+  	 	<texto size="6" align="right">* ${linea.getCantidadAsString()}</texto>
+  	 #else
+  	 	<texto size="6" align="right">${linea.getCantidadAsString()}</texto>
+  	 #end
+  	 
+     	<texto size="3" align="left"> x </texto>
+     	<texto size="9" align="left">${linea.getPrecioTotalSinDtoAsString()} €</texto> 
+  	 
+       #if($linea.getImporteTotalPromociones().doubleValue() > 0.0)
+       	<texto size="12" align="left">(- ${linea.getImporteTotalPromociones()} €)</texto> 
+       #elseif($linea.getDescuentoManual().doubleValue() > 0.0)
+       	<texto size="12" align="left">(- ${linea.getImporteDescuento()} €)</texto> 
+       #end
+  </linea>
+#else 
+  <linea> 
+       <texto size="31" align="left">${linea.getArticulo().getDesArticulo()}</texto>
+       <texto size="9" align="right">${linea.getImporteTotalConDtoAsString()}</texto> 
+  </linea>
+  #if($linea.getImporteTotalPromociones().doubleValue() > 0.0)
+   <linea> 
+        <texto size="6" align="right">${linea.getCantidadAsString()}</texto>
+        <texto size="3" align="left"> x </texto>
+        <texto size="9" align="left">${linea.getPrecioTotalSinDto()} €</texto> 
+        <texto size="12" align="left">(- ${linea.getImporteTotalPromociones()} €)</texto> 
+   </linea>
+  #elseif($linea.getDescuentoManual().doubleValue() > 0.0)
+  	<linea> 
+       <texto size="6" align="right">* ${linea.getCantidadAsString()}</texto>
+       <texto size="3" align="left"> x </texto>
+       <texto size="9" align="left">${linea.getPrecioTotalSinDtoAsString()} €</texto> 
+  	<texto size="12" align="left">(- ${linea.getImporteDescuento()} €)</texto> 
+   </linea>
+  #end
+#end

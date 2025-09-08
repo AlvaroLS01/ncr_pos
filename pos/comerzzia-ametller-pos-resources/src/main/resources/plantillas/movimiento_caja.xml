@@ -1,0 +1,48 @@
+<plantilla>
+	<documento>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea > 
+			<texto align="center" size="40">MOVIMIENTO DE CAJA</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto size="20" align ="center">${movimiento.getFechaTicket()}</texto>
+			<texto size="20" align ="center">${tienda} ${caja}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto align = "left" size = "40">Empleado: ${empleado}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto size="40" align="center">Nº. movimiento: ${movimiento.getLinea()}</texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		#if(${movimiento.getCargoTicket()})
+		<linea>
+			<texto size="32" align="left">${movimiento.getConcepto()}</texto>
+			<texto size="8" align="right">${movimiento.getCargoTicket()}</texto>
+		</linea>
+		#end
+		#if(${movimiento.getAbonoTicket()})
+		<linea>
+			<texto size="32" align="left">${movimiento.getConcepto()}</texto>
+			<texto size="8" align="right">${movimiento.getAbonoTicket()}</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.comerzzia.ametller.pos</groupId>
+		<artifactId>comerzzia-ametller-pos</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../</relativePath>
+	</parent>
+
+	<artifactId>comerzzia-ametller-pos-gui</artifactId>
+	<packaging>jar</packaging>
+
+	<dependencies>		
+        <!-- comerzzia pos standard modules -->
+		<dependency>
+			<groupId>com.comerzzia.pos</groupId>
+			<artifactId>comerzzia-pos-gui</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.comerzzia.pos</groupId>
+			<artifactId>comerzzia-pos-backstore-gui</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>generate-pos-lib</id>
+			<activation>
+				<property>
+					<name>generate-pos-lib</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>copy-dependencies</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<!-- exclude javafx library -->
+								<configuration>
+									<excludeArtifactIds>jfxrt</excludeArtifactIds>
+									<overWriteSnapshots>true</overWriteSnapshots>
+									<overWriteReleases>true</overWriteReleases>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+				<resources>
+					<resource>
+						<directory>src/main/java</directory>
+						<includes>
+							<include>**/*Mapper.xml</include>
+						</includes>
+					</resource>
+					<resource>
+						<targetPath>${project.build.outputDirectory}</targetPath>
+						<directory>src/main/resources</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+	</profiles>
+</project>

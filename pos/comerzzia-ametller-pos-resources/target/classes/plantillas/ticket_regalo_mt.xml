@@ -1,0 +1,63 @@
+<plantilla> 
+    <documento>
+		<logo></logo>  
+		<linea> <texto> </texto> </linea>
+		#set( $imprimirDatosFacturacion =  false)
+		#parse("./plantillas/datos_cabecera.xml")
+		<linea> <texto> </texto> </linea>
+		<linea>
+			<texto align="left" size="40">${ticket.getCabecera().getFechaAsLocale()}</texto>
+		</linea>    
+		<linea>
+			<texto size="16" align="left">Gift Ticket: </texto>
+			<texto size="25" align="left">${ticket.getCabecera().getCodTicket()}</texto>
+		</linea>
+		<linea> <texto> </texto> </linea>
+		<linea> <texto>Qty  DESCRIPTION                        </texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+		## LINEAS
+		#foreach ($linea in $ticket.getLineas())   
+		#if(${linea.isImprimirTicketRegalo()}) 
+			<!-- Para entornos FOOD -->
+			<linea> 
+				 <texto size="5" align="right">${linea.getCantidadAsString()}</texto>
+				 <texto size="1" align="right"> </texto>
+				 <texto size="26" align="left">${linea.getArticulo().getDesArticulo()}</texto>
+				 <texto size="8" align="right"></texto> 
+			</linea>   
+			<!-- Para entornos NON-FOOD
+			<linea> 
+				 <texto size="2" align="right" fontsize="4">${linea.getCantidad().intValue().toString().toString()}</texto>
+				 <texto size="1" align="right"> </texto>
+				 <texto size="28" align="left">${linea.getArticulo().getDesArticulo()}</texto>
+				 <texto size="9" align="right"></texto> 
+			</linea>    
+			--> 
+			#end  
+		#end
+	    
+		<linea> <texto> </texto> </linea>
+		<linea> <texto> </texto> </linea>
+	    <linea> <texto size="40" align="center">Products can be exchanged </texto> </linea>
+	    <linea> <texto size="40" align="center">within 30 days on presentation</texto> </linea>
+	    <linea> <texto size="40" align="center">of receipt. Products purchased</texto> </linea> 
+	    <linea> <texto size="40" align="center">on sale can be exchanged</texto> </linea>
+        <linea> <texto size="40" align="center">within one week. Products and</texto> </linea> 
+	    <linea> <texto size="40" align="center">their packaging should be </texto> </linea>	
+        <linea> <texto size="40" align="center">unworn, unused and with</texto> </linea>		
+         <linea> <texto size="40" align="center">tags still attached.</texto> </linea>	
+	    <linea> </linea>		
+		
+		<linea> <texto> </texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+
+		<linea>
+			<texto></texto>
+		</linea>
+		<codbar align="center" tipo-leyenda="0" >${ticket.getCabecera().getLocalizador()}</codbar>	
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>

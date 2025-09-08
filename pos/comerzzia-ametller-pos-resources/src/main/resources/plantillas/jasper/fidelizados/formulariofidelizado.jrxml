@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="formulariofidelizado" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" whenResourceMissingType="Key" uuid="ee215489-9482-449b-bb38-5ebd3146261d">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="216"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[".//"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MOVIL" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="EMAIL" class="java.lang.String"/>
+	<parameter name="DESEMP" class="java.lang.String"/>
+	<parameter name="EMAIL_NOTIF" class="java.lang.String"/>
+	<parameter name="MOVIL_NOTIF" class="java.lang.String"/>
+	<parameter name="LOGO" class="java.io.InputStream"/>
+	<parameter name="DOMICILIO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CP" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="PROVINCIA" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<field name="nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[nombre]]></fieldDescription>
+	</field>
+	<field name="apellidos" class="java.lang.String">
+		<fieldDescription><![CDATA[apellidos]]></fieldDescription>
+	</field>
+	<field name="codTipoIden" class="java.lang.String">
+		<fieldDescription><![CDATA[codTipoIden]]></fieldDescription>
+	</field>
+	<field name="domicilio" class="java.lang.String">
+		<fieldDescription><![CDATA[domicilio]]></fieldDescription>
+	</field>
+	<field name="poblacion" class="java.lang.String">
+		<fieldDescription><![CDATA[poblacion]]></fieldDescription>
+	</field>
+	<field name="provincia" class="java.lang.String">
+		<fieldDescription><![CDATA[provincia]]></fieldDescription>
+	</field>
+	<field name="cp" class="java.lang.String">
+		<fieldDescription><![CDATA[cp]]></fieldDescription>
+	</field>
+	<field name="sexo" class="java.lang.String">
+		<fieldDescription><![CDATA[sexo]]></fieldDescription>
+	</field>
+	<field name="desPais" class="java.lang.String">
+		<fieldDescription><![CDATA[desPais]]></fieldDescription>
+	</field>
+	<field name="documento" class="java.lang.String"/>
+	<field name="fechaNacimiento" class="java.util.Date"/>
+	<variable name="FR_FIDELIZADO" class="java.lang.Object"/>
+	<variable name="DIRECCION" class="java.lang.String">
+		<variableExpression><![CDATA[(($P{DESEMP}!=null)?$P{DESEMP}:"")+
+(($P{DOMICILIO}!=null)?" , "+$P{DOMICILIO}:"")+
+(($P{CP}!=null)?" "+$P{CP}:"")+
+(($P{PROVINCIA}!=null)?" - "+$P{PROVINCIA}:"")]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="59">
+			<image>
+				<reportElement uuid="b176941c-032c-4e11-bfaa-db8c40f7ac88" x="5" y="0" width="550" height="50"/>
+				<imageExpression><![CDATA[$P{LOGO}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="297" splitType="Stretch">
+			<textField>
+				<reportElement uuid="2b56ac73-d96b-47fd-95ca-d9da634e46e8" x="6" y="5" width="550" height="20"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{FORMULARIO DE SOLICITUD DE ALTA DE FIDELIZADO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="79e57e0c-e2df-4e79-9e92-4c08017981be" x="6" y="36" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{NOMBRE}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="5d9a0026-97b9-48ab-a949-ddecd266794e" x="6" y="56" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{APELLIDOS}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="1e42de41-98a9-405d-a72a-5398b59f14de" x="6" y="76" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{FECHA DE NACIMIENTO}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="8630c1f7-7e06-4d0f-9dae-29f35b3b079f" x="6" y="96" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{EMAIL}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="23748581-e895-475a-97e2-2ddd58372750" x="6" y="116" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{MÓVIL}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="53fa33d5-b494-4636-a6b4-a0edb70fe848" x="6" y="136" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{TIPO DE DOCUMENTO}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="986f9937-931a-4042-89ef-a78d4d4d3d61" x="6" y="156" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{DOMICILIO}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="aa01e3d7-ff1e-4f0f-999f-e933df984507" x="6" y="176" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{POBLACIÓN}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="26af3605-9630-4b98-863a-6b3d8050a283" x="6" y="196" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PROVINCIA}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="5006c986-c94f-41e9-a3da-e1b2fe695410" x="6" y="216" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{CP:}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="58673a78-4e7e-466f-ae7d-bc2ea880413d" x="6" y="236" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PAÍS}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2f181f01-f835-4b9f-b15c-54ff5e42004e" x="6" y="256" width="145" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{GÉNERO}+":"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="1588aff5-eb7b-4106-8f86-62f90936c8fc" x="151" y="36" width="405" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="c44da0d4-bfb8-4c71-b738-cf5aa565a1fa" x="151" y="56" width="404" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apellidos}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="324462ab-cd4e-4225-8a1d-03d37188f191" x="151" y="76" width="404" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechaNacimiento}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="4ebe07e1-ce16-42c8-b70c-017140f8d43b" x="151" y="96" width="143" height="20"/>
+				<textElement markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{EMAIL}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="4f413d18-3350-4268-91b7-80c7ebbe9fc2" x="151" y="116" width="143" height="20"/>
+				<textElement markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MOVIL}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5bbbc400-302f-4259-8f5c-a7d16f4b1685" x="151" y="136" width="61" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codTipoIden}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="438b5a96-34dd-46c2-873f-66916471e9c5" x="151" y="156" width="404" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{domicilio}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="9dbc5465-4b59-4f6e-b68c-101782235333" x="151" y="176" width="404" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{poblacion}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="72661572-2253-49bb-8361-7120948967ab" x="151" y="196" width="404" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{provincia}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5fbb5d4e-96ff-42cd-947b-b4e474e16b2f" x="151" y="216" width="404" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cp}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5d3816de-1f0d-46a0-8072-dafadc8d714d" x="151" y="236" width="404" height="20"/>
+				<textElement markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desPais}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2b56ac73-d96b-47fd-95ca-d9da634e46e8" x="151" y="256" width="56" height="20">
+					<printWhenExpression><![CDATA[$F{sexo}.equals( "H" )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{Hombre}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2b56ac73-d96b-47fd-95ca-d9da634e46e8" x="151" y="256" width="56" height="20">
+					<printWhenExpression><![CDATA[$F{sexo}.equals( "M" )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{Mujer}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="5bbbc400-302f-4259-8f5c-a7d16f4b1685" x="212" y="136" width="343" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documento}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="9839b7a8-4b94-4f19-a141-2055d5034d84" x="451" y="96" width="105" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{EMAIL_NOTIF}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="72f9d74b-ab97-47b2-b5bc-ddebf4bd546e" x="451" y="116" width="104" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{MOVIL_NOTIF}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0498f1ec-9c8b-4a35-b91a-abb43d6a28c6" x="294" y="96" width="157" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PERMITE NOTIFICACIONES}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e17907bc-35bb-4adf-aec1-6f2d5ae6da98" x="294" y="116" width="157" height="20"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PERMITE NOTIFICACIONES}+":"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="321" splitType="Stretch">
+			<textField>
+				<reportElement uuid="e6537971-6d34-4da7-8db4-23e7023cabdc" x="5" y="117" width="550" height="61"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{Asimismo utilizaremos sus datos personales para proporcionarle información comercial a través de cualquier medio de comunicación electrónica (correo electrónico, sms, etc…) así como a través de llamadas telefónicas o correo postal, sobre nuestros servicios y productos asi como de servicios y productos complementarios de terceras entidades que pueda ser de su interés, salvo que se oponga marcando las siguientes casillas:}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e6537971-6d34-4da7-8db4-23e7023cabdc" x="6" y="215" width="550" height="16"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["□"+$R{No deseo recibir comunicaciones comerciales de los servicios y productos complementarios de terceras entidades.}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e6537971-6d34-4da7-8db4-23e7023cabdc" x="6" y="243" width="550" height="45"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{Igualmente le informamos que sus datos personales podrán ser comunicados a las empresas de grupo con la finalidad del envío por parte de estas de comunicaciones comerciales. Puede consultar la identidad de las empresas del grupo en www.scalpers.es/partnersPuede oponerse al tratamiento de sus datos con esta finalidad marcando la siguiente casilla:}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e6537971-6d34-4da7-8db4-23e7023cabdc" x="6" y="297" width="550" height="20"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["□"+ $R{No deseo que mis datos sean comunicados a las empresas del grupo.}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="28197f25-9dac-48b0-9925-6b11b570096a" x="5" y="15" width="550" height="81"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{En cumplimiento de lo dispuesto en la Ley Orgánica 15/1999, de 13 de diciembre, de Protección de Datos de Carácter Personal, le informamos que los datos personales que nos facilite en el presente formulario serán incorporados en un fichero titularidad de }+ $P{DESEMP} +$R{ con la finalidad recabar información para la elaboración de estudios y estadísticas que nos permitan mejorar nuestra relación con nuestros clientes y ofrecerles servicios y productos más acorde con sus hábitos, gustos y necesidades, prestándole así nuestros servicios exclusivos para clientes registrados (ofertas, descuentos y promociones).}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="57716373-8fd4-43d0-b5ad-672e37a24bd2" x="6" y="195" width="549" height="16"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA["□"+$R{ No deseo recibir comunicaciones comerciales de los servicios y productos de }+$P{DESEMP}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="59" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="200" splitType="Stretch">
+			<textField>
+				<reportElement uuid="28197f25-9dac-48b0-9925-6b11b570096a" x="0" y="0" width="556" height="58"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{Podrá en todo momento, ejercitar sus derechos de acceso, rectificación, cancelación y oposición comunicándolo por correo ordinario a }+$V{DIRECCION}+$R{, junto con una copia de su DNI u otro documento identificativo.}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="986f9937-931a-4042-89ef-a78d4d4d3d61" x="479" y="58" width="77" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{FIRMA}+":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="986f9937-931a-4042-89ef-a78d4d4d3d61" x="0" y="128" width="555" height="20"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{¡GRACIAS!}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

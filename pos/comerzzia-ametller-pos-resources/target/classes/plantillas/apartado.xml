@@ -1,0 +1,265 @@
+<plantilla>
+	<documento>	
+		#if(!${salida.equals("pantalla")})
+			<apertura-cajon></apertura-cajon>
+		#end
+	
+		#set( $imprimirDatosFacturacion =  $ticket.getCabecera().getCliente().getDatosFactura())
+		#parse("./plantillas/datos_cabecera.xml")
+
+		#if (${empresa.getDesEmpresa()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDesEmpresa()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getDomicilio()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getPoblacion()}</texto>
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} )
+		<linea>
+			#if (${empresa.getProvincia()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getProvincia()}</texto>
+			#end
+		</linea>
+		<linea>
+			#if (${empresa.getCp()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getCp()}</texto>
+			#end
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="leftt">${empresa.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">CLIENTE</texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">${apartado.getDesCliente()}</texto>
+		</linea>
+		#if(${apartado.getDomicilio()})
+		<linea>
+			<texto size="40" align="left">${apartado.getDomicilio()}</texto>
+		</linea>
+		#end
+		#if(${apartado.getTelefono1()})
+		<linea>
+			<texto size="40" align="left">${apartado.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+		</linea>
+		<linea>
+			<texto size="40" align="center">${fecha}</texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left" >APARTADO:${apartado.getIdApartado()}</texto>
+		</linea>
+		<linea> 
+			<texto size="6" align="left" >TOTAL:</texto>
+			<texto size="34" align="right" >${totales.getTotalAPagarAsString()}</texto> 
+	  </linea>
+	  <linea>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea> <texto size="40" align="left" style ="1" >DETALLE DE PAGOS</texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+		#parse("./plantillas/detalle_pagos.xml")
+
+		<linea> <texto> </texto> </linea>
+		## TOTALES    
+		<linea line-size = "1"> 
+			<texto size="29" align="right" >TOTAL A PAGAR: </texto>
+			<texto size="11" align="right" >${ticket.getTotales().getTotalAPagarAsString()}</texto> 
+		</linea>
+		#if(${ticket.getTotales().isHayEntregaCuenta()})
+		 <linea line-size = "1">
+			<texto size="29" align="right">ENTREGADO A CUENTA: </texto>
+			<texto size="11" align="right">${ticket.getTotales().getEntregadoACuentaAsString()}</texto> 
+		</linea>
+		#end
+		<linea line-size = "1">
+			<texto size="29" align="right">TOTAL ENTREGADO: </texto>
+			<texto size="11" align="right">${ticket.getTotales().getEntregadoAsString()}</texto> 
+		</linea>
+		<linea line-size = "1"> <texto>                              ----------</texto> </linea>
+		<linea line-size = "1">
+			<texto size="29" align="right">A DEVOLVER: </texto>
+			<texto size="11" align="right">${ticket.getTotales().getCambioAsString()}</texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto size="40" align="center">COPIA PARA LA TIENDA</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto size="40" align="center">ATENDIDO POR..... ${cajero}</texto>
+		</linea>
+
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+		
+		<linea>
+			<texto>
+			</texto>
+		</linea>
+
+		#if (${empresa.getDesEmpresa()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="left">${empresa.getDesEmpresa()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="left">${empresa.getDomicilio()} </texto>
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="left">${empresa.getPoblacion()}</texto>
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} )
+		<linea>
+			#if (${empresa.getProvincia()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="left">${empresa.getProvincia()}</texto>
+			#end
+		</linea>
+		<linea>
+			#if (${empresa.getCp()})
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="left">${empresa.getCp()}</texto>
+			#end
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea>
+			<texto size="10" align="right"></texto>
+			<texto size="30" align="left">${empresa.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">CLIENTE</texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">${apartado.getDesCliente()}</texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">${apartado.getDomicilio()}</texto>
+		</linea>
+		#if(${apartado.getTelefono1()})
+		<linea>
+			<texto size="40" align="left">${apartado.getTelefono1()}</texto>
+		</linea>
+		#end
+		<linea>
+		</linea>
+		<linea>
+			<texto size="40" align="center">${fecha}</texto>
+		</linea>
+		<linea>
+			<texto size="40" align="left">APARTADO:${apartado.getIdApartado()}</texto>
+		</linea>
+		<linea> 
+			<texto size="6" align="left" >TOTAL:</texto>
+			<texto size="34" align="right" >${totales.getTotalAPagarAsString()}</texto> 
+	  </linea>
+	  <linea>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea> <texto size="40" align="left" style ="1" >DETALLE DE PAGOS</texto> </linea>
+		<linea> <texto>----------------------------------------</texto> </linea>
+		#parse("./plantillas/detalle_pagos.xml")
+
+		<linea> <texto> </texto> </linea>
+		## TOTALES    
+		<linea line-size = "1"> 
+			<texto size="29" align="right" >TOTAL A PAGAR: </texto>
+			<texto size="11" align="right" >${ticket.getTotales().getTotalAPagarAsString()}</texto> 
+		</linea>
+		#if(${ticket.getTotales().isHayEntregaCuenta()})
+		 <linea line-size = "1">
+			<texto size="29" align="right">ENTREGADO A CUENTA: </texto>
+			<texto size="11" align="right">${ticket.getTotales().getEntregadoACuentaAsString()}</texto> 
+		</linea>
+		#end
+		<linea line-size = "1">
+			<texto size="29" align="right">TOTAL ENTREGADO: </texto>
+			<texto size="11" align="right">${ticket.getTotales().getEntregadoAsString()}</texto> 
+		</linea>
+		<linea line-size = "1"> <texto>                              ----------</texto> </linea>
+		<linea line-size = "1">
+			<texto size="29" align="right">A DEVOLVER: </texto>
+			<texto size="11" align="right">${ticket.getTotales().getCambioAsString()}</texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto size="40" align="center">GRACIAS POR SU VISITA</texto>
+		</linea>
+		<linea>
+		</linea>
+		<linea>
+			<texto size="40" align="center">LE ATENDIO..... ${cajero}</texto>
+		</linea>
+
+		<linea>
+			<texto></texto>
+		</linea>
+		<linea>
+			<texto></texto>
+		</linea>
+		<corte></corte>
+		#foreach ($pago in $ticket.getPagos())
+			#parse("./plantillas/detalle_pagos_boletas.xml")
+		#end
+		#parse("./plantillas/detalle_comprobantes_giftcard.xml")
+	</documento>
+</plantilla>

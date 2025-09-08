@@ -1,0 +1,238 @@
+<plantilla>
+    <documento charset="GB18030">
+		<linea> 
+			<texto> 
+			</texto> 
+		</linea>
+		
+		#if (${empresa.getNombreComercial()})
+		<linea>
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getNombreComercial()}</texto>
+		</linea>
+		#else
+			#if (${empresa.getDesEmpresa()})
+			<linea>
+				<texto size="10" align="right"></texto> 
+				<texto size="30" align="left">${empresa.getDesEmpresa()} </texto> 
+			</linea>
+		#end
+		#end
+		#if (${empresa.getDomicilio()})
+		<linea> 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getDomicilio()} </texto> 
+		</linea>
+		#end
+		#if (${empresa.getPoblacion()})
+		<linea> 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getPoblacion()}</texto> 
+		</linea>
+		#end
+		#if (${empresa.getProvincia()} || ${empresa.getCp()} ) 
+		<linea>
+			#if (${empresa.getProvincia()}) 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getProvincia()}</texto> 
+			#end
+		</linea>
+		<linea>       
+			#if (${empresa.getCp()}) 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getCp()}</texto> 
+			#end            
+		</linea>
+		#end
+		#if (${empresa.getTelefono1()})
+		<linea> 
+			<texto size="10" align="right"></texto> 
+			<texto size="30" align="left">${empresa.getTelefono1()}</texto> 
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		#if(${caja.getCodAlmAsString()}&&${caja.getCodCajaAsString()})
+		<linea> 
+			<texto size="40" align="left">钱箱: ${caja.getCodAlmAsString()}/${caja.getCodCajaAsString()}</texto> 
+		</linea>
+		#end
+		#if(${fechaApertura})
+		<linea>
+				<texto size="40" align="left">开幕日期: ${fechaApertura}</texto>
+		</linea>
+		#end
+		#if(${fechaCierre})
+		<linea>
+			<texto size="40" align="left">关闭日期: ${fechaCierre}</texto>
+		</linea>
+		#end
+		#if(${usuario})
+		<linea>
+			<texto size="40" align="left">关闭用户: ${usuario.getUsuario()} - ${usuario.getDesusuario()}</texto>
+		</linea>
+		#end
+		#if(${fechaImpresion})
+		<linea>
+			<texto size="40" align="left">打印日期: ${fechaImpresion}</texto>
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto>累计总结</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto size="20" align="left">总数发票:</texto>         
+			<texto size="20" align="right">${caja.getTotalTicketsAsString()}</texto>
+		</linea>   
+		#if( ${caja.getTotalApuntesEntradaAsString()})
+		<linea> 
+			<texto size="20" align="left">A) 现金收入:</texto>
+			<texto size="20" align="right">${caja.getTotalApuntesEntradaAsString()}</texto> 
+		</linea>
+		#end
+		#if(${caja.getTotalVentasEntradaAsString()})
+		<linea>
+			<texto size="20" align="left">B) 销售:</texto>
+			<texto size="20" align="right">${caja.getTotalVentasEntradaAsString()}</texto>
+		</linea>
+		#end
+		#if(${caja.getNumTicketsEntrada()})
+		<linea> 
+			<texto>${caja.getNumTicketsEntrada()} 销售发票</texto> 
+		</linea>
+		#end
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		#if( ${caja.getTotalEntradasAsString()})
+		<linea> 
+			<texto size="20" align="left">E = (A+B)</texto> 
+			<texto size="20" align="right">${caja.getTotalEntradasAsString()}</texto>
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		#if(${caja.getTotalApuntesSalidaAsString()})
+		<linea> 
+			<texto size="20" align="left">C) 现金流出:</texto> 
+			<texto size="20" align="right">${caja.getTotalApuntesSalidaAsString()}</texto>
+		</linea>
+		#end
+		#if(${caja.getTotalVentasSalidaAsString()})
+		<linea>
+			<texto size="20" align="left">D) 退款:</texto>
+			<texto size="20" align="right">${caja.getTotalVentasSalidaAsString()}</texto>
+		</linea>
+		#end
+		<linea> 
+			<texto>${caja.getNumTicketsSalida()} 退款发票</texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea> 
+			<texto size="20" align="left">S = (C+D)</texto> 
+			<texto size="20" align="right">${caja.getTotalSalidasAsString()}</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea> 
+			<texto size="20" align="left">(E-S)</texto> 
+			<texto size="20" align="right">${caja.getTotalAsString()}</texto>
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto>付款方式     现金总数      差价</texto>
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		#foreach($acumulado in $acumulados)
+		<linea>
+			#if(${acumulado.getMedioPago().getDesMedioPago()})
+			<texto size="10" align="right">${acumulado.getMedioPago().getDesMedioPago()}</texto>
+			#end
+			#if(${acumulado.getTotal()})
+			<texto size="10" align="right">${acumulado.getTotalAsString()}</texto>
+			#end
+			#if(${acumulado.getRecuento()})
+			<texto size="10" align="right">${acumulado.getRecuentoAsString()}</texto>
+			#end
+			#if(${acumulado.getDescuadre()})
+			<texto size="10" align="right">${acumulado.getDescuadreAsString()}</texto>
+			#end
+		</linea>
+		#end
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea>
+			<texto>----------------------------------------</texto>
+		</linea>
+		<linea>
+			<texto>                 总共</texto>
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto>     总共     申报		差价</texto> 
+		</linea>
+		<linea> 
+			<texto>----------------------------------------</texto> 
+		</linea>
+		<linea>
+			#if(${caja.getTotalAsString()}) 
+			<texto size="13" align="right">${caja.getTotalAsString()}</texto>
+			#end
+			#if(${caja.getTotalRecuentoAsString()})
+			<texto size="13" align="right">${caja.getTotalRecuentoAsString()}</texto>
+			#end
+			#if(${caja.getDescuadreAsString()})
+			<texto size="13" align="right">${caja.getDescuadreAsString()}</texto> 
+			#end
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<linea> 
+			<texto></texto> 
+		</linea>
+		<corte></corte>
+	</documento>
+</plantilla>
