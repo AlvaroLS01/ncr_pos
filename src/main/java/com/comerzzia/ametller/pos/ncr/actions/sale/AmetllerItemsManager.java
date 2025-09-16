@@ -91,13 +91,7 @@ public class AmetllerItemsManager extends ItemsManager {
             return itemSold;
         }
 
-        discount.setFieldValue(ItemSold.ItemNumber, String.valueOf(linea.getIdLinea() + PROMOTIONS_FIRST_ITEM_ID));
-        discount.setFieldIntValue(ItemSold.DiscountAmount, descuentoCalculado);
-        discount.setFieldValue(ItemSold.AssociatedItemNumber, String.valueOf(linea.getIdLinea()));
-        discount.setFieldValue(ItemSold.RewardLocation, "3");
-        discount.setFieldValue(ItemSold.ShowRewardPoints, "1");
-        discount.setFieldValue(ItemSold.DiscountDescription, DESCRIPCION_DESCUENTO_25);
-        discount.setFieldValue(ItemSold.Description, DESCRIPCION_DESCUENTO_25);
+        prepararMensajeDescuento(linea, descuentoCalculado, discount);
 
         return itemSold;
     }
@@ -139,6 +133,32 @@ public class AmetllerItemsManager extends ItemsManager {
             return null;
         }
         return valor.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void prepararMensajeDescuento(LineaTicket linea, BigDecimal descuentoCalculado, ItemSold discount) {
+        discount.setFieldValue(ItemSold.ItemNumber, String.valueOf(linea.getIdLinea() + PROMOTIONS_FIRST_ITEM_ID));
+        discount.setFieldIntValue(ItemSold.DiscountAmount, descuentoCalculado);
+        discount.setFieldValue(ItemSold.AssociatedItemNumber, String.valueOf(linea.getIdLinea()));
+        discount.setFieldValue(ItemSold.RewardLocation, "3");
+        discount.setFieldValue(ItemSold.ShowRewardPoints, "1");
+        discount.setFieldValue(ItemSold.DiscountDescription, DESCRIPCION_DESCUENTO_25);
+        discount.setFieldValue(ItemSold.Description, DESCRIPCION_DESCUENTO_25);
+
+        limpiarCamposNoNecesarios(discount);
+    }
+
+    private void limpiarCamposNoNecesarios(ItemSold discount) {
+        discount.setFieldValue(ItemSold.UPC, null);
+        discount.setFieldValue(ItemSold.Price, null);
+        discount.setFieldValue(ItemSold.ExtendedPrice, null);
+        discount.setFieldValue(ItemSold.RequiresSecurityBagging, null);
+        discount.setFieldValue(ItemSold.RequiresSubsCheck, null);
+        discount.setFieldValue(ItemSold.Quantity, null);
+        discount.setFieldValue(ItemSold.Weight, null);
+        discount.setFieldValue(ItemSold.TareCode, null);
+        discount.setFieldValue(ItemSold.Age, null);
+        discount.setFieldValue(ItemSold.LinkedItem, null);
+        discount.setFieldValue(ItemSold.VisualVerifyRequired, null);
     }
 
     @Override
