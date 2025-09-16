@@ -2,9 +2,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>com.comerzzia.ametller.pos.ncr</groupId>
-	<artifactId>comerzzia-ametller-pos-ncr</artifactId>
+	<groupId>com.comerzzia.dinosol.pos</groupId>
+	<artifactId>comerzzia-dinosol-pos-ncr</artifactId>
 	<version>${revision}</version>
 	<packaging>jar</packaging>
 
@@ -55,9 +54,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.comerzzia.ametller.pos</groupId>
-			<artifactId>comerzzia-ametller-pos-gui</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>com.comerzzia.dinosol.pos</groupId>
+			<artifactId>comerzzia-dinosol-pos-gui</artifactId>
+			<version>${revision}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
