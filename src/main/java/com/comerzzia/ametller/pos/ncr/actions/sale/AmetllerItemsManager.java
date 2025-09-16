@@ -56,41 +56,54 @@ public class AmetllerItemsManager extends ItemsManager {
         }
 
         BigDecimal descuentoCalculado = info.getImporteDescuento();
-        if (descuentoCalculado == null || descuentoCalculado.compareTo(BigDecimal.ZERO) <= 0) {
-            return itemSold;
-        }
-
-        prepararMensajeDescuento(linea, descuentoCalculado, discount);
+        prepararMensajeDescuento(linea, itemSold, info, descuentoCalculado, discount);
 
         return itemSold;
     }
 
-    private void prepararMensajeDescuento(LineaTicket linea, BigDecimal descuentoCalculado, ItemSold discount) {
-        if (linea != null) {
-            discount.setFieldValue(ItemSold.ItemNumber, String.valueOf(linea.getIdLinea() + PROMOTIONS_FIRST_ITEM_ID));
-            discount.setFieldValue(ItemSold.AssociatedItemNumber, String.valueOf(linea.getIdLinea()));
+    private void prepararMensajeDescuento(LineaTicket linea, ItemSold itemSold, Descuento25Info info,
+            BigDecimal descuentoCalculado, ItemSold discount) {
+        if (linea == null || info == null) {
+            return;
         }
-        discount.setFieldIntValue(ItemSold.DiscountAmount, descuentoCalculado);
-        discount.setFieldValue(ItemSold.RewardLocation, "3");
-        discount.setFieldValue(ItemSold.ShowRewardPoints, "1");
+
+        String itemNumber = itemSold.getFieldValue(ItemSold.ItemNumber);
+        discount.setFieldValue(ItemSold.ItemNumber, itemNumber);
+        discount.setFieldValue(ItemSold.UPC, itemSold.getFieldValue(ItemSold.UPC));
+
+        BigDecimal importeConDto = info.getImporteConDto();
+        BigDecimal precioConDto = info.getPrecioConDto();
+
+        if (descuentoCalculado == null || descuentoCalculado.compareTo(BigDecimal.ZERO) <= 0) {
+            discount.setFieldValue(ItemSold.Price, "0");
+            discount.setFieldValue(ItemSold.ExtendedPrice, "0");
+            discount.setFieldValue(ItemSold.Description, itemSold.getFieldValue(ItemSold.Description));
+            discount.setFieldValue(ItemSold.DiscountDescription, null);
+            return;
+        }
+
+        if (precioConDto != null) {
+            discount.setFieldIntValue(ItemSold.Price, precioConDto);
+        }
+        if (importeConDto != null) {
+            discount.setFieldIntValue(ItemSold.ExtendedPrice, importeConDto);
+        }
+
+        StringBuilder descripcion = new StringBuilder();
+        String descripcionBase = itemSold.getFieldValue(ItemSold.Description);
+        if (descripcionBase != null) {
+            descripcion.append(descripcionBase);
+        }
+        descripcion.append("\n").append(DESCRIPCION_DESCUENTO_25);
+        descripcion.append(": -").append(descuentoCalculado.setScale(2, RoundingMode.HALF_UP));
+
+        discount.setFieldValue(ItemSold.Description, descripcion.toString());
         discount.setFieldValue(ItemSold.DiscountDescription, DESCRIPCION_DESCUENTO_25);
-        discount.setFieldValue(ItemSold.Description, DESCRIPCION_DESCUENTO_25);
 
-        limpiarCamposNoNecesarios(discount);
-    }
-
-    private void limpiarCamposNoNecesarios(ItemSold discount) {
-        discount.setFieldValue(ItemSold.UPC, null);
-        discount.setFieldValue(ItemSold.Price, null);
-        discount.setFieldValue(ItemSold.ExtendedPrice, null);
-        discount.setFieldValue(ItemSold.RequiresSecurityBagging, null);
-        discount.setFieldValue(ItemSold.RequiresSubsCheck, null);
-        discount.setFieldValue(ItemSold.Quantity, null);
-        discount.setFieldValue(ItemSold.Weight, null);
-        discount.setFieldValue(ItemSold.TareCode, null);
-        discount.setFieldValue(ItemSold.Age, null);
-        discount.setFieldValue(ItemSold.LinkedItem, null);
-        discount.setFieldValue(ItemSold.VisualVerifyRequired, null);
+        discount.setFieldValue(ItemSold.AssociatedItemNumber, null);
+        discount.setFieldValue(ItemSold.DiscountAmount, null);
+        discount.setFieldValue(ItemSold.RewardLocation, null);
+        discount.setFieldValue(ItemSold.ShowRewardPoints, null);
     }
 
     @Override
