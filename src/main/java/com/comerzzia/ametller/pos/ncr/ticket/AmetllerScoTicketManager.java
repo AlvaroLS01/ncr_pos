@@ -1,8 +1,6 @@
 package com.comerzzia.ametller.pos.ncr.ticket;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -16,28 +14,10 @@ import com.comerzzia.pos.services.ticket.lineas.LineaTicketAbstract;
 public class AmetllerScoTicketManager extends ScoTicketManager {
 
     private static final BigDecimal DESCUENTO25 = new BigDecimal("25.00");
-    private final Set<Integer> lineasConDescuento25 = new HashSet<>();
     private boolean descuento25Activo = false;
 
     public void setDescuento25Activo(boolean activo) {
         this.descuento25Activo = activo;
-    }
-
-    public boolean isLineaConDescuento25(LineaTicket linea) {
-        return linea != null && lineasConDescuento25.contains(linea.getIdLinea());
-    }
-
-    @Override
-    public void initSession() {
-        super.initSession();
-        lineasConDescuento25.clear();
-        descuento25Activo = false;
-    }
-
-    @Override
-    public void ticketInitilize() {
-        super.ticketInitilize();
-        lineasConDescuento25.clear();
     }
 
     @Override
@@ -45,15 +25,8 @@ public class AmetllerScoTicketManager extends ScoTicketManager {
         LineaTicket added = super.addLineToTicket(linea);
         if (descuento25Activo && added != null) {
             added.setDescuentoManual(DESCUENTO25);
-            lineasConDescuento25.add(added.getIdLinea());
             recalculateTicket();
         }
         return added;
-    }
-
-    @Override
-    public void deleteTicketLine(Integer idLinea) {
-        super.deleteTicketLine(idLinea);
-        lineasConDescuento25.remove(idLinea);
     }
 }
