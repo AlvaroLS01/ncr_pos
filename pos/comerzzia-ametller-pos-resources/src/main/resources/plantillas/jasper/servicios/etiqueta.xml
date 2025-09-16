@@ -1,4 +1,0 @@
-<plantilla>
-	<documento salida="impresora2" titulo="Etiquetas" procesador="JASPER" fichero="servicios/etiqueta">		
-	</documento>
-</plantilla>

@@ -1,4 +1,0 @@
-<plantilla>
-	<documento salida="impresora2" titulo="Pedido" procesador="JASPER" fichero="pedido/pedido">		
-	</documento>
-</plantilla>

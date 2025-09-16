@@ -1,2 +1,0 @@
-## My company POS project
-

@@ -1,7 +1,0 @@
-<!--Esta plantilla usa un parámetro $imprimirDatosFacturacion que no llega desde el POS. Se debe asignar como (con un solo corchete): ##set( $imprimirDatosFacturacion = true )
--->
-<plantilla>
-	#if (${ticket.getCabecera().getTienda().getDesAlmacen()})
-          <linea><texto size="40" align="left">Botiga: ${ticket.getCabecera().getTienda().getCodAlmacen()} ${ticket.getCabecera().getTienda().getDesAlmacen()}</texto></linea>
-	#end	
-</plantilla>
