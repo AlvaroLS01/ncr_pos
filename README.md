@@ -1,2 +1,2 @@
-# Integración de comerzzia con SCO de NCR. Personalizaciones de DINOSOL
+# NCR Self-Checkout integration with comerzzia POS
 
