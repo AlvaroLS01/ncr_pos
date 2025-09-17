@@ -4,8 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -17,6 +19,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,9 @@ import com.comerzzia.pos.services.ticket.pagos.PagoTicket;
 import com.comerzzia.pos.services.ticket.pagos.tarjeta.DatosRespuestaPagoTarjeta;
 import com.comerzzia.pos.util.i18n.I18N;
 import com.comerzzia.pos.ncr.actions.sale.PayManager;
+import com.comerzzia.pos.ncr.messages.BasicNCRMessage;
+import com.comerzzia.pos.ncr.messages.DataNeeded;
+import com.comerzzia.pos.ncr.messages.DataNeededReply;
 import com.comerzzia.pos.ncr.messages.Tender;
 import com.comerzzia.pos.ncr.messages.TenderException;
 import com.comerzzia.pos.ncr.messages.TenderAccepted;
@@ -53,6 +59,20 @@ public class AmetllerPayManager extends PayManager {
     private static final String TENDER_TYPE_GIFT_CARD = "GIFTCARD";
     private static final Set<String> AUTO_DETECTED_TENDER_TYPES = new HashSet<>(
             Arrays.asList("OTRASTARJETAS", "OTHERCARDS"));
+    private static final String DIALOG_CONFIRM_TYPE = "4";
+    private static final String DIALOG_CONFIRM_ID = "1";
+    private static final String[] PREFIJOS_TARJETAS_BEAN_NAMES = {
+            "prefijosTarjetasService",
+            "prefijosTarjetasSrv"
+    };
+    private static final String[] PREFIJOS_TARJETAS_CLASS_NAMES = {
+            "com.comerzzia.pos.services.mediospagos.PrefijosTarjetasService",
+            "com.comerzzia.pos.services.mediospagos.prefijos.PrefijosTarjetasService",
+            "com.comerzzia.pos.services.payments.PrefijosTarjetasService",
+            "com.comerzzia.pos.services.payments.methods.PrefijosTarjetasService",
+            "com.comerzzia.pos.services.payments.methods.types.PrefijosTarjetasService",
+            "com.comerzzia.ametller.pos.services.mediospagos.PrefijosTarjetasService"
+    };
 
     @Autowired
     private Sesion sesion;
@@ -60,10 +80,28 @@ public class AmetllerPayManager extends PayManager {
     @Autowired
     private VariablesServices variablesServices;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    private PendingPaymentRequest pendingPayment;
+
     @PostConstruct
     @Override
     public void init() {
         super.init();
+        ncrController.registerActionManager(DataNeededReply.class, this);
+    }
+
+    @Override
+    public void processMessage(BasicNCRMessage message) {
+        if (message instanceof DataNeededReply) {
+            if (!handleDataNeededReply((DataNeededReply) message)) {
+                log.warn("processMessage() - DataNeededReply not managed by gift card flow");
+            }
+            return;
+        }
+
+        super.processMessage(message);
     }
 
     @Override
@@ -81,13 +119,30 @@ public class AmetllerPayManager extends PayManager {
         boolean explicitGiftCard = isGiftCardTender(tenderType);
         boolean autoDetectedGiftCard = isAutoDetectedGiftCardTender(tenderType);
 
-        if (explicitGiftCard || autoDetectedGiftCard) {
-            if (processGiftCardTender(message, explicitGiftCard)) {
-                return;
-            }
+        if (!explicitGiftCard && !autoDetectedGiftCard) {
+            super.trayPay(message);
+            return;
         }
 
-        super.trayPay(message);
+        if (ticketManager.isTrainingMode()) {
+            super.trayPay(message);
+            return;
+        }
+
+        PendingPaymentRequest paymentRequest = createPaymentRequest(message, tenderType, explicitGiftCard,
+                autoDetectedGiftCard);
+
+        if (paymentRequest == null) {
+            return;
+        }
+
+        if (paymentRequest.autoDetected) {
+            pendingPayment = paymentRequest;
+            sendAutoDetectedPaymentDialog(paymentRequest);
+            return;
+        }
+
+        executePayment(paymentRequest);
     }
 
     private boolean isGiftCardTender(String tenderType) {
@@ -107,79 +162,322 @@ public class AmetllerPayManager extends PayManager {
         return AUTO_DETECTED_TENDER_TYPES.contains(normalized);
     }
 
-    private boolean processGiftCardTender(Tender message, boolean explicitSelection) {
-        if (log.isDebugEnabled()) {
-            log.debug("processGiftCardTender() - explicitSelection=" + explicitSelection);
-        }
-
-        String numeroTarjeta = StringUtils.trimToEmpty(message.getFieldValue(Tender.UPC));
+    private PendingPaymentRequest createPaymentRequest(Tender message, String scoTenderType, boolean explicitSelection,
+            boolean autoDetectedSelection) {
+        String numeroTarjeta = StringUtils.trimToNull(message.getFieldValue(Tender.UPC));
 
         if (StringUtils.isBlank(numeroTarjeta)) {
-            log.warn("processGiftCardTender() - Número de tarjeta vacío");
-            sendGiftCardError(I18N.getTexto("No se ha informado ningún número de tarjeta regalo."));
-            return true;
+            log.warn("createPaymentRequest() - Número de tarjeta vacío");
+            sendGiftCardError(I18N.getTexto("No se ha informado ningún número de tarjeta regalo."), scoTenderType);
+            return null;
         }
 
         PaymentsManager paymentsManager = ticketManager.getPaymentsManager();
+
         if (paymentsManager == null) {
-            log.error("processGiftCardTender() - Payments manager not available");
-            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."));
+            log.error("createPaymentRequest() - Payments manager not available");
+            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."), scoTenderType);
+            return null;
+        }
+
+        BigDecimal amount = parseAmount(message.getFieldValue(Tender.Amount));
+        String paymentMethodCode;
+
+        if (explicitSelection) {
+            try {
+                paymentMethodCode = scoTenderTypeToComerzziaPaymentCode(scoTenderType);
+            }
+            catch (RuntimeException e) {
+                log.error("createPaymentRequest() - " + e.getMessage(), e);
+                sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."), scoTenderType);
+                return null;
+            }
+        }
+        else {
+            paymentMethodCode = getPaymentCodeFromPrefixes(numeroTarjeta);
+
+            if (StringUtils.isBlank(paymentMethodCode)) {
+                paymentMethodCode = findUniqueGiftCardPaymentCode(paymentsManager);
+            }
+        }
+
+        if (StringUtils.isBlank(paymentMethodCode)) {
+            log.error("createPaymentRequest() - Medio de pago de tarjeta regalo no configurado");
+            sendGiftCardError(I18N.getTexto("Medio de pago no encontrado."), scoTenderType);
+            return null;
+        }
+
+        PaymentMethodManager paymentMethodManager = findPaymentMethodManager(paymentsManager, paymentMethodCode);
+
+        if (!(paymentMethodManager instanceof GiftCardManager)) {
+            log.error("createPaymentRequest() - Payment manager " + paymentMethodCode + " is not a gift card manager");
+            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."), scoTenderType);
+            return null;
+        }
+
+        MedioPagoBean medioPago = null;
+
+        try {
+            if (mediosPagosService != null) {
+                medioPago = mediosPagosService.getMedioPago(paymentMethodCode);
+            }
+        }
+        catch (Exception e) {
+            log.debug("createPaymentRequest() - No se ha podido recuperar la descripción del medio de pago "
+                    + paymentMethodCode, e);
+        }
+
+        return new PendingPaymentRequest(message, paymentMethodCode, paymentMethodManager, medioPago, numeroTarjeta,
+                amount, scoTenderType, autoDetectedSelection);
+    }
+
+    private void sendAutoDetectedPaymentDialog(PendingPaymentRequest paymentRequest) {
+        DataNeeded dialog = new DataNeeded();
+        dialog.setFieldValue(DataNeeded.Type, DIALOG_CONFIRM_TYPE);
+        dialog.setFieldValue(DataNeeded.Id, DIALOG_CONFIRM_ID);
+        dialog.setFieldValue(DataNeeded.Mode, "0");
+
+        String description = paymentRequest.medioPago != null ? paymentRequest.medioPago.getDesMedioPago()
+                : paymentRequest.paymentMethodCode;
+        String caption = MessageFormat.format("¿Desea usar su tarjeta {0}?", description);
+
+        dialog.setFieldValue(DataNeeded.TopCaption1, caption);
+        dialog.setFieldValue(DataNeeded.SummaryInstruction1, "Pulse una opción");
+        dialog.setFieldValue(DataNeeded.ButtonData1, "TxSi");
+        dialog.setFieldValue(DataNeeded.ButtonText1, "SI");
+        dialog.setFieldValue(DataNeeded.ButtonData2, "TxNo");
+        dialog.setFieldValue(DataNeeded.ButtonText2, "NO");
+        dialog.setFieldValue(DataNeeded.EnableScanner, "0");
+        dialog.setFieldValue(DataNeeded.HideGoBack, "1");
+
+        ncrController.sendMessage(dialog);
+    }
+
+    private boolean handleDataNeededReply(DataNeededReply message) {
+        if (message == null) {
+            return false;
+        }
+
+        String type = message.getFieldValue(DataNeededReply.Type);
+        String id = message.getFieldValue(DataNeededReply.Id);
+
+        if (!StringUtils.equals(DIALOG_CONFIRM_TYPE, type) || !StringUtils.equals(DIALOG_CONFIRM_ID, id)) {
+            return false;
+        }
+
+        PendingPaymentRequest paymentRequest = pendingPayment;
+        pendingPayment = null;
+
+        sendCloseDataNeeded();
+
+        if (paymentRequest == null) {
+            log.warn("handleDataNeededReply() - Confirmation received without pending payment");
             return true;
         }
 
-        Map.Entry<String, PaymentMethodManager> entry = findGiftCardManager(paymentsManager);
+        String option = StringUtils.trimToEmpty(message.getFieldValue(DataNeededReply.Data1));
 
-        if (entry == null) {
-            log.error("processGiftCardTender() - Medio de pago de tarjeta regalo no configurado");
-            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."));
-            return true;
+        if (StringUtils.equalsIgnoreCase("TxSi", option)) {
+            executePayment(paymentRequest);
+        }
+        else {
+            sendGiftCardError(I18N.getTexto("Operación cancelada por el usuario"), paymentRequest.scoTenderType);
         }
 
-        PaymentMethodManager paymentMethodManager = entry.getValue();
+        return true;
+    }
+
+    private void sendCloseDataNeeded() {
+        DataNeeded closeMessage = new DataNeeded();
+        closeMessage.setFieldValue(DataNeeded.Type, "0");
+        closeMessage.setFieldValue(DataNeeded.Id, "0");
+        closeMessage.setFieldValue(DataNeeded.Mode, "0");
+
+        ncrController.sendMessage(closeMessage);
+    }
+
+    private void executePayment(PendingPaymentRequest paymentRequest) {
+        if (paymentRequest == null) {
+            return;
+        }
+
+        pendingPayment = null;
+
+        PaymentsManager paymentsManager = ticketManager.getPaymentsManager();
+
+        if (paymentsManager == null) {
+            log.error("executePayment() - Payments manager not available");
+            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."),
+                    paymentRequest.scoTenderType);
+            return;
+        }
+
         boolean waitStateSent = false;
 
         try {
-            ncrController.sendWaitState(I18N.getTexto("Validando tarjeta regalo..."));
+            ncrController.sendWaitState(I18N.getTexto("Validando tarjeta..."));
             waitStateSent = true;
 
-            GiftCardBean giftCard = loadGiftCard(numeroTarjeta);
+            GiftCardBean giftCard = loadGiftCard(paymentRequest.numeroTarjeta);
+            normalizeGiftCard(giftCard, paymentRequest.numeroTarjeta);
 
-            normalizeGiftCard(giftCard, numeroTarjeta);
-
-            BigDecimal amountToCharge = resolveGiftCardAmount(message, giftCard);
+            BigDecimal amountToCharge = resolveGiftCardAmount(paymentRequest, giftCard);
+            paymentRequest.amount = amountToCharge;
 
             updateGiftCardAmount(giftCard, amountToCharge);
 
-            paymentMethodManager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
+            paymentRequest.paymentMethodManager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
 
-            message.setFieldIntValue(Tender.Amount, amountToCharge);
+            paymentRequest.tenderMessage.setFieldIntValue(Tender.Amount, amountToCharge);
 
-            paymentsManager.pay(entry.getKey(), amountToCharge);
-            return true;
+            paymentsManager.pay(paymentRequest.paymentMethodCode, amountToCharge);
         }
         catch (GiftCardProcessingException e) {
-            log.error("processGiftCardTender() - " + e.getMessage(), e);
-            handleGiftCardError(paymentsManager, paymentMethodManager, e, e.getMessage());
+            log.error("executePayment() - " + e.getMessage(), e);
+            handleGiftCardError(paymentsManager, paymentRequest.paymentMethodManager, e, e.getMessage(),
+                    paymentRequest.scoTenderType);
         }
         catch (Exception e) {
-            log.error("processGiftCardTender() - Error inesperado: " + e.getMessage(), e);
-            handleGiftCardError(paymentsManager, paymentMethodManager, e, e.getMessage());
+            log.error("executePayment() - Error inesperado: " + e.getMessage(), e);
+            handleGiftCardError(paymentsManager, paymentRequest.paymentMethodManager, e, e.getMessage(),
+                    paymentRequest.scoTenderType);
         }
         finally {
             if (waitStateSent) {
                 ncrController.sendFinishWaitState();
             }
         }
-
-        return true;
     }
 
-    private Map.Entry<String, PaymentMethodManager> findGiftCardManager(PaymentsManager paymentsManager) {
-        for (Map.Entry<String, PaymentMethodManager> entry : paymentsManager.getPaymentsMehtodManagerAvailables().entrySet()) {
-            if (entry.getValue() instanceof GiftCardManager) {
-                return entry;
+    private PaymentMethodManager findPaymentMethodManager(PaymentsManager paymentsManager, String paymentMethodCode) {
+        Map<String, PaymentMethodManager> managers = getAvailablePaymentManagers(paymentsManager);
+
+        if (managers.containsKey(paymentMethodCode)) {
+            return managers.get(paymentMethodCode);
+        }
+
+        try {
+            Method method = paymentsManager.getClass().getMethod("getPaymentMethodManager", String.class);
+            Object result = method.invoke(paymentsManager, paymentMethodCode);
+
+            if (result instanceof PaymentMethodManager) {
+                return (PaymentMethodManager) result;
             }
         }
+        catch (NoSuchMethodException e) {
+            log.debug("findPaymentMethodManager() - Método getPaymentMethodManager no disponible");
+        }
+        catch (Exception e) {
+            log.error("findPaymentMethodManager() - Error obteniendo el medio de pago " + paymentMethodCode + ": "
+                    + e.getMessage(), e);
+        }
+
+        return managers.get(paymentMethodCode);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, PaymentMethodManager> getAvailablePaymentManagers(PaymentsManager paymentsManager) {
+        if (paymentsManager == null) {
+            return Collections.emptyMap();
+        }
+
+        List<String> methodNames = Arrays.asList("getPaymentsMehtodManagerAvailables",
+                "getPaymentsMethodManagerAvailables", "getPaymentMethodManagers");
+
+        for (String methodName : methodNames) {
+            try {
+                Method method = paymentsManager.getClass().getMethod(methodName);
+                Object result = method.invoke(paymentsManager);
+
+                if (result instanceof Map) {
+                    return (Map<String, PaymentMethodManager>) result;
+                }
+            }
+            catch (NoSuchMethodException e) {
+                log.debug("getAvailablePaymentManagers() - Método " + methodName + " no disponible");
+            }
+            catch (Exception e) {
+                log.error("getAvailablePaymentManagers() - Error invocando " + methodName + ": " + e.getMessage(), e);
+            }
+        }
+
+        return Collections.emptyMap();
+    }
+
+    private String findUniqueGiftCardPaymentCode(PaymentsManager paymentsManager) {
+        Map<String, PaymentMethodManager> managers = getAvailablePaymentManagers(paymentsManager);
+        String candidate = null;
+
+        for (Map.Entry<String, PaymentMethodManager> entry : managers.entrySet()) {
+            if (entry.getValue() instanceof GiftCardManager) {
+                if (candidate != null) {
+                    return null;
+                }
+                candidate = entry.getKey();
+            }
+        }
+
+        return candidate;
+    }
+
+    private String getPaymentCodeFromPrefixes(String numeroTarjeta) {
+        if (StringUtils.isBlank(numeroTarjeta)) {
+            return null;
+        }
+
+        Object service = findPrefijosTarjetasService();
+
+        if (service == null) {
+            log.warn("getPaymentCodeFromPrefixes() - PrefijosTarjetasService not available");
+            return null;
+        }
+
+        try {
+            Method method = service.getClass().getMethod("getMedioPagoPrefijo", String.class);
+            Object result = method.invoke(service, numeroTarjeta);
+            return result != null ? result.toString() : null;
+        }
+        catch (NoSuchMethodException e) {
+            log.warn("getPaymentCodeFromPrefixes() - Método getMedioPagoPrefijo no disponible en "
+                    + service.getClass().getName());
+        }
+        catch (Exception e) {
+            log.error("getPaymentCodeFromPrefixes() - Error al consultar el prefijo de la tarjeta: " + e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+    private Object findPrefijosTarjetasService() {
+        if (applicationContext == null) {
+            return null;
+        }
+
+        for (String beanName : PREFIJOS_TARJETAS_BEAN_NAMES) {
+            if (applicationContext.containsBean(beanName)) {
+                try {
+                    return applicationContext.getBean(beanName);
+                }
+                catch (Exception e) {
+                    log.debug("findPrefijosTarjetasService() - No se ha podido obtener el bean " + beanName, e);
+                }
+            }
+        }
+
+        for (String className : PREFIJOS_TARJETAS_CLASS_NAMES) {
+            try {
+                Class<?> clazz = Class.forName(className);
+                return applicationContext.getBean(clazz);
+            }
+            catch (ClassNotFoundException e) {
+                log.debug("findPrefijosTarjetasService() - Clase no disponible: " + className);
+            }
+            catch (Exception e) {
+                log.debug("findPrefijosTarjetasService() - Error obteniendo bean para " + className + ": "
+                        + e.getMessage(), e);
+            }
+        }
+
         return null;
     }
 
@@ -320,39 +618,41 @@ public class AmetllerPayManager extends PayManager {
         return null;
     }
 
-    private BigDecimal resolveGiftCardAmount(Tender message, GiftCardBean giftCard) throws GiftCardProcessingException {
+    private BigDecimal resolveGiftCardAmount(PendingPaymentRequest paymentRequest, GiftCardBean giftCard)
+            throws GiftCardProcessingException {
         if (giftCard == null) {
             throw new GiftCardProcessingException(I18N.getTexto("No se ha podido validar la tarjeta regalo."));
         }
 
         BigDecimal pending = ticketManager.getTicket().getTotales().getPendiente();
         BigDecimal saldo = giftCard.getSaldo();
-
-        BigDecimal requested = parseAmount(message.getFieldValue(Tender.Amount));
-
-        if (requested == null || requested.compareTo(BigDecimal.ZERO) <= 0) {
-            requested = pending;
-        }
-
-        BigDecimal amount = requested;
-
-        if (pending != null && amount != null && amount.compareTo(pending) > 0) {
-            amount = pending;
-        }
+        BigDecimal saldoProvisional = giftCard.getSaldoProvisional();
 
         if (saldo == null) {
             saldo = BigDecimal.ZERO;
         }
 
-        if (amount == null) {
+        if (saldoProvisional != null) {
+            saldo = saldo.add(saldoProvisional);
+        }
+
+        BigDecimal requested = paymentRequest != null ? paymentRequest.amount : null;
+
+        if (requested == null || requested.compareTo(BigDecimal.ZERO) <= 0) {
+            requested = pending;
+        }
+
+        BigDecimal amount = requested != null ? requested : saldo;
+
+        if (pending != null && amount != null && amount.compareTo(pending) > 0) {
+            amount = pending;
+        }
+
+        if (amount == null || amount.compareTo(saldo) > 0) {
             amount = saldo;
         }
 
-        if (amount.compareTo(saldo) > 0) {
-            amount = saldo;
-        }
-
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new GiftCardProcessingException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
         }
 
@@ -375,10 +675,15 @@ public class AmetllerPayManager extends PayManager {
 
     private void handleGiftCardError(PaymentsManager paymentsManager, PaymentMethodManager paymentMethodManager,
             Exception exception, String errorMessage) {
+        handleGiftCardError(paymentsManager, paymentMethodManager, exception, errorMessage, null);
+    }
+
+    private void handleGiftCardError(PaymentsManager paymentsManager, PaymentMethodManager paymentMethodManager,
+            Exception exception, String errorMessage, String tenderType) {
         String message = StringUtils.defaultIfBlank(errorMessage,
                 I18N.getTexto("Ha habido un error al procesar el pago con tarjeta regalo."));
 
-        sendGiftCardError(message);
+        sendGiftCardError(message, tenderType);
 
         if (paymentsManager == null) {
             return;
@@ -402,11 +707,19 @@ public class AmetllerPayManager extends PayManager {
     }
 
     private void sendGiftCardError(String message) {
+        sendGiftCardError(message, null);
+    }
+
+    private void sendGiftCardError(String message, String tenderType) {
         TenderException tenderException = new TenderException();
         tenderException.setFieldValue(TenderException.ExceptionId, "0");
         tenderException.setFieldValue(TenderException.ExceptionType, "0");
-        tenderException.setFieldValue(TenderException.TenderType, "Gift Card");
-        tenderException.setFieldValue(TenderException.Message, message);
+        String tenderValue = StringUtils.isNotBlank(tenderType) ? tenderType : "Gift Card";
+        tenderException.setFieldValue(TenderException.TenderType, tenderValue);
+
+        if (StringUtils.isNotBlank(message)) {
+            tenderException.setFieldValue(TenderException.Message, message);
+        }
 
         ncrController.sendMessage(tenderException);
     }
@@ -517,6 +830,30 @@ public class AmetllerPayManager extends PayManager {
         ncrController.sendMessage(response);
 
         itemsManager.sendTotals();
+    }
+
+    private static class PendingPaymentRequest {
+        private final Tender tenderMessage;
+        private final String paymentMethodCode;
+        private final PaymentMethodManager paymentMethodManager;
+        private final MedioPagoBean medioPago;
+        private final String numeroTarjeta;
+        private BigDecimal amount;
+        private final String scoTenderType;
+        private final boolean autoDetected;
+
+        private PendingPaymentRequest(Tender tenderMessage, String paymentMethodCode,
+                PaymentMethodManager paymentMethodManager, MedioPagoBean medioPago, String numeroTarjeta,
+                BigDecimal amount, String scoTenderType, boolean autoDetected) {
+            this.tenderMessage = tenderMessage;
+            this.paymentMethodCode = paymentMethodCode;
+            this.paymentMethodManager = paymentMethodManager;
+            this.medioPago = medioPago;
+            this.numeroTarjeta = numeroTarjeta;
+            this.amount = amount;
+            this.scoTenderType = scoTenderType;
+            this.autoDetected = autoDetected;
+        }
     }
 
     private static class GiftCardProcessingException extends Exception {
