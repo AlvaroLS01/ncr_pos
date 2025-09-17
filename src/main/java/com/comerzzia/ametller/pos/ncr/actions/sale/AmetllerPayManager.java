@@ -1,12 +1,17 @@
 package com.comerzzia.ametller.pos.ncr.actions.sale;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -257,6 +262,7 @@ public class AmetllerPayManager extends PayManager {
             ncrController.sendWaitState(I18N.getTexto("Validando tarjeta..."));
 
             GiftCardBean giftCard = consultGiftCard(payment.cardNumber);
+            ensureGiftCardDefaults(giftCard);
             BigDecimal available = calculateAvailableBalance(giftCard);
 
             if (available.compareTo(BigDecimal.ZERO) <= 0) {
@@ -270,12 +276,6 @@ public class AmetllerPayManager extends PayManager {
 
             giftCard.setNumTarjetaRegalo(payment.cardNumber);
             giftCard.setImportePago(amountToCharge);
-            if (giftCard.getSaldo() == null || giftCard.getSaldo().compareTo(BigDecimal.ZERO) <= 0) {
-                giftCard.setSaldo(amountToCharge);
-            }
-            if (giftCard.getSaldoProvisional() == null) {
-                giftCard.setSaldoProvisional(BigDecimal.ZERO);
-            }
 
             payment.context.manager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
 
@@ -301,22 +301,15 @@ public class AmetllerPayManager extends PayManager {
         }
 
         try {
-            Class<?> requestClass = Class.forName(
-                    "com.comerzzia.api.rest.client.fidelizados.ConsultarFidelizadoRequestRest");
-            Object request = requestClass.getDeclaredConstructor().newInstance();
-
-            invokeSetter(request, "setNumeroTarjeta", cardNumber);
-            invokeSetter(request, "setUidActividad", sesion.getAplicacion().getUidActividad());
-
-            String apiKey = variablesServices.getVariableAsString(Variables.WEBSERVICES_APIKEY);
-            if (StringUtils.isNotBlank(apiKey)) {
-                invokeSetter(request, "setApiKey", apiKey);
+            Class<?> restClass = Class.forName("com.comerzzia.api.rest.client.fidelizados.FidelizadosRest");
+            Class<?> requestClass = null;
+            try {
+                requestClass = Class.forName("com.comerzzia.api.rest.client.fidelizados.ConsultarFidelizadoRequestRest");
+            } catch (ClassNotFoundException ignored) {
+                requestClass = null;
             }
 
-            Class<?> restClass = Class.forName("com.comerzzia.api.rest.client.fidelizados.FidelizadosRest");
-            Method method = restClass.getMethod("getTarjetaRegalo", requestClass);
-            Object response = method.invoke(null, request);
-
+            Object response = invokeGiftCardEndpoint(restClass, requestClass, cardNumber);
             Object payload = extractGiftCardPayload(response);
             GiftCardBean bean = convertToGiftCardBean(payload, cardNumber);
             if (bean == null) {
@@ -327,12 +320,228 @@ public class AmetllerPayManager extends PayManager {
             throw e;
         } catch (ClassNotFoundException e) {
             throw new GiftCardException(I18N.getTexto("Servicio de tarjetas regalo no disponible."), e);
+        }
+    }
+
+    private Object invokeGiftCardEndpoint(Class<?> restClass, Class<?> requestClass, String cardNumber)
+            throws GiftCardException {
+        String apiKey = null;
+        try {
+            apiKey = variablesServices.getVariableAsString(Variables.WEBSERVICES_APIKEY);
+        } catch (Exception e) {
+            log.debug("invokeGiftCardEndpoint() - Unable to resolve API key", e);
+        }
+
+        String uidActividad = null;
+        if (sesion != null && sesion.getAplicacion() != null) {
+            uidActividad = sesion.getAplicacion().getUidActividad();
+        }
+
+        if (requestClass != null) {
+            Method method = findMethod(restClass, "getTarjetaRegalo", requestClass);
+            if (method != null) {
+                Object request = instantiateGiftCardRequest(requestClass, cardNumber, apiKey, uidActividad);
+                return invokeGiftCardMethod(method, new Object[] { request });
+            }
+        }
+
+        for (Method method : restClass.getMethods()) {
+            if (!Modifier.isStatic(method.getModifiers()) || !"getTarjetaRegalo".equals(method.getName())) {
+                continue;
+            }
+
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            if (allStringParameters(parameterTypes)) {
+                Object response = tryInvokeWithStringArguments(method, cardNumber, apiKey, uidActividad);
+                if (response != null) {
+                    return response;
+                }
+            }
+        }
+
+        throw new GiftCardException(I18N.getTexto("Servicio de tarjetas regalo no disponible."));
+    }
+
+    private Object invokeGiftCardMethod(Method method, Object[] args) throws GiftCardException {
+        try {
+            return method.invoke(null, args);
+        } catch (IllegalAccessException e) {
+            throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getTargetException() != null ? e.getTargetException() : e;
             throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), cause);
-        } catch (Exception e) {
+        }
+    }
+
+    private Object instantiateGiftCardRequest(Class<?> requestClass, String cardNumber, String apiKey,
+            String uidActividad) throws GiftCardException {
+        try {
+            Object instance = instantiateWithDefaults(requestClass);
+
+            applyStringProperty(instance,
+                    new String[] { "setNumeroTarjeta", "setNumTarjeta", "setNumeroTarjetaRegalo", "setTarjeta" },
+                    cardNumber);
+            applyStringProperty(instance, new String[] { "setUidActividad", "setUidActividadServicio" },
+                    uidActividad);
+            applyStringProperty(instance, new String[] { "setApiKey" }, apiKey);
+
+            return instance;
+        } catch (ReflectiveOperationException e) {
             throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
         }
+    }
+
+    private Object instantiateWithDefaults(Class<?> clazz) throws ReflectiveOperationException {
+        try {
+            Constructor<?> ctor = clazz.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            return ctor.newInstance();
+        } catch (NoSuchMethodException e) {
+            for (Constructor<?> ctor : clazz.getDeclaredConstructors()) {
+                ctor.setAccessible(true);
+                Object[] args = buildDefaultArguments(ctor.getParameterTypes());
+                if (args == null) {
+                    continue;
+                }
+                try {
+                    return ctor.newInstance(args);
+                } catch (InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                    // try next constructor
+                }
+            }
+            throw e;
+        }
+    }
+
+    private Object[] buildDefaultArguments(Class<?>[] parameterTypes) {
+        Object[] args = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> param = parameterTypes[i];
+            if (!param.isPrimitive()) {
+                args[i] = null;
+            } else if (boolean.class.equals(param)) {
+                args[i] = Boolean.FALSE;
+            } else if (byte.class.equals(param)) {
+                args[i] = (byte) 0;
+            } else if (short.class.equals(param)) {
+                args[i] = (short) 0;
+            } else if (int.class.equals(param)) {
+                args[i] = 0;
+            } else if (long.class.equals(param)) {
+                args[i] = 0L;
+            } else if (float.class.equals(param)) {
+                args[i] = 0f;
+            } else if (double.class.equals(param)) {
+                args[i] = 0d;
+            } else if (char.class.equals(param)) {
+                args[i] = '\0';
+            } else {
+                return null;
+            }
+        }
+        return args;
+    }
+
+    private void applyStringProperty(Object target, String[] methodNames, String value)
+            throws IllegalAccessException, InvocationTargetException {
+        if (target == null || StringUtils.isBlank(value) || methodNames == null) {
+            return;
+        }
+        for (String name : methodNames) {
+            Method setter = findMethod(target.getClass(), name, String.class);
+            if (setter != null) {
+                setter.invoke(target, value);
+                return;
+            }
+        }
+    }
+
+    private boolean allStringParameters(Class<?>[] parameterTypes) {
+        if (parameterTypes.length == 0) {
+            return false;
+        }
+        for (Class<?> type : parameterTypes) {
+            if (!String.class.equals(type)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Object tryInvokeWithStringArguments(Method method, String cardNumber, String apiKey, String uidActividad)
+            throws GiftCardException {
+        List<Object[]> candidates = buildStringArgumentCandidates(method.getParameterCount(), cardNumber, apiKey,
+                uidActividad);
+        for (Object[] candidate : candidates) {
+            try {
+                return method.invoke(null, candidate);
+            } catch (IllegalArgumentException e) {
+                continue;
+            } catch (IllegalAccessException e) {
+                throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getTargetException() != null ? e.getTargetException() : e;
+                throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), cause);
+            }
+        }
+        return null;
+    }
+
+    private List<Object[]> buildStringArgumentCandidates(int length, String cardNumber, String apiKey,
+            String uidActividad) {
+        List<Object[]> candidates = new ArrayList<>();
+        if (length <= 0) {
+            return candidates;
+        }
+
+        if (length == 1) {
+            candidates.add(new Object[] { cardNumber });
+            if (apiKey != null) {
+                candidates.add(new Object[] { apiKey });
+            }
+            if (uidActividad != null) {
+                candidates.add(new Object[] { uidActividad });
+            }
+            return candidates;
+        }
+
+        if (length == 2) {
+            candidates.add(new Object[] { cardNumber, apiKey });
+            candidates.add(new Object[] { cardNumber, uidActividad });
+            candidates.add(new Object[] { apiKey, uidActividad });
+            candidates.add(new Object[] { uidActividad, apiKey });
+            candidates.add(new Object[] { apiKey, cardNumber });
+            candidates.add(new Object[] { uidActividad, cardNumber });
+            return candidates;
+        }
+
+        if (length == 3) {
+            Object[] values = new Object[] { cardNumber, apiKey, uidActividad };
+            int[][] permutations = new int[][] { { 0, 1, 2 }, { 0, 2, 1 }, { 1, 0, 2 }, { 1, 2, 0 }, { 2, 0, 1 },
+                    { 2, 1, 0 } };
+            for (int[] permutation : permutations) {
+                Object[] candidate = new Object[length];
+                for (int i = 0; i < length; i++) {
+                    candidate[i] = values[permutation[i]];
+                }
+                candidates.add(candidate);
+            }
+            return candidates;
+        }
+
+        Object[] fallback = new Object[length];
+        Arrays.fill(fallback, null);
+        if (length > 0) {
+            fallback[0] = cardNumber;
+        }
+        if (length > 1) {
+            fallback[1] = apiKey;
+        }
+        if (length > 2) {
+            fallback[2] = uidActividad;
+        }
+        candidates.add(fallback);
+        return candidates;
     }
 
     private Object extractGiftCardPayload(Object response) throws GiftCardException {
@@ -438,10 +647,15 @@ public class AmetllerPayManager extends PayManager {
     }
 
     private BigDecimal calculateAvailableBalance(GiftCardBean bean) {
-        BigDecimal saldo = bean.getSaldo() != null ? bean.getSaldo() : BigDecimal.ZERO;
-        BigDecimal provisional = bean.getSaldoProvisional() != null ? bean.getSaldoProvisional() : BigDecimal.ZERO;
-        BigDecimal total = saldo.add(provisional);
-        return total.compareTo(BigDecimal.ZERO) > 0 ? total : saldo;
+        ensureGiftCardDefaults(bean);
+        try {
+            return bean.getSaldoTotal();
+        } catch (Exception ex) {
+            BigDecimal saldo = bean.getSaldo() != null ? bean.getSaldo() : BigDecimal.ZERO;
+            BigDecimal provisional = bean.getSaldoProvisional() != null ? bean.getSaldoProvisional()
+                    : BigDecimal.ZERO;
+            return saldo.add(provisional);
+        }
     }
 
     private void ensureGiftCardDefaults(GiftCardBean bean) {
@@ -451,21 +665,6 @@ public class AmetllerPayManager extends PayManager {
         if (bean.getSaldoProvisional() == null) {
             bean.setSaldoProvisional(BigDecimal.ZERO);
         }
-    }
-
-    private void invokeSetter(Object target, String methodName, Object value)
-            throws IllegalAccessException, InvocationTargetException {
-        if (target == null || value == null) {
-            return;
-        }
-        Method method = findMethod(target.getClass(), methodName, value.getClass());
-        if (method == null && value instanceof String) {
-            method = findMethod(target.getClass(), methodName, String.class);
-        }
-        if (method == null) {
-            return;
-        }
-        method.invoke(target, value);
     }
 
     private Method findMethod(Class<?> type, String name, Class<?>... parameterTypes) {
