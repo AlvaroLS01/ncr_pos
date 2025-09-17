@@ -279,9 +279,7 @@ public class AmetllerPayManager extends PayManager {
 
             payment.context.manager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
 
-            int amountInCents = amountToCharge.multiply(BigDecimal.valueOf(100))
-                    .setScale(0, RoundingMode.HALF_UP).intValue();
-            payment.message.setFieldIntValue(Tender.Amount, amountInCents);
+            payment.message.setFieldIntValue(Tender.Amount, amountToCharge.setScale(2, RoundingMode.HALF_UP));
 
             PaymentsManager paymentsManager = ticketManager.getPaymentsManager();
             paymentsManager.pay(payment.context.paymentCode, amountToCharge);
