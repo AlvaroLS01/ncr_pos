@@ -1,60 +1,82 @@
 package com.comerzzia.ametller.pos.ncr.actions.sale;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.comerzzia.ametller.pos.ncr.ticket.AmetllerScoTicketManager;
-import com.comerzzia.api.rest.client.movimientos.MovimientosRest;
 import com.comerzzia.core.servicios.variables.Variables;
-import com.comerzzia.pos.persistence.giftcard.GiftCardBean;
-import com.comerzzia.pos.services.core.sesion.Sesion;
-import com.comerzzia.pos.services.core.variables.VariablesServices;
-import com.comerzzia.pos.services.payments.PaymentException;
-import com.comerzzia.pos.services.payments.PaymentsManager;
-import com.comerzzia.pos.services.payments.events.PaymentErrorEvent;
-import com.comerzzia.pos.services.payments.events.PaymentOkEvent;
-import com.comerzzia.pos.services.payments.events.PaymentsErrorEvent;
-import com.comerzzia.pos.services.payments.methods.PaymentMethodManager;
-import com.comerzzia.pos.services.payments.methods.types.BasicPaymentMethodManager;
-import com.comerzzia.pos.services.payments.methods.types.GiftCardManager;
-import com.comerzzia.pos.services.ticket.pagos.PagoTicket;
-import com.comerzzia.pos.services.ticket.pagos.tarjeta.DatosRespuestaPagoTarjeta;
-import com.comerzzia.pos.util.i18n.I18N;
 import com.comerzzia.pos.ncr.actions.sale.PayManager;
+import com.comerzzia.pos.ncr.messages.BasicNCRMessage;
+import com.comerzzia.pos.ncr.messages.DataNeeded;
+import com.comerzzia.pos.ncr.messages.DataNeededReply;
 import com.comerzzia.pos.ncr.messages.Tender;
 import com.comerzzia.pos.ncr.messages.TenderException;
-import com.comerzzia.pos.ncr.messages.TenderAccepted;
+import com.comerzzia.pos.persistence.giftcard.GiftCardBean;
 import com.comerzzia.pos.persistence.mediosPagos.MedioPagoBean;
+import com.comerzzia.pos.services.core.sesion.Sesion;
+import com.comerzzia.pos.services.core.variables.VariablesServices;
+import com.comerzzia.pos.services.payments.PaymentsManager;
+import com.comerzzia.pos.services.payments.methods.PaymentMethodManager;
+import com.comerzzia.pos.services.payments.methods.types.GiftCardManager;
+import com.comerzzia.pos.util.i18n.I18N;
 
+@Lazy(false)
 @Service
 @Primary
 public class AmetllerPayManager extends PayManager {
 
     private static final Logger log = Logger.getLogger(AmetllerPayManager.class);
-    private static final String TENDER_TYPE_GIFT_CARD = "GIFTCARD";
-    private static final Set<String> AUTO_DETECTED_TENDER_TYPES = new HashSet<>(
-            Arrays.asList("OTRASTARJETAS", "OTHERCARDS"));
+    private static final String AUTO_TENDER_TYPE = "OTRASTARJETAS";
+    private static final String AUTO_TENDER_TYPE_ALT = "OTHERCARDS";
+    private static final String EXPLICIT_TENDER = "GIFTCARD";
+    private static final String DIALOG_CONFIRM_TYPE = "4";
+    private static final String DIALOG_CONFIRM_ID = "1";
 
     @Autowired
     private Sesion sesion;
 
     @Autowired
     private VariablesServices variablesServices;
+
+    private PendingPayment pendingPayment;
+
+    @PostConstruct
+    @Override
+    public void init() {
+        super.init();
+        ncrController.registerActionManager(DataNeededReply.class, this);
+    }
+
+    @Override
+    public void processMessage(BasicNCRMessage message) {
+        if (message instanceof DataNeededReply) {
+            if (!handleDataNeededReply((DataNeededReply) message)) {
+                log.warn("processMessage() - DataNeededReply not managed by gift card flow");
+            }
+            return;
+        }
+
+        super.processMessage(message);
+    }
 
     @Override
     protected void activateTenderMode() {
@@ -66,454 +88,652 @@ public class AmetllerPayManager extends PayManager {
 
     @Override
     protected void trayPay(Tender message) {
-        String tenderType = StringUtils.trimToEmpty(message.getFieldValue(Tender.TenderType));
-
-        boolean explicitGiftCard = isGiftCardTender(tenderType);
-        boolean autoDetectedGiftCard = isAutoDetectedGiftCardTender(tenderType);
-
-        if (explicitGiftCard || autoDetectedGiftCard) {
-            if (processGiftCardTender(message, explicitGiftCard)) {
-                return;
-            }
-        }
-
-        super.trayPay(message);
-    }
-
-    private boolean isGiftCardTender(String tenderType) {
-        if (StringUtils.isBlank(tenderType)) {
-            return false;
-        }
-
-        return TENDER_TYPE_GIFT_CARD.equalsIgnoreCase(tenderType.replace(" ", ""));
-    }
-
-    private boolean isAutoDetectedGiftCardTender(String tenderType) {
-        if (StringUtils.isBlank(tenderType)) {
-            return false;
-        }
-
-        String normalized = tenderType.replaceAll("[\\s_]", "").toUpperCase(Locale.ROOT);
-        return AUTO_DETECTED_TENDER_TYPES.contains(normalized);
-    }
-
-    private boolean processGiftCardTender(Tender message, boolean explicitSelection) {
-        if (log.isDebugEnabled()) {
-            log.debug("processGiftCardTender() - explicitSelection=" + explicitSelection);
-        }
-
-        String numeroTarjeta = StringUtils.trimToEmpty(message.getFieldValue(Tender.UPC));
-
-        if (StringUtils.isBlank(numeroTarjeta)) {
-            log.warn("processGiftCardTender() - Número de tarjeta vacío");
-            sendGiftCardError(I18N.getTexto("No se ha informado ningún número de tarjeta regalo."));
-            return true;
-        }
+        String tenderTypeRaw = StringUtils.trimToEmpty(message.getFieldValue(Tender.TenderType));
+        String normalizedTender = tenderTypeRaw.replace(" ", "").toUpperCase(Locale.ROOT);
+        String cardNumber = StringUtils.trimToNull(message.getFieldValue(Tender.UPC));
 
         PaymentsManager paymentsManager = ticketManager.getPaymentsManager();
+        GiftCardContext context = resolveGiftCardContext(tenderTypeRaw, normalizedTender, cardNumber, paymentsManager);
+
+        if (context == null) {
+            super.trayPay(message);
+            return;
+        }
+
+        BigDecimal amount = parseTenderAmount(message);
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            amount = ticketManager.getTicket().getTotales().getPendiente();
+        }
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            sendGiftCardError(I18N.getTexto("El importe indicado no es válido."), context.scoTenderType);
+            return;
+        }
+
+        PendingPayment payment = new PendingPayment(message, context, cardNumber, amount);
+
+        if (context.requiresConfirmation) {
+            pendingPayment = payment;
+            sendConfirmationDialog(context);
+            return;
+        }
+
+        executeGiftCardPayment(payment);
+    }
+
+    private GiftCardContext resolveGiftCardContext(String tenderTypeRaw, String normalizedTender, String cardNumber,
+            PaymentsManager paymentsManager) {
         if (paymentsManager == null) {
-            log.error("processGiftCardTender() - Payments manager not available");
-            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."));
-            return true;
+            return null;
         }
 
-        Map.Entry<String, PaymentMethodManager> entry = findGiftCardManager(paymentsManager);
-
-        if (entry == null) {
-            log.error("processGiftCardTender() - Medio de pago de tarjeta regalo no configurado");
-            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."));
-            return true;
+        Map<String, PaymentMethodManager> managers = paymentsManager.getPaymentsMehtodManagerAvailables();
+        if (managers == null || managers.isEmpty()) {
+            return null;
         }
 
-        PaymentMethodManager paymentMethodManager = entry.getValue();
-        boolean waitStateSent = false;
-
+        // explicit tender mapping
+        String mappedCode = null;
         try {
-            ncrController.sendWaitState(I18N.getTexto("Validando tarjeta regalo..."));
-            waitStateSent = true;
+            mappedCode = scoTenderTypeToComerzziaPaymentCode(tenderTypeRaw);
+        } catch (RuntimeException ex) {
+            mappedCode = null;
+        }
 
-            GiftCardBean giftCard = loadGiftCard(numeroTarjeta);
+        if (mappedCode != null) {
+            PaymentMethodManager manager = managers.get(mappedCode);
+            if (manager instanceof GiftCardManager) {
+                MedioPagoBean medioPago = mediosPagosService.getMedioPago(mappedCode);
+                return new GiftCardContext(mappedCode, (GiftCardManager) manager, medioPago, false, tenderTypeRaw,
+                        false);
+            }
+        }
 
-            normalizeGiftCard(giftCard, numeroTarjeta);
+        boolean autoDetected = AUTO_TENDER_TYPE.equals(normalizedTender) || AUTO_TENDER_TYPE_ALT.equals(normalizedTender)
+                || EXPLICIT_TENDER.equals(normalizedTender);
 
-            BigDecimal amountToCharge = resolveGiftCardAmount(message, giftCard);
+        if (!autoDetected) {
+            return null;
+        }
 
-            updateGiftCardAmount(giftCard, amountToCharge);
+        if (StringUtils.isBlank(cardNumber)) {
+            sendGiftCardError(I18N.getTexto("No se ha informado ningún número de tarjeta regalo."), tenderTypeRaw);
+            return null;
+        }
 
-            paymentMethodManager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
+        GiftCardManager foundManager = null;
+        String foundCode = null;
 
-            message.setFieldIntValue(Tender.Amount, amountToCharge);
+        for (Map.Entry<String, PaymentMethodManager> entry : managers.entrySet()) {
+            if (entry.getValue() instanceof GiftCardManager) {
+                if (foundManager != null) {
+                    // more than one candidate, rely on explicit tender mapping
+                    foundManager = null;
+                    break;
+                }
+                foundManager = (GiftCardManager) entry.getValue();
+                foundCode = entry.getKey();
+            }
+        }
 
-            paymentsManager.pay(entry.getKey(), amountToCharge);
+        if (foundManager == null) {
+            sendGiftCardError(I18N.getTexto("Medio de pago de tarjeta regalo no disponible."), tenderTypeRaw);
+            return null;
+        }
+
+        MedioPagoBean medioPago = mediosPagosService.getMedioPago(foundCode);
+        return new GiftCardContext(foundCode, foundManager, medioPago, true, tenderTypeRaw, true);
+    }
+
+    private void sendConfirmationDialog(GiftCardContext context) {
+        DataNeeded dialog = new DataNeeded();
+        dialog.setFieldValue(DataNeeded.Type, DIALOG_CONFIRM_TYPE);
+        dialog.setFieldValue(DataNeeded.Id, DIALOG_CONFIRM_ID);
+        dialog.setFieldValue(DataNeeded.Mode, "0");
+
+        String description = context.medioPago != null ? context.medioPago.getDesMedioPago()
+                : I18N.getTexto("Tarjeta regalo");
+
+        dialog.setFieldValue(DataNeeded.TopCaption1,
+                MessageFormat.format(I18N.getTexto("¿Desea usar su tarjeta {0}?"), description));
+        dialog.setFieldValue(DataNeeded.SummaryInstruction1, I18N.getTexto("Pulse una opción"));
+        dialog.setFieldValue(DataNeeded.ButtonData1, "TxSi");
+        dialog.setFieldValue(DataNeeded.ButtonText1, I18N.getTexto("SI"));
+        dialog.setFieldValue(DataNeeded.ButtonData2, "TxNo");
+        dialog.setFieldValue(DataNeeded.ButtonText2, I18N.getTexto("NO"));
+        dialog.setFieldValue(DataNeeded.EnableScanner, "0");
+        dialog.setFieldValue(DataNeeded.HideGoBack, "1");
+
+        ncrController.sendMessage(dialog);
+    }
+
+    private boolean handleDataNeededReply(DataNeededReply reply) {
+        String type = reply.getFieldValue(DataNeededReply.Type);
+        String id = reply.getFieldValue(DataNeededReply.Id);
+
+        if (!DIALOG_CONFIRM_TYPE.equals(type) || !DIALOG_CONFIRM_ID.equals(id)) {
+            return false;
+        }
+
+        PendingPayment payment = pendingPayment;
+        pendingPayment = null;
+
+        sendCloseDataNeeded();
+
+        if (payment == null) {
+            log.warn("handleDataNeededReply() - Confirmation received without pending payment");
             return true;
         }
-        catch (GiftCardProcessingException e) {
-            log.error("processGiftCardTender() - " + e.getMessage(), e);
-            handleGiftCardError(paymentsManager, paymentMethodManager, e, e.getMessage());
-        }
-        catch (Exception e) {
-            log.error("processGiftCardTender() - Error inesperado: " + e.getMessage(), e);
-            handleGiftCardError(paymentsManager, paymentMethodManager, e, e.getMessage());
-        }
-        finally {
-            if (waitStateSent) {
-                ncrController.sendFinishWaitState();
-            }
+
+        String option = reply.getFieldValue(DataNeededReply.Data1);
+        if (StringUtils.equalsIgnoreCase("TxSi", option)) {
+            executeGiftCardPayment(payment);
+        } else {
+            sendGiftCardError(I18N.getTexto("Operación cancelada por el usuario"), payment.context.scoTenderType);
+            itemsManager.sendTotals();
         }
 
         return true;
     }
 
-    private Map.Entry<String, PaymentMethodManager> findGiftCardManager(PaymentsManager paymentsManager) {
-        for (Map.Entry<String, PaymentMethodManager> entry : paymentsManager.getPaymentsMehtodManagerAvailables().entrySet()) {
-            if (entry.getValue() instanceof GiftCardManager) {
-                return entry;
-            }
-        }
-        return null;
+    private void sendCloseDataNeeded() {
+        DataNeeded close = new DataNeeded();
+        close.setFieldValue(DataNeeded.Type, "0");
+        close.setFieldValue(DataNeeded.Id, "0");
+        close.setFieldValue(DataNeeded.Mode, "0");
+        ncrController.sendMessage(close);
     }
 
-    private GiftCardBean loadGiftCard(String numeroTarjeta) throws GiftCardProcessingException {
-        Method method = findGiftCardConsultMethod();
+    private BigDecimal parseTenderAmount(Tender message) {
+        String amountValue = message.getFieldValue(Tender.Amount);
+        if (StringUtils.isBlank(amountValue)) {
+            return null;
+        }
+        try {
+            return new BigDecimal(amountValue).divide(BigDecimal.valueOf(100));
+        } catch (NumberFormatException e) {
+            log.error("parseTenderAmount() - Unable to parse tender amount: " + amountValue, e);
+            return null;
+        }
+    }
 
-        if (method == null) {
-            throw new GiftCardProcessingException(I18N.getTexto("No se ha podido validar la tarjeta regalo."));
+    private void executeGiftCardPayment(PendingPayment payment) {
+        try {
+            ncrController.sendWaitState(I18N.getTexto("Validando tarjeta..."));
+
+            GiftCardBean giftCard = consultGiftCard(payment.cardNumber);
+            ensureGiftCardDefaults(giftCard);
+            BigDecimal available = calculateAvailableBalance(giftCard);
+
+            if (available.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+            }
+
+            BigDecimal amountToCharge = payment.amount.min(available);
+            if (amountToCharge.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+            }
+
+            giftCard.setNumTarjetaRegalo(payment.cardNumber);
+            giftCard.setImportePago(amountToCharge);
+
+            payment.context.manager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
+
+            payment.message.setFieldIntValue(Tender.Amount, amountToCharge.setScale(2, RoundingMode.HALF_UP));
+
+            PaymentsManager paymentsManager = ticketManager.getPaymentsManager();
+            paymentsManager.pay(payment.context.paymentCode, amountToCharge);
+        } catch (GiftCardException e) {
+            log.error("executeGiftCardPayment() - " + e.getMessage(), e);
+            sendGiftCardError(e.getMessage(), payment.context.scoTenderType);
+        } catch (Exception e) {
+            log.error("executeGiftCardPayment() - Unexpected error: " + e.getMessage(), e);
+            sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."),
+                    payment.context.scoTenderType);
+        } finally {
+            ncrController.sendFinishWaitState();
+        }
+    }
+
+    private GiftCardBean consultGiftCard(String cardNumber) throws GiftCardException {
+        if (StringUtils.isBlank(cardNumber)) {
+            throw new GiftCardException(I18N.getTexto("No se ha informado ningún número de tarjeta regalo."));
         }
 
         try {
-            Object response = invokeGiftCardMethod(method, numeroTarjeta);
-
-            if (response == null) {
-                throw new GiftCardProcessingException(I18N.getTexto("No se ha encontrado información para la tarjeta regalo."));
+            Class<?> restClass = Class.forName("com.comerzzia.api.rest.client.fidelizados.FidelizadosRest");
+            Class<?> requestClass = null;
+            try {
+                requestClass = Class.forName("com.comerzzia.api.rest.client.fidelizados.ConsultarFidelizadoRequestRest");
+            } catch (ClassNotFoundException ignored) {
+                requestClass = null;
             }
 
-            if (!(response instanceof GiftCardBean)) {
-                throw new GiftCardProcessingException(I18N.getTexto("Respuesta inválida al consultar la tarjeta regalo."));
+            Object response = invokeGiftCardEndpoint(restClass, requestClass, cardNumber);
+            Object payload = extractGiftCardPayload(response);
+            GiftCardBean bean = convertToGiftCardBean(payload, cardNumber);
+            if (bean == null) {
+                throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."));
             }
-
-            return (GiftCardBean) response;
-        }
-        catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            String message = cause != null ? cause.getMessage() : e.getMessage();
-            throw new GiftCardProcessingException(I18N.getTexto("Ha habido un error al validar la tarjeta regalo: {0}", message));
-        }
-        catch (IllegalArgumentException e) {
-            throw new GiftCardProcessingException(I18N.getTexto("No se ha podido validar la tarjeta regalo."));
-        }
-        catch (IllegalAccessException e) {
-            throw new GiftCardProcessingException(I18N.getTexto("No se ha podido acceder al servicio de tarjetas regalo."));
+            return bean;
+        } catch (GiftCardException e) {
+            throw e;
+        } catch (ClassNotFoundException e) {
+            throw new GiftCardException(I18N.getTexto("Servicio de tarjetas regalo no disponible."), e);
         }
     }
 
-    private Object invokeGiftCardMethod(Method method, String numeroTarjeta) throws IllegalAccessException, InvocationTargetException, GiftCardProcessingException {
-        List<Object[]> candidates = buildGiftCardArguments(numeroTarjeta);
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        InvocationTargetException lastInvocationException = null;
-        IllegalArgumentException lastIllegalArgument = null;
+    private Object invokeGiftCardEndpoint(Class<?> restClass, Class<?> requestClass, String cardNumber)
+            throws GiftCardException {
+        String apiKey = null;
+        try {
+            apiKey = variablesServices.getVariableAsString(Variables.WEBSERVICES_APIKEY);
+        } catch (Exception e) {
+            log.debug("invokeGiftCardEndpoint() - Unable to resolve API key", e);
+        }
 
-        for (Object[] candidate : candidates) {
-            if (candidate == null || candidate.length != parameterTypes.length) {
+        String uidActividad = null;
+        if (sesion != null && sesion.getAplicacion() != null) {
+            uidActividad = sesion.getAplicacion().getUidActividad();
+        }
+
+        if (requestClass != null) {
+            Method method = findMethod(restClass, "getTarjetaRegalo", requestClass);
+            if (method != null) {
+                Object request = instantiateGiftCardRequest(requestClass, cardNumber, apiKey, uidActividad);
+                return invokeGiftCardMethod(method, new Object[] { request });
+            }
+        }
+
+        for (Method method : restClass.getMethods()) {
+            if (!Modifier.isStatic(method.getModifiers()) || !"getTarjetaRegalo".equals(method.getName())) {
                 continue;
             }
 
-            boolean compatible = true;
-
-            for (int i = 0; i < parameterTypes.length; i++) {
-                if (candidate[i] == null || !parameterTypes[i].isInstance(candidate[i])) {
-                    compatible = false;
-                    break;
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            if (allStringParameters(parameterTypes)) {
+                Object response = tryInvokeWithStringArguments(method, cardNumber, apiKey, uidActividad);
+                if (response != null) {
+                    return response;
                 }
             }
+        }
 
-            if (!compatible) {
-                continue;
+        throw new GiftCardException(I18N.getTexto("Servicio de tarjetas regalo no disponible."));
+    }
+
+    private Object invokeGiftCardMethod(Method method, Object[] args) throws GiftCardException {
+        try {
+            return method.invoke(null, args);
+        } catch (IllegalAccessException e) {
+            throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getTargetException() != null ? e.getTargetException() : e;
+            throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), cause);
+        }
+    }
+
+    private Object instantiateGiftCardRequest(Class<?> requestClass, String cardNumber, String apiKey,
+            String uidActividad) throws GiftCardException {
+        try {
+            Object instance = instantiateWithDefaults(requestClass);
+
+            applyStringProperty(instance,
+                    new String[] { "setNumeroTarjeta", "setNumTarjeta", "setNumeroTarjetaRegalo", "setTarjeta" },
+                    cardNumber);
+            applyStringProperty(instance, new String[] { "setUidActividad", "setUidActividadServicio" },
+                    uidActividad);
+            applyStringProperty(instance, new String[] { "setApiKey" }, apiKey);
+
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
+        }
+    }
+
+    private Object instantiateWithDefaults(Class<?> clazz) throws ReflectiveOperationException {
+        try {
+            Constructor<?> ctor = clazz.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            return ctor.newInstance();
+        } catch (NoSuchMethodException e) {
+            for (Constructor<?> ctor : clazz.getDeclaredConstructors()) {
+                ctor.setAccessible(true);
+                Object[] args = buildDefaultArguments(ctor.getParameterTypes());
+                if (args == null) {
+                    continue;
+                }
+                try {
+                    return ctor.newInstance(args);
+                } catch (InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                    // try next constructor
+                }
             }
+            throw e;
+        }
+    }
 
+    private Object[] buildDefaultArguments(Class<?>[] parameterTypes) {
+        Object[] args = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> param = parameterTypes[i];
+            if (!param.isPrimitive()) {
+                args[i] = null;
+            } else if (boolean.class.equals(param)) {
+                args[i] = Boolean.FALSE;
+            } else if (byte.class.equals(param)) {
+                args[i] = (byte) 0;
+            } else if (short.class.equals(param)) {
+                args[i] = (short) 0;
+            } else if (int.class.equals(param)) {
+                args[i] = 0;
+            } else if (long.class.equals(param)) {
+                args[i] = 0L;
+            } else if (float.class.equals(param)) {
+                args[i] = 0f;
+            } else if (double.class.equals(param)) {
+                args[i] = 0d;
+            } else if (char.class.equals(param)) {
+                args[i] = '\0';
+            } else {
+                return null;
+            }
+        }
+        return args;
+    }
+
+    private void applyStringProperty(Object target, String[] methodNames, String value)
+            throws IllegalAccessException, InvocationTargetException {
+        if (target == null || StringUtils.isBlank(value) || methodNames == null) {
+            return;
+        }
+        for (String name : methodNames) {
+            Method setter = findMethod(target.getClass(), name, String.class);
+            if (setter != null) {
+                setter.invoke(target, value);
+                return;
+            }
+        }
+    }
+
+    private boolean allStringParameters(Class<?>[] parameterTypes) {
+        if (parameterTypes.length == 0) {
+            return false;
+        }
+        for (Class<?> type : parameterTypes) {
+            if (!String.class.equals(type)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Object tryInvokeWithStringArguments(Method method, String cardNumber, String apiKey, String uidActividad)
+            throws GiftCardException {
+        List<Object[]> candidates = buildStringArgumentCandidates(method.getParameterCount(), cardNumber, apiKey,
+                uidActividad);
+        for (Object[] candidate : candidates) {
             try {
                 return method.invoke(null, candidate);
-            }
-            catch (IllegalArgumentException e) {
-                lastIllegalArgument = e;
-            }
-            catch (InvocationTargetException e) {
-                lastInvocationException = e;
-            }
-        }
-
-        if (lastInvocationException != null) {
-            throw lastInvocationException;
-        }
-
-        if (lastIllegalArgument != null) {
-            throw lastIllegalArgument;
-        }
-
-        throw new GiftCardProcessingException(I18N.getTexto("No se ha podido consultar el saldo de la tarjeta regalo."));
-    }
-
-    private List<Object[]> buildGiftCardArguments(String numeroTarjeta) {
-        List<Object[]> arguments = new ArrayList<>();
-
-        addArgumentCombination(arguments, numeroTarjeta);
-
-        String uidActividad = getUidActividad();
-        String apiKey = getApiKey();
-        String codAlmacen = getCodAlmacen();
-        String codCaja = getCodCaja();
-        String uidInstancia = getUidInstancia();
-
-        addArgumentCombination(arguments, uidActividad, numeroTarjeta);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad);
-
-        addArgumentCombination(arguments, uidActividad, numeroTarjeta, apiKey);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad, apiKey);
-
-        addArgumentCombination(arguments, uidActividad, uidInstancia, numeroTarjeta);
-        addArgumentCombination(arguments, uidActividad, numeroTarjeta, uidInstancia);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad, uidInstancia);
-
-        addArgumentCombination(arguments, uidActividad, uidInstancia, numeroTarjeta, apiKey);
-        addArgumentCombination(arguments, uidActividad, numeroTarjeta, uidInstancia, apiKey);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad, uidInstancia, apiKey);
-
-        addArgumentCombination(arguments, uidActividad, codAlmacen, codCaja, numeroTarjeta);
-        addArgumentCombination(arguments, uidActividad, numeroTarjeta, codAlmacen, codCaja);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad, codAlmacen, codCaja);
-
-        addArgumentCombination(arguments, uidActividad, codAlmacen, codCaja, numeroTarjeta, apiKey);
-        addArgumentCombination(arguments, uidActividad, numeroTarjeta, codAlmacen, codCaja, apiKey);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad, codAlmacen, codCaja, apiKey);
-
-        addArgumentCombination(arguments, uidActividad, uidInstancia, codAlmacen, codCaja, numeroTarjeta);
-        addArgumentCombination(arguments, uidActividad, codAlmacen, codCaja, uidInstancia, numeroTarjeta);
-        addArgumentCombination(arguments, uidActividad, uidInstancia, codAlmacen, codCaja, numeroTarjeta, apiKey);
-        addArgumentCombination(arguments, uidActividad, codAlmacen, codCaja, uidInstancia, numeroTarjeta, apiKey);
-        addArgumentCombination(arguments, numeroTarjeta, uidActividad, uidInstancia, codAlmacen, codCaja, apiKey);
-
-        return arguments;
-    }
-
-    private Method findGiftCardConsultMethod() {
-        for (Method method : MovimientosRest.class.getMethods()) {
-            if (!GiftCardBean.class.isAssignableFrom(method.getReturnType())) {
+            } catch (IllegalArgumentException e) {
                 continue;
-            }
-
-            String name = method.getName().toLowerCase(Locale.ROOT);
-
-            if (name.contains("tarjetaregalo") && (name.contains("consult") || name.contains("obten") || name.contains("saldo") || name.contains("buscar"))) {
-                return method;
+            } catch (IllegalAccessException e) {
+                throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getTargetException() != null ? e.getTargetException() : e;
+                throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), cause);
             }
         }
-
         return null;
     }
 
-    private BigDecimal resolveGiftCardAmount(Tender message, GiftCardBean giftCard) throws GiftCardProcessingException {
-        if (giftCard == null) {
-            throw new GiftCardProcessingException(I18N.getTexto("No se ha podido validar la tarjeta regalo."));
+    private List<Object[]> buildStringArgumentCandidates(int length, String cardNumber, String apiKey,
+            String uidActividad) {
+        List<Object[]> candidates = new ArrayList<>();
+        if (length <= 0) {
+            return candidates;
         }
 
-        BigDecimal pending = ticketManager.getTicket().getTotales().getPendiente();
-        BigDecimal saldo = giftCard.getSaldo();
-
-        BigDecimal requested = parseAmount(message.getFieldValue(Tender.Amount));
-
-        if (requested == null || requested.compareTo(BigDecimal.ZERO) <= 0) {
-            requested = pending;
+        if (length == 1) {
+            candidates.add(new Object[] { cardNumber });
+            if (apiKey != null) {
+                candidates.add(new Object[] { apiKey });
+            }
+            if (uidActividad != null) {
+                candidates.add(new Object[] { uidActividad });
+            }
+            return candidates;
         }
 
-        BigDecimal amount = requested;
-
-        if (pending != null && amount != null && amount.compareTo(pending) > 0) {
-            amount = pending;
+        if (length == 2) {
+            candidates.add(new Object[] { cardNumber, apiKey });
+            candidates.add(new Object[] { cardNumber, uidActividad });
+            candidates.add(new Object[] { apiKey, uidActividad });
+            candidates.add(new Object[] { uidActividad, apiKey });
+            candidates.add(new Object[] { apiKey, cardNumber });
+            candidates.add(new Object[] { uidActividad, cardNumber });
+            return candidates;
         }
 
-        if (saldo == null) {
-            saldo = BigDecimal.ZERO;
+        if (length == 3) {
+            Object[] values = new Object[] { cardNumber, apiKey, uidActividad };
+            int[][] permutations = new int[][] { { 0, 1, 2 }, { 0, 2, 1 }, { 1, 0, 2 }, { 1, 2, 0 }, { 2, 0, 1 },
+                    { 2, 1, 0 } };
+            for (int[] permutation : permutations) {
+                Object[] candidate = new Object[length];
+                for (int i = 0; i < length; i++) {
+                    candidate[i] = values[permutation[i]];
+                }
+                candidates.add(candidate);
+            }
+            return candidates;
         }
 
-        if (amount == null) {
-            amount = saldo;
+        Object[] fallback = new Object[length];
+        Arrays.fill(fallback, null);
+        if (length > 0) {
+            fallback[0] = cardNumber;
         }
-
-        if (amount.compareTo(saldo) > 0) {
-            amount = saldo;
+        if (length > 1) {
+            fallback[1] = apiKey;
         }
-
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new GiftCardProcessingException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+        if (length > 2) {
+            fallback[2] = uidActividad;
         }
-
-        return amount.setScale(2, RoundingMode.HALF_UP);
+        candidates.add(fallback);
+        return candidates;
     }
 
-    private BigDecimal parseAmount(String amountField) {
-        if (StringUtils.isBlank(amountField)) {
+    private Object extractGiftCardPayload(Object response) throws GiftCardException {
+        if (response == null) {
             return null;
         }
 
-        try {
-            return new BigDecimal(amountField).divide(new BigDecimal(100));
+        if (response instanceof GiftCardBean) {
+            return response;
         }
-        catch (NumberFormatException e) {
-            log.warn("parseAmount() - Formato de importe inválido: " + amountField, e);
+
+        Method getter = findNoArgMethod(response.getClass(), "getTarjetaRegalo", "getTarjeta", "getGiftCard");
+        if (getter != null) {
+            try {
+                return getter.invoke(response);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new GiftCardException(I18N.getTexto("No se ha podido validar la tarjeta regalo."), e);
+            }
+        }
+
+        return response;
+    }
+
+    private GiftCardBean convertToGiftCardBean(Object payload, String cardNumber) {
+        if (payload == null) {
             return null;
         }
-    }
 
-    private void handleGiftCardError(PaymentsManager paymentsManager, PaymentMethodManager paymentMethodManager,
-            Exception exception, String errorMessage) {
-        String message = StringUtils.defaultIfBlank(errorMessage,
-                I18N.getTexto("Ha habido un error al procesar el pago con tarjeta regalo."));
-
-        sendGiftCardError(message);
-
-        if (paymentsManager == null) {
-            return;
-        }
-
-        Object source = paymentMethodManager != null ? paymentMethodManager : this;
-
-        PaymentErrorEvent errorEvent;
-
-        if (exception instanceof PaymentException) {
-            PaymentException paymentException = (PaymentException) exception;
-            errorEvent = new PaymentErrorEvent(source, paymentException.getPaymentId(), exception,
-                    paymentException.getErrorCode(), message);
-        }
-        else {
-            errorEvent = new PaymentErrorEvent(source, -1, exception, null, message);
-        }
-
-        PaymentsErrorEvent event = new PaymentsErrorEvent(source, errorEvent);
-        paymentsManager.getEventsHandler().paymentsError(event);
-    }
-
-    private void sendGiftCardError(String message) {
-        TenderException tenderException = new TenderException();
-        tenderException.setFieldValue(TenderException.ExceptionId, "0");
-        tenderException.setFieldValue(TenderException.ExceptionType, "0");
-        tenderException.setFieldValue(TenderException.TenderType, "Gift Card");
-        tenderException.setFieldValue(TenderException.Message, message);
-
-        ncrController.sendMessage(tenderException);
-    }
-
-    private void addArgumentCombination(List<Object[]> arguments, Object... values) {
-        if (values == null || values.length == 0) {
-            return;
-        }
-
-        for (Object value : values) {
-            if (value == null) {
-                return;
+        if (payload instanceof GiftCardBean) {
+            GiftCardBean bean = (GiftCardBean) payload;
+            if (StringUtils.isBlank(bean.getNumTarjetaRegalo())) {
+                bean.setNumTarjetaRegalo(cardNumber);
             }
-
-            if (value instanceof String && StringUtils.isBlank((String) value)) {
-                return;
-            }
+            ensureGiftCardDefaults(bean);
+            return bean;
         }
 
-        arguments.add(values);
-    }
+        GiftCardBean bean = new GiftCardBean();
+        bean.setNumTarjetaRegalo(cardNumber);
 
-    private void normalizeGiftCard(GiftCardBean giftCard, String numeroTarjeta) {
-        if (giftCard == null) {
-            return;
-        }
-
-        if (StringUtils.isBlank(giftCard.getNumTarjetaRegalo())) {
-            giftCard.setNumTarjetaRegalo(numeroTarjeta);
-        }
-
-        BigDecimal saldo = giftCard.getSaldo();
-        BigDecimal saldoProvisional = giftCard.getSaldoProvisional();
+        BigDecimal saldo = readBigDecimal(payload, "getSaldo");
+        BigDecimal saldoProvisional = readBigDecimal(payload, "getSaldoProvisional");
+        BigDecimal saldoTotal = readBigDecimal(payload, "getSaldoTotal");
+        BigDecimal saldoDisponible = readBigDecimal(payload, "getSaldoDisponible");
 
         if (saldo == null) {
-            saldo = BigDecimal.ZERO;
-            giftCard.setSaldo(saldo);
+            saldo = saldoTotal != null ? saldoTotal : saldoDisponible;
         }
-
+        if (saldo == null) {
+            saldo = BigDecimal.ZERO;
+        }
         if (saldoProvisional == null) {
             saldoProvisional = BigDecimal.ZERO;
-            giftCard.setSaldoProvisional(saldoProvisional);
-        }
-    }
-
-    private void updateGiftCardAmount(GiftCardBean giftCard, BigDecimal amount) {
-        if (giftCard == null || amount == null) {
-            return;
         }
 
-        giftCard.setImportePago(amount);
+        bean.setSaldo(saldo);
+        bean.setSaldoProvisional(saldoProvisional);
+
+        return bean;
     }
 
-    private String getUidActividad() {
-        return sesion != null && sesion.getAplicacion() != null ? sesion.getAplicacion().getUidActividad() : null;
-    }
+    private BigDecimal readBigDecimal(Object source, String methodName) {
+        if (source == null) {
+            return null;
+        }
 
-    private String getUidInstancia() {
-        return sesion != null && sesion.getAplicacion() != null ? sesion.getAplicacion().getUidInstancia() : null;
-    }
+        Method method = findNoArgMethod(source.getClass(), methodName);
+        if (method == null) {
+            return null;
+        }
 
-    private String getCodAlmacen() {
-        return sesion != null && sesion.getAplicacion() != null ? sesion.getAplicacion().getCodAlmacen() : null;
-    }
-
-    private String getCodCaja() {
-        return sesion != null && sesion.getAplicacion() != null ? sesion.getAplicacion().getCodCaja() : null;
-    }
-
-    private String getApiKey() {
         try {
-            return variablesServices != null ? variablesServices.getVariableAsString(Variables.WEBSERVICES_APIKEY) : null;
-        }
-        catch (Exception e) {
-            log.warn("getApiKey() - No se ha podido obtener la API key: " + e.getMessage(), e);
+            Object value = method.invoke(source);
+            if (value == null) {
+                return null;
+            }
+            if (value instanceof BigDecimal) {
+                return (BigDecimal) value;
+            }
+            if (value instanceof Number) {
+                return BigDecimal.valueOf(((Number) value).doubleValue());
+            }
+            return new BigDecimal(value.toString());
+        } catch (IllegalAccessException | InvocationTargetException | NumberFormatException e) {
             return null;
         }
     }
 
-    @Override
-    protected void processPaymentOk(PaymentOkEvent eventOk) {
-        log.debug("processPaymentOk() - Pay accepted");
-
-        BigDecimal amount = eventOk.getAmount();
-        String paymentCode = ((PaymentMethodManager) eventOk.getSource()).getPaymentCode();
-        Integer paymentId = eventOk.getPaymentId();
-
-        MedioPagoBean paymentMethod = mediosPagosService.getMedioPago(paymentCode);
-
-        boolean cashFlowRecorded = ((PaymentMethodManager) eventOk.getSource()).recordCashFlowImmediately();
-
-        PagoTicket payment = ticketManager.addPayToTicket(paymentCode, amount, paymentId, true, cashFlowRecorded);
-
-        if (paymentMethod.getTarjetaCredito() != null && paymentMethod.getTarjetaCredito()) {
-            if (eventOk.getExtendedData().containsKey(BasicPaymentMethodManager.PARAM_RESPONSE_TEF)) {
-                DatosRespuestaPagoTarjeta datosRespuestaPagoTarjeta = (DatosRespuestaPagoTarjeta) eventOk.getExtendedData().get(BasicPaymentMethodManager.PARAM_RESPONSE_TEF);
-                payment.setDatosRespuestaPagoTarjeta(datosRespuestaPagoTarjeta);
+    private Method findNoArgMethod(Class<?> type, String... names) {
+        for (String name : names) {
+            if (name == null) {
+                continue;
+            }
+            try {
+                Method method = type.getMethod(name);
+                method.setAccessible(true);
+                return method;
+            } catch (NoSuchMethodException e) {
+                // continue searching
             }
         }
-
-        payment.setExtendedData(eventOk.getExtendedData());
-
-        TenderAccepted response = new TenderAccepted();
-        response.setFieldIntValue(TenderAccepted.Amount, amount);
-        response.setFieldValue(TenderAccepted.TenderType, comerzziaPaymentCodeToScoTenderType(paymentCode));
-        response.setFieldValue(TenderAccepted.Description, paymentMethod.getDesMedioPago());
-
-        ncrController.sendMessage(response);
-
-        itemsManager.sendTotals();
+        return null;
     }
 
-    private static class GiftCardProcessingException extends Exception {
+    private BigDecimal calculateAvailableBalance(GiftCardBean bean) {
+        ensureGiftCardDefaults(bean);
+        try {
+            return bean.getSaldoTotal();
+        } catch (Exception ex) {
+            BigDecimal saldo = bean.getSaldo() != null ? bean.getSaldo() : BigDecimal.ZERO;
+            BigDecimal provisional = bean.getSaldoProvisional() != null ? bean.getSaldoProvisional()
+                    : BigDecimal.ZERO;
+            return saldo.add(provisional);
+        }
+    }
+
+    private void ensureGiftCardDefaults(GiftCardBean bean) {
+        if (bean.getSaldo() == null) {
+            bean.setSaldo(BigDecimal.ZERO);
+        }
+        if (bean.getSaldoProvisional() == null) {
+            bean.setSaldoProvisional(BigDecimal.ZERO);
+        }
+    }
+
+    private Method findMethod(Class<?> type, String name, Class<?>... parameterTypes) {
+        Class<?> current = type;
+        while (current != null) {
+            try {
+                Method method = current.getMethod(name, parameterTypes);
+                method.setAccessible(true);
+                return method;
+            } catch (NoSuchMethodException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    private void sendGiftCardError(String message, String tenderType) {
+        TenderException error = new TenderException();
+        error.setFieldValue(TenderException.ExceptionId, "0");
+        error.setFieldValue(TenderException.ExceptionType, "0");
+        if (StringUtils.isNotBlank(tenderType)) {
+            error.setFieldValue(TenderException.TenderType, tenderType);
+        }
+        error.setFieldValue(TenderException.Message, message);
+        ncrController.sendMessage(error);
+    }
+
+    private static class PendingPayment {
+        private final Tender message;
+        private final GiftCardContext context;
+        private final String cardNumber;
+        private final BigDecimal amount;
+
+        PendingPayment(Tender message, GiftCardContext context, String cardNumber, BigDecimal amount) {
+            this.message = message;
+            this.context = context;
+            this.cardNumber = cardNumber;
+            this.amount = amount;
+        }
+    }
+
+    private static class GiftCardContext {
+        private final String paymentCode;
+        private final GiftCardManager manager;
+        private final MedioPagoBean medioPago;
+        private final boolean requiresConfirmation;
+        private final String scoTenderType;
+        private final boolean autoDetected;
+
+        GiftCardContext(String paymentCode, GiftCardManager manager, MedioPagoBean medioPago,
+                boolean requiresConfirmation, String scoTenderType, boolean autoDetected) {
+            this.paymentCode = paymentCode;
+            this.manager = manager;
+            this.medioPago = medioPago;
+            this.requiresConfirmation = requiresConfirmation;
+            this.scoTenderType = scoTenderType;
+            this.autoDetected = autoDetected;
+        }
+    }
+
+    private static class GiftCardException extends Exception {
         private static final long serialVersionUID = 1L;
 
-        GiftCardProcessingException(String message) {
+        GiftCardException(String message) {
             super(message);
+        }
+
+        GiftCardException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }
