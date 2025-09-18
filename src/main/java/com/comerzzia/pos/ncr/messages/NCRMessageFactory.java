@@ -15,19 +15,37 @@ public class NCRMessageFactory {
    private static final Logger log = Logger.getLogger(NCRMessageFactory.class);
    
    public static BasicNCRMessage createFromString(String message) {
-	   Document doc = convertStringToXMLDocument(message);
-	   
-	   Element root = doc.getDocumentElement();
-	   
-	   String messageName = root.getAttribute("name");
+           Document doc = convertStringToXMLDocument(message);
 
-	   BasicNCRMessage ncrMessage = newMessage(messageName);
-	   
-	   if (ncrMessage == null) return null;
-	   
-	   ncrMessage.readXml(doc);
-	   
-	   return ncrMessage;
+           if (doc == null) {
+                   log.warn("no se ha entendido el mensaje enviado por ncr: " + message);
+                   return new UnknownMessage("UnknownMessage", message);
+           }
+
+           Element root = doc.getDocumentElement();
+
+           if (root == null) {
+                   log.warn("no se ha entendido el mensaje enviado por ncr: " + message);
+                   return new UnknownMessage("UnknownMessage", message);
+           }
+
+           String messageName = root.getAttribute("name");
+
+           if (messageName == null || messageName.isEmpty()) {
+                   log.warn("no se ha entendido el mensaje enviado por ncr: " + message);
+                   return new UnknownMessage("UnknownMessage", message);
+           }
+
+           BasicNCRMessage ncrMessage = newMessage(messageName);
+
+           if (ncrMessage == null) {
+                   log.warn("no se ha entendido el mensaje enviado por ncr: " + message);
+                   return new UnknownMessage(messageName, message);
+           }
+
+           ncrMessage.readXml(doc);
+
+           return ncrMessage;
    }
    
    private static Document convertStringToXMLDocument(String xmlString) {
