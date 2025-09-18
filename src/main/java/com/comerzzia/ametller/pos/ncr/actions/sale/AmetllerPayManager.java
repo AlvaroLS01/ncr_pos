@@ -211,6 +211,7 @@ public class AmetllerPayManager extends PayManager {
         pendingPayment = null;
 
         // cerrar el diálogo de confirmación
+        sendCloseDialog(DIALOG_CONFIRM_TYPE, DIALOG_CONFIRM_ID);
         sendCloseDialog();
 
         if (payment == null) return true;
@@ -238,6 +239,7 @@ public class AmetllerPayManager extends PayManager {
             log.debug("handleDescuento25DataNeededReply() - Closing Descuento25 dialog");
         }
 
+        sendCloseDialog(DESCUENTO25_DIALOG_TYPE, DESCUENTO25_DIALOG_ID);
         sendCloseDialog();
         return true;
     }
@@ -260,11 +262,21 @@ public class AmetllerPayManager extends PayManager {
         w.setFieldValue(DataNeeded.Mode, "1");            // close THIS wait (Type=1/Id=1)
         ncrController.sendMessage(w);
     }
+    private void sendCloseDialog(String type, String id) {
+        if (StringUtils.isBlank(type) || StringUtils.isBlank(id)) {
+            return;
+        }
+        DataNeeded close = new DataNeeded();
+        close.setFieldValue(DataNeeded.Type, type);
+        close.setFieldValue(DataNeeded.Id,   id);
+        close.setFieldValue(DataNeeded.Mode, "1");
+        ncrController.sendMessage(close);
+    }
     private void sendCloseDialog() {
         DataNeeded close = new DataNeeded();
         close.setFieldValue(DataNeeded.Type, "0");
         close.setFieldValue(DataNeeded.Id,   "0");
-        close.setFieldValue(DataNeeded.Mode, "0");
+        close.setFieldValue(DataNeeded.Mode, "1");
         ncrController.sendMessage(close);
     }
 
