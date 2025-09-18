@@ -311,6 +311,8 @@ public class AmetllerPayManager extends PayManager {
     }
 
     private void executeGiftCardPayment(PendingPayment payment) {
+        sendTenderProcessingMessage(payment);
+
         // ABRIR overlay (match exacto al log del SCO: Type=1, Id=1)
         sendShowWait(I18N.getTexto("Validando tarjeta..."));
 
@@ -358,9 +360,11 @@ public class AmetllerPayManager extends PayManager {
 
     @Override
     protected void finishSale() {
+        ITicket ticketSnapshot = ticketManager != null ? ticketManager.getTicket() : null;
+
         ticketManager.saveTicket();
 
-        sendReceiptMessage();
+        sendReceiptMessage(ticketSnapshot);
 
         EndTransaction message = new EndTransaction();
         message.setFieldValue(EndTransaction.Id, itemsManager.getTransactionId());
@@ -370,7 +374,7 @@ public class AmetllerPayManager extends PayManager {
         itemsManager.resetTicket();
     }
 
-    private void sendReceiptMessage() {
+    private void sendReceiptMessage(ITicket ticketSnapshot) {
         Receipt receipt = new Receipt();
         receipt.setFieldValue(Receipt.Id, itemsManager.getTransactionId());
         receipt.setFieldValue(Receipt.Complete, Receipt.COMPLETE_OK);
@@ -392,12 +396,12 @@ public class AmetllerPayManager extends PayManager {
             }
         }
 
-        ensureReceiptHasData(receipt);
+        ensureReceiptHasData(receipt, ticketSnapshot);
 
         ncrController.sendMessage(receipt);
     }
 
-    private void ensureReceiptHasData(Receipt receipt) {
+    private void ensureReceiptHasData(Receipt receipt, ITicket ticketSnapshot) {
         if (receipt == null) {
             return;
         }
@@ -410,13 +414,14 @@ public class AmetllerPayManager extends PayManager {
         }
 
         if (!hasPrinterData) {
-            populateReceiptPrinterData(receipt);
+            populateReceiptPrinterData(receipt, ticketSnapshot);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void populateReceiptPrinterData(Receipt receipt) {
-        ITicket ticket = ticketManager != null ? ticketManager.getTicket() : null;
+    private void populateReceiptPrinterData(Receipt receipt, ITicket ticketSnapshot) {
+        ITicket ticket = ticketSnapshot != null ? ticketSnapshot
+                : (ticketManager != null ? ticketManager.getTicket() : null);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(buffer, StandardCharsets.UTF_8));
 
@@ -877,6 +882,26 @@ public class AmetllerPayManager extends PayManager {
         if (StringUtils.isNotBlank(tenderType)) te.setFieldValue(TenderException.TenderType, tenderType);
         te.setFieldValue(TenderException.Message, message);
         ncrController.sendMessage(te);
+    }
+
+    private void sendTenderProcessingMessage(PendingPayment payment) {
+        if (payment == null || payment.message == null) {
+            return;
+        }
+
+        String tenderType = StringUtils.trimToNull(payment.context != null ? payment.context.scoTenderType : null);
+        if (tenderType == null) {
+            tenderType = StringUtils.trimToNull(payment.message.getFieldValue(Tender.TenderType));
+        }
+
+        TenderException pending = new TenderException();
+        if (StringUtils.isNotBlank(tenderType)) {
+            pending.setFieldValue(TenderException.TenderType, tenderType);
+        }
+        pending.setFieldValue(TenderException.ExceptionType, "0");
+        pending.setFieldValue(TenderException.ExceptionId,   "1");
+
+        ncrController.sendMessage(pending);
     }
 
     private static class PendingPayment {
