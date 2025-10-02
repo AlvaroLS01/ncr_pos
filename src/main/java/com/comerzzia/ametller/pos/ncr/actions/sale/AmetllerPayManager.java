@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,7 @@ import com.comerzzia.pos.util.i18n.I18N;
 @Lazy(false)
 @Service
 @Primary
+@DependsOn("ametllerCommandManager")
 public class AmetllerPayManager extends PayManager {
 
 	private static final Logger log = Logger.getLogger(AmetllerPayManager.class);
@@ -272,7 +274,6 @@ public class AmetllerPayManager extends PayManager {
 		return true;
 	}
 
-	// ==== WAIT control explícito ====
 	private void sendShowWait(String caption) {
 		DataNeeded w = new DataNeeded();
 		w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
@@ -285,22 +286,22 @@ public class AmetllerPayManager extends PayManager {
 	}
 
 	private void sendHideWait() {
-		DataNeeded w = new DataNeeded();
-		w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
-		w.setFieldValue(DataNeeded.Id, WAIT_ID);
-		w.setFieldValue(DataNeeded.Mode, "1");
-		ncrController.sendMessage(w);
+//		DataNeeded w = new DataNeeded();
+//		w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
+//		w.setFieldValue(DataNeeded.Id, WAIT_ID);
+//		w.setFieldValue(DataNeeded.Mode, "1");
+//		ncrController.sendMessage(w);
 	}
 
 	private void sendCloseDialog(String type, String id) {
 		if (StringUtils.isBlank(type) || StringUtils.isBlank(id)) {
 			return;
 		}
-		DataNeeded close = new DataNeeded();
-		close.setFieldValue(DataNeeded.Type, type);
-		close.setFieldValue(DataNeeded.Id, id);
-		close.setFieldValue(DataNeeded.Mode, "1");
-		ncrController.sendMessage(close);
+//		DataNeeded close = new DataNeeded();
+//		close.setFieldValue(DataNeeded.Type, type);
+//		close.setFieldValue(DataNeeded.Id, id);
+//		close.setFieldValue(DataNeeded.Mode, "1");
+//		ncrController.sendMessage(close);
 	}
 
 	private void sendCloseDialog() {
