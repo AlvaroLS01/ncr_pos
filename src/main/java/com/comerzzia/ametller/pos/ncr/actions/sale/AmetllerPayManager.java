@@ -60,7 +60,7 @@ import com.comerzzia.pos.util.i18n.I18N;
 @Lazy(false)
 @Service
 @Primary
-@DependsOn("ametllerCommandManager")
+//@DependsOn("ametllerCommandManager")
 public class AmetllerPayManager extends PayManager {
 
 	private static final Logger log = Logger.getLogger(AmetllerPayManager.class);
