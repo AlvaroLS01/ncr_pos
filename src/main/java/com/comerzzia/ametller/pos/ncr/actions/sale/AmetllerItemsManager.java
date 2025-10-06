@@ -1,7 +1,9 @@
 package com.comerzzia.ametller.pos.ncr.actions.sale;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
@@ -45,7 +47,86 @@ public class AmetllerItemsManager extends ItemsManager {
             }
         }
 
+        //Enviamos un unico ItemSold y un unico Totals para que no salga el problema del embolsado
+        if (linea != null && itemSold != null) {
+            BigDecimal importePromociones = linea.getImporteTotalPromociones();
+
+            if (BigDecimalUtil.isMayorACero(importePromociones)) {
+                BigDecimal precioConDto = linea.getPrecioTotalConDto();
+                BigDecimal importeConDto = linea.getImporteTotalConDto();
+
+                if (precioConDto != null) {
+                    itemSold.setFieldIntValue(ItemSold.Price, precioConDto);
+                }
+
+                if (importeConDto != null) {
+                    itemSold.setFieldIntValue(ItemSold.ExtendedPrice, importeConDto);
+                }
+
+                ItemSold discountApplied = itemSold.getDiscountApplied();
+
+                if (discountApplied != null) {
+                    String discountDescription = discountApplied.getFieldValue(ItemSold.Description);
+
+                    if (StringUtils.isNotBlank(discountDescription)) {
+                        itemSold.setFieldValue(ItemSold.Description, discountDescription);
+                    }
+
+                    discountApplied.setFieldIntValue(ItemSold.Price, BigDecimal.ZERO);
+                    discountApplied.setFieldIntValue(ItemSold.ExtendedPrice, BigDecimal.ZERO);
+                }
+            }
+        }
+
         return itemSold;
+    }
+
+
+    @Override
+    protected void sendItemSold(final ItemSold itemSold) {
+        if (itemSold == null) {
+            return;
+        }
+
+        ncrController.sendMessage(itemSold);
+        sendTotals();
+    }
+
+
+    //Actualizamos linea si el articulo tiene promoción
+    @Override
+    @SuppressWarnings("unchecked")
+    public void updateItems() {
+        super.updateItems();
+
+        if (ticketManager == null || ticketManager.getTicket() == null) {
+            return;
+        }
+
+        for (LineaTicket ticketLine : (List<LineaTicket>) ticketManager.getTicket().getLineas()) {
+            ItemSold cachedItem = linesCache.get(ticketLine.getIdLinea());
+
+            if (cachedItem == null) {
+                continue;
+            }
+
+            ItemSold refreshedItem = lineaTicketToItemSold(ticketLine);
+
+            String cachedPrice = cachedItem.getFieldValue(ItemSold.Price);
+            String refreshedPrice = refreshedItem.getFieldValue(ItemSold.Price);
+            String cachedExtendedPrice = cachedItem.getFieldValue(ItemSold.ExtendedPrice);
+            String refreshedExtendedPrice = refreshedItem.getFieldValue(ItemSold.ExtendedPrice);
+            String cachedDescription = cachedItem.getFieldValue(ItemSold.Description);
+            String refreshedDescription = refreshedItem.getFieldValue(ItemSold.Description);
+
+            if (!StringUtils.equals(cachedPrice, refreshedPrice)
+                    || !StringUtils.equals(cachedExtendedPrice, refreshedExtendedPrice)
+                    || !StringUtils.equals(cachedDescription, refreshedDescription)) {
+                ncrController.sendMessage(refreshedItem);
+                sendTotals();
+                linesCache.put(ticketLine.getIdLinea(), refreshedItem);
+            }
+        }
     }
     
 	@Override

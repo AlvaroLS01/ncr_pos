@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,16 +52,20 @@ import com.comerzzia.pos.services.core.variables.VariablesServices;
 import com.comerzzia.pos.services.payments.PaymentsManager;
 import com.comerzzia.pos.services.payments.methods.PaymentMethodManager;
 import com.comerzzia.pos.services.payments.methods.types.GiftCardManager;
+import com.comerzzia.pos.persistence.promociones.tipos.PromocionTipoBean;
 import com.comerzzia.pos.services.ticket.ITicket;
 import com.comerzzia.pos.services.ticket.cabecera.ITotalesTicket;
 import com.comerzzia.pos.services.ticket.lineas.LineaTicket;
+import com.comerzzia.pos.services.ticket.pagos.IPagoTicket;
 import com.comerzzia.pos.services.ticket.pagos.PagoTicket;
+import com.comerzzia.pos.services.ticket.promociones.PromocionTicket;
 import com.comerzzia.pos.util.i18n.I18N;
+import com.comerzzia.pos.util.bigdecimal.BigDecimalUtil;
 
 @Lazy(false)
 @Service
 @Primary
-//@DependsOn("ametllerCommandManager")
+@DependsOn("ametllerCommandManager")
 public class AmetllerPayManager extends PayManager {
 
 	private static final Logger log = Logger.getLogger(AmetllerPayManager.class);
@@ -120,6 +125,54 @@ public class AmetllerPayManager extends PayManager {
 			((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
 		}
 		super.activateTenderMode();
+	}
+
+	// LUST-141048 Correción pendiente pago de promociones del estandar sobre la clase personalizada
+	@Override
+	@SuppressWarnings("unchecked")
+	protected void addHeaderDiscountsPayments() {
+		Map<String, BigDecimal> descuentosPromocionales = new HashMap<String, BigDecimal>();
+
+		for (PromocionTicket promocion : (List<PromocionTicket>) ticketManager.getTicket().getPromociones()) {
+			if (promocion.isDescuentoMenosIngreso()) {
+				PromocionTipoBean tipoPromocion = ticketManager.getSesion().getSesionPromociones().getPromocionActiva(promocion.getIdPromocion()).getPromocionBean().getTipoPromocion();
+				String codMedioPago = tipoPromocion.getCodMedioPagoMenosIngreso();
+				if (codMedioPago != null) {
+					BigDecimal importeDescPromocional = BigDecimalUtil.redondear(promocion.getImporteTotalAhorro(), 2);
+					BigDecimal importeDescAcum = descuentosPromocionales.get(codMedioPago) != null ? descuentosPromocionales.get(codMedioPago) : BigDecimal.ZERO;
+					importeDescAcum = importeDescAcum.add(importeDescPromocional);
+					descuentosPromocionales.put(codMedioPago, importeDescAcum);
+				}
+			}
+		}
+
+		ticketManager.getTicket().getPagos().removeIf(p -> {
+			if (!(p instanceof IPagoTicket)) {
+				return false;
+			}
+
+			IPagoTicket pagoTicket = (IPagoTicket) p;
+
+			if (!pagoTicket.isIntroducidoPorCajero()) {
+				return true;
+			}
+
+			MedioPagoBean medioPago = pagoTicket.getMedioPago();
+
+			return medioPago != null && descuentosPromocionales.containsKey(medioPago.getCodMedioPago());
+		});
+		ticketManager.getTicket().getCabecera().getTotales().recalcular();
+
+		for (Map.Entry<String, BigDecimal> descuento : descuentosPromocionales.entrySet()) {
+			String codMedioPago = descuento.getKey();
+			BigDecimal importe = descuento.getValue();
+
+			if (BigDecimalUtil.isMayorACero(importe)) {
+				ticketManager.addPayToTicket(codMedioPago, importe, null, true, false);
+			}
+		}
+
+		ticketManager.getTicket().getCabecera().getTotales().recalcular();
 	}
 
 	@Override
@@ -286,22 +339,22 @@ public class AmetllerPayManager extends PayManager {
 	}
 
 	private void sendHideWait() {
-//		DataNeeded w = new DataNeeded();
-//		w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
-//		w.setFieldValue(DataNeeded.Id, WAIT_ID);
-//		w.setFieldValue(DataNeeded.Mode, "1");
-//		ncrController.sendMessage(w);
+		// DataNeeded w = new DataNeeded();
+		// w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
+		// w.setFieldValue(DataNeeded.Id, WAIT_ID);
+		// w.setFieldValue(DataNeeded.Mode, "1");
+		// ncrController.sendMessage(w);
 	}
 
 	private void sendCloseDialog(String type, String id) {
 		if (StringUtils.isBlank(type) || StringUtils.isBlank(id)) {
 			return;
 		}
-//		DataNeeded close = new DataNeeded();
-//		close.setFieldValue(DataNeeded.Type, type);
-//		close.setFieldValue(DataNeeded.Id, id);
-//		close.setFieldValue(DataNeeded.Mode, "1");
-//		ncrController.sendMessage(close);
+		// DataNeeded close = new DataNeeded();
+		// close.setFieldValue(DataNeeded.Type, type);
+		// close.setFieldValue(DataNeeded.Id, id);
+		// close.setFieldValue(DataNeeded.Mode, "1");
+		// ncrController.sendMessage(close);
 	}
 
 	private void sendCloseDialog() {
