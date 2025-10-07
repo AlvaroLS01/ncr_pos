@@ -490,13 +490,16 @@ public class ItemsManager implements ActionManager {
 			  
 			  String actualDiscount = currentItemSold.getDiscountApplied().getFieldValue(ItemSold.DiscountAmount);
 			  String newDiscount = newItemSold.getDiscountApplied().getFieldValue(ItemSold.DiscountAmount);
+			  String actualDiscountDescription = currentItemSold.getDiscountApplied().getFieldValue(ItemSold.Description);
+			  String newDiscountDescription = newItemSold.getDiscountApplied().getFieldValue(ItemSold.Description);
 			  
 //			  log.debug("Updating line " + ticketLine.getIdLinea());
 //			  log.debug("actualDiscount " + actualDiscount);
 //			  log.debug("newDiscount " + newDiscount);
 			  
 			  // compare cached values & send changes				
-			  if (!StringUtils.equals(actualDiscount, newDiscount)) {
+			  if (!StringUtils.equals(actualDiscount, newDiscount)
+			  				|| !StringUtils.equals(actualDiscountDescription, newDiscountDescription)) {
 				  log.debug("Updating line " + ticketLine.getIdLinea());
 				  
 				  if (!StringUtils.equals(actualDiscount, "0") && StringUtils.equals(newDiscount, "0")) {
