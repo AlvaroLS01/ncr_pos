@@ -2,7 +2,6 @@ package com.comerzzia.pos.ncr.actions.sale;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.lang.reflect.Method;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +47,6 @@ import com.comerzzia.pos.services.cupones.CuponAplicationException;
 import com.comerzzia.pos.services.cupones.CuponUseException;
 import com.comerzzia.pos.services.cupones.CuponesServiceException;
 import com.comerzzia.pos.services.mediospagos.MediosPagosService;
-import com.comerzzia.pos.services.payments.PaymentsManager;
 import com.comerzzia.pos.services.promociones.DocumentoPromocionable;
 import com.comerzzia.pos.services.ticket.TicketVentaAbono;
 import com.comerzzia.pos.services.ticket.cabecera.ITotalesTicket;
@@ -244,48 +242,13 @@ public class ItemsManager implements ActionManager {
 	public void initSession() {
 		resetTicket();
 	}
-        public void resetTicket() {
-                cancelPendingPayments();
-                transactionId = null;
-                linesCache.clear();
-                globalDiscounts.clear();
-                globalDiscountCounter = GLOBAL_DISCOUNT_FIRST_ITEM_ID;
-                ticketManager.setTenderMode(false);
-        }
-
-        protected void cancelPendingPayments() {
-                PaymentsManager paymentsManager = ticketManager.getPaymentsManager();
-
-                if (paymentsManager == null) {
-                        return;
-                }
-
-                boolean cancelInvoked = false;
-                for (String methodName : new String[] { "cancelAllPayments", "cancelPayments", "cancelCurrentPayments" }) {
-                        try {
-                                Method cancelMethod = paymentsManager.getClass().getMethod(methodName);
-                                cancelMethod.invoke(paymentsManager);
-                                cancelInvoked = true;
-                                break;
-                        } catch (NoSuchMethodException e) {
-                                continue;
-                        } catch (Exception e) {
-                                log.error("cancelPendingPayments() - Error invoking method " + methodName + ": " + e.getMessage(), e);
-                                cancelInvoked = true;
-                                break;
-                        }
-                }
-
-                if (!cancelInvoked) {
-                        log.warn("cancelPendingPayments() - No cancel payments method available on PaymentsManager");
-                }
-
-                if (ticketManager.getTicket() != null && ticketManager.getTicket().getPagos() != null
-                                && !ticketManager.getTicket().getPagos().isEmpty()) {
-                        ticketManager.getTicket().getPagos().clear();
-                        ticketManager.getTicket().getTotales().recalcular();
-                }
-        }
+	public void resetTicket() {
+		transactionId = null;
+		linesCache.clear();
+		globalDiscounts.clear();
+		globalDiscountCounter = GLOBAL_DISCOUNT_FIRST_ITEM_ID;
+		ticketManager.setTenderMode(false);
+	}
 
 	public void newTicket() {
 		resetTicket();
