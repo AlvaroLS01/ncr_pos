@@ -72,9 +72,9 @@ public class ItemSold extends BasicNCRMessage {
 //		   discount.setFieldValue(ItemSold.DiscountDescription, description);						
 //		}
 		
-		discount.setFieldValue(ItemSold.ItemNumber, getFieldValue(ItemSold.ItemNumber));
-		discount.setFieldIntValue(ItemSold.Price, importeLineaConDescuento);
-		discount.setFieldValue(ItemSold.UPC, getFieldValue(ItemSold.UPC));
+                discount.setFieldValue(ItemSold.ItemNumber, getFieldValue(ItemSold.ItemNumber));
+                discount.setFieldIntValue(ItemSold.Price, importeLineaConDescuento);
+                discount.setFieldValue(ItemSold.UPC, getFieldValue(ItemSold.UPC));
 
 		if (importeLineaConDescuento.compareTo(BigDecimal.ZERO) == 0) {
 //   		   discount.setFieldValue(ItemSold.Description, getFieldValue(ItemSold.Description));
