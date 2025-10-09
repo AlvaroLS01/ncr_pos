@@ -498,8 +498,7 @@ public class ItemsManager implements ActionManager {
 //			  log.debug("newDiscount " + newDiscount);
 			  
 			  // compare cached values & send changes				
-			  if (!StringUtils.equals(actualDiscount, newDiscount)
-			  				|| !StringUtils.equals(actualDiscountDescription, newDiscountDescription)) {
+				if (!StringUtils.equals(actualDiscount, newDiscount) || !StringUtils.equals(actualDiscountDescription, newDiscountDescription)) {
 				  log.debug("Updating line " + ticketLine.getIdLinea());
 				  
 				  if (!StringUtils.equals(actualDiscount, "0") && StringUtils.equals(newDiscount, "0")) {
@@ -674,7 +673,7 @@ public class ItemsManager implements ActionManager {
 		String cantCodBar = codBarrasEspecial.getCantidad();
 		
 		if (cantCodBar != null) {
-			cantidad = new BigDecimal(cantCodBar);
+			cantidad = FormatUtil.getInstance().desformateaBigDecimal(cantCodBar, 3);
 		} else {
 			if (message.getFieldValue(Item.Weight) != null) {
 				cantidad = new BigDecimal(message.getFieldValue(Item.Weight)).divide(new BigDecimal(1000));
