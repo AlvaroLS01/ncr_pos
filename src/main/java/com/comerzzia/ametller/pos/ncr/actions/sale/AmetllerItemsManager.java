@@ -33,6 +33,8 @@ public class AmetllerItemsManager extends ItemsManager {
 
     private static final String DESCUENTO_25_DESCRIPTION = "Descuento del 25% aplicado";
 
+    private boolean skipPromotionRecalculation = false;
+
     @Autowired
     @Lazy
     private AmetllerPayManager ametllerPayManager;
@@ -111,7 +113,7 @@ public class AmetllerItemsManager extends ItemsManager {
             return;
         }
 
-        if (ticketManager != null && ticketManager.getTicket() != null) {
+        if (!skipPromotionRecalculation && ticketManager != null && ticketManager.getTicket() != null) {
             ticketManager.getSesion().getSesionPromociones()
                     .aplicarPromociones((TicketVentaAbono) ticketManager.getTicket());
             ticketManager.getTicket().getTotales().recalcular();
@@ -122,6 +124,24 @@ public class AmetllerItemsManager extends ItemsManager {
         sendItemSold(response);
 
         linesCache.put(newLine.getIdLinea(), response);
+    }
+
+    @Override
+    public void newItemAndUpdateAllItems(final LineaTicket newLine) {
+        if (newLine == null) {
+            return;
+        }
+
+        if (ticketManager != null && ticketManager.getTicket() != null) {
+            updateItems();
+        }
+
+        skipPromotionRecalculation = true;
+        try {
+            newItem(newLine);
+        } finally {
+            skipPromotionRecalculation = false;
+        }
     }
 
     @Override
