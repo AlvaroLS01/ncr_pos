@@ -37,6 +37,8 @@ public class AmetllerItemsManager extends ItemsManager {
     @Lazy
     private AmetllerPayManager ametllerPayManager;
 
+    private boolean updatingBeforeNewItem;
+
     @Override
     protected ItemSold lineaTicketToItemSold(LineaTicket linea) {
         ItemSold itemSold = super.lineaTicketToItemSold(linea);
@@ -111,7 +113,7 @@ public class AmetllerItemsManager extends ItemsManager {
             return;
         }
 
-        if (ticketManager != null && ticketManager.getTicket() != null) {
+        if (!updatingBeforeNewItem && ticketManager != null && ticketManager.getTicket() != null) {
             ticketManager.getSesion().getSesionPromociones()
                     .aplicarPromociones((TicketVentaAbono) ticketManager.getTicket());
             ticketManager.getTicket().getTotales().recalcular();
@@ -122,6 +124,25 @@ public class AmetllerItemsManager extends ItemsManager {
         sendItemSold(response);
 
         linesCache.put(newLine.getIdLinea(), response);
+    }
+
+    @Override
+    public void newItemAndUpdateAllItems(final LineaTicket newLine) {
+        if (newLine == null) {
+            return;
+        }
+
+        if (ticketManager != null && ticketManager.getTicket() != null) {
+            updatingBeforeNewItem = true;
+
+            try {
+                updateItems();
+            } finally {
+                updatingBeforeNewItem = false;
+            }
+        }
+
+        newItem(newLine);
     }
 
     @Override
