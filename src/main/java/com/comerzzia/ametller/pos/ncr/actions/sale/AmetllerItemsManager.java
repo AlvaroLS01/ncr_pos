@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.comerzzia.ametller.pos.ncr.ticket.AmetllerScoTicketManager;
 import com.comerzzia.pos.ncr.actions.sale.ItemsManager;
-import com.comerzzia.pos.ncr.messages.CouponException;
 import com.comerzzia.pos.ncr.messages.ItemException;
 import com.comerzzia.pos.ncr.messages.ItemSold;
 import com.comerzzia.pos.ncr.messages.VoidTransaction;
@@ -20,7 +19,6 @@ import com.comerzzia.pos.services.ticket.TicketVentaAbono;
 import com.comerzzia.pos.services.ticket.lineas.LineaTicket;
 import com.comerzzia.pos.util.bigdecimal.BigDecimalUtil;
 import com.comerzzia.pos.util.i18n.I18N;
-import com.comerzzia.pos.services.cupones.CuponAplicationException;
 
 @Lazy(false)
 @Service
@@ -177,54 +175,24 @@ public class AmetllerItemsManager extends ItemsManager {
         }
     }
     
-    @Override
-    public boolean isCoupon(String code) {
-            if (!(ticketManager instanceof AmetllerScoTicketManager)) {
-                    return super.isCoupon(code);
-            }
+	@Override
+	public boolean isCoupon(String code) {
+		boolean couponAlreadyApplied = globalDiscounts.containsKey(GLOBAL_DISCOUNT_COUPON_PREFIX + code);
 
-            AmetllerScoTicketManager ametllerScoTicketManager = (AmetllerScoTicketManager) ticketManager;
+		boolean handled = super.isCoupon(code);
 
-            try {
-                    if (!ametllerScoTicketManager.registrarCupon(code)) {
-                            return false;
-                    }
-            }
-            catch (CuponAplicationException e) {
-                    CouponException couponException = new CouponException();
-                    couponException.setFieldValue(CouponException.UPC, code);
-                    couponException.setFieldValue(CouponException.Message, e.getMessage());
-                    couponException.setFieldValue(CouponException.ExceptionType, "0");
-                    couponException.setFieldValue(CouponException.ExceptionId, "0");
-                    ncrController.sendMessage(couponException);
-                    return true;
-            }
+		boolean couponApplied = globalDiscounts.containsKey(GLOBAL_DISCOUNT_COUPON_PREFIX + code);
 
-            ItemException itemException = new ItemException();
-            itemException.setFieldValue(ItemException.UPC, "");
-            itemException.setFieldValue(ItemException.ExceptionType, "0");
-            itemException.setFieldValue(ItemException.ExceptionId, "25");
-            itemException.setFieldValue(ItemException.Message, I18N.getTexto("Tu cupon ha sido leído correctamente"));
-            itemException.setFieldValue(ItemException.TopCaption, I18N.getTexto("Cupon leído"));
-            ncrController.sendMessage(itemException);
+		if (handled && couponApplied && !couponAlreadyApplied) {
+			ItemException itemException = new ItemException();
+			itemException.setFieldValue(ItemException.UPC, "");
+			itemException.setFieldValue(ItemException.ExceptionType, "0");
+			itemException.setFieldValue(ItemException.ExceptionId, "25");
+			itemException.setFieldValue(ItemException.Message, I18N.getTexto("Tu cupon ha sido leído correctamente"));
+			itemException.setFieldValue(ItemException.TopCaption, I18N.getTexto("Cupon leído"));
+			ncrController.sendMessage(itemException);
+		}
 
-            sendTotals();
-
-            return true;
-    }
-
-    public void notifyCouponApplied(String couponCode) {
-            GlobalDiscountData couponData = globalDiscounts.get(GLOBAL_DISCOUNT_COUPON_PREFIX + couponCode);
-
-            if (couponData == null || couponData.couponMessage == null) {
-                    log.warn("notifyCouponApplied() - No se ha encontrado información de cupón para el código " + couponCode);
-                    return;
-            }
-
-            ncrController.sendMessage(couponData.couponMessage);
-
-            sendTotals();
-
-            updateItems();
-    }
+		return handled;
+	}
 }

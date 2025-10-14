@@ -45,7 +45,6 @@ import com.comerzzia.pos.core.dispositivos.dispositivo.impresora.IPrinter;
 import com.comerzzia.pos.ncr.actions.sale.PayManager;
 import com.comerzzia.pos.ncr.devices.printer.NCRSCOPrinter;
 import com.comerzzia.pos.ncr.messages.BasicNCRMessage;
-import com.comerzzia.pos.ncr.messages.CouponException;
 import com.comerzzia.pos.ncr.messages.DataNeeded;
 import com.comerzzia.pos.ncr.messages.DataNeededReply;
 import com.comerzzia.pos.ncr.messages.EndTransaction;
@@ -72,7 +71,6 @@ import com.comerzzia.pos.services.ticket.pagos.tarjeta.DatosRespuestaPagoTarjeta
 import com.comerzzia.pos.services.ticket.promociones.PromocionTicket;
 import com.comerzzia.pos.util.i18n.I18N;
 import com.comerzzia.pos.util.bigdecimal.BigDecimalUtil;
-import com.comerzzia.pos.services.cupones.CuponAplicationException;
 
 @Lazy(false)
 @Service
@@ -131,61 +129,16 @@ public class AmetllerPayManager extends PayManager {
 			}
 			return;
 		}
-        super.processMessage(message);
-    }
+		super.processMessage(message);
+	}
 
-    private void aplicarCuponesPendientes() {
-            if (!(ticketManager instanceof AmetllerScoTicketManager)) {
-                    return;
-            }
-
-            if (!(itemsManager instanceof AmetllerItemsManager)) {
-                    return;
-            }
-
-            AmetllerScoTicketManager ametllerScoTicketManager = (AmetllerScoTicketManager) ticketManager;
-            List<String> cuponesPendientes = ametllerScoTicketManager.getCuponesPendientes();
-
-            if (cuponesPendientes.isEmpty()) {
-                    return;
-            }
-
-            AmetllerItemsManager ametllerItemsManager = (AmetllerItemsManager) itemsManager;
-
-            for (String codigoCupon : cuponesPendientes) {
-                    try {
-                            boolean aplicado = ametllerItemsManager.applyCoupon(codigoCupon);
-
-                            if (aplicado) {
-                                    ametllerItemsManager.notifyCouponApplied(codigoCupon);
-                                    ametllerScoTicketManager.marcarCuponAplicado(codigoCupon);
-                            }
-                            else {
-                                    log.warn("aplicarCuponesPendientes() - El cupón " + codigoCupon + " no se ha podido aplicar");
-                            }
-                    }
-                    catch (CuponAplicationException e) {
-                            log.error("aplicarCuponesPendientes() - Error al aplicar el cupón " + codigoCupon + ": " + e.getMessage(), e);
-
-                            CouponException couponException = new CouponException();
-                            couponException.setFieldValue(CouponException.UPC, codigoCupon);
-                            couponException.setFieldValue(CouponException.Message, e.getMessage());
-                            couponException.setFieldValue(CouponException.ExceptionType, "0");
-                            couponException.setFieldValue(CouponException.ExceptionId, "0");
-                            ncrController.sendMessage(couponException);
-                    }
-            }
-    }
-
-    @Override
-    protected void activateTenderMode() {
-            aplicarCuponesPendientes();
-
-            if (ticketManager instanceof AmetllerScoTicketManager) {
-                    ((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
-            }
-            super.activateTenderMode();
-    }
+	@Override
+	protected void activateTenderMode() {
+		if (ticketManager instanceof AmetllerScoTicketManager) {
+			((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
+		}
+		super.activateTenderMode();
+	}
 
 	// LUST-141048 Correción pendiente pago de promociones del estandar sobre la clase personalizada
 	@Override
