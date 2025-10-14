@@ -1,7 +1,9 @@
 package com.comerzzia.ametller.pos.ncr.actions.sale;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +14,16 @@ import org.springframework.stereotype.Service;
 
 import com.comerzzia.ametller.pos.ncr.ticket.AmetllerScoTicketManager;
 import com.comerzzia.pos.ncr.actions.sale.ItemsManager;
-import com.comerzzia.pos.ncr.messages.ItemException;
+import com.comerzzia.pos.ncr.messages.Coupon;
+import com.comerzzia.pos.ncr.messages.CouponException;
 import com.comerzzia.pos.ncr.messages.ItemSold;
 import com.comerzzia.pos.ncr.messages.VoidTransaction;
+import com.comerzzia.pos.ncr.messages.VoidItem;
 import com.comerzzia.pos.services.ticket.TicketVentaAbono;
 import com.comerzzia.pos.services.ticket.lineas.LineaTicket;
 import com.comerzzia.pos.util.bigdecimal.BigDecimalUtil;
 import com.comerzzia.pos.util.i18n.I18N;
+import com.comerzzia.pos.services.cupones.CuponAplicationException;
 
 @Lazy(false)
 @Service
@@ -142,7 +147,39 @@ public class AmetllerItemsManager extends ItemsManager {
     @Override
     @SuppressWarnings("unchecked")
     public void updateItems() {
+        Set<String> couponsBeforeUpdate = null;
+
+        if (ticketManager instanceof AmetllerScoTicketManager) {
+            couponsBeforeUpdate = new HashSet<>();
+
+            for (GlobalDiscountData discountData : globalDiscounts.values()) {
+                if (discountData != null && discountData.couponMessage != null) {
+                    couponsBeforeUpdate.add(discountData.couponMessage.getFieldValue(Coupon.UPC));
+                }
+            }
+        }
+
         super.updateItems();
+
+        if (ticketManager instanceof AmetllerScoTicketManager && couponsBeforeUpdate != null) {
+            Set<String> couponsAfterUpdate = new HashSet<>();
+
+            for (GlobalDiscountData discountData : globalDiscounts.values()) {
+                if (discountData != null && discountData.couponMessage != null) {
+                    couponsAfterUpdate.add(discountData.couponMessage.getFieldValue(Coupon.UPC));
+                }
+            }
+
+            couponsBeforeUpdate.removeAll(couponsAfterUpdate);
+
+            AmetllerScoTicketManager ametllerScoTicketManager = (AmetllerScoTicketManager) ticketManager;
+
+            for (String removedCoupon : couponsBeforeUpdate) {
+                if (StringUtils.isNotBlank(removedCoupon)) {
+                    ametllerScoTicketManager.descartarCupon(removedCoupon);
+                }
+            }
+        }
 
         if (ticketManager == null || ticketManager.getTicket() == null) {
             return;
@@ -175,24 +212,99 @@ public class AmetllerItemsManager extends ItemsManager {
         }
     }
     
-	@Override
-	public boolean isCoupon(String code) {
-		boolean couponAlreadyApplied = globalDiscounts.containsKey(GLOBAL_DISCOUNT_COUPON_PREFIX + code);
+    @Override
+    public boolean isCoupon(String code) {
+        if (!(ticketManager instanceof AmetllerScoTicketManager)) {
+            return super.isCoupon(code);
+        }
 
-		boolean handled = super.isCoupon(code);
+        AmetllerScoTicketManager ametllerScoTicketManager = (AmetllerScoTicketManager) ticketManager;
 
-		boolean couponApplied = globalDiscounts.containsKey(GLOBAL_DISCOUNT_COUPON_PREFIX + code);
+        try {
+            if (!ametllerScoTicketManager.registrarCupon(code)) {
+                return false;
+            }
+        }
+        catch (CuponAplicationException e) {
+            sendCouponException(code, e.getMessage(), null);
+            return true;
+        }
 
-		if (handled && couponApplied && !couponAlreadyApplied) {
-			ItemException itemException = new ItemException();
-			itemException.setFieldValue(ItemException.UPC, "");
-			itemException.setFieldValue(ItemException.ExceptionType, "0");
-			itemException.setFieldValue(ItemException.ExceptionId, "25");
-			itemException.setFieldValue(ItemException.Message, I18N.getTexto("Tu cupon ha sido leído correctamente"));
-			itemException.setFieldValue(ItemException.TopCaption, I18N.getTexto("Cupon leído"));
-			ncrController.sendMessage(itemException);
-		}
+        try {
+            boolean applied = applyCoupon(code);
 
-		return handled;
-	}
+            if (!applied) {
+                ametllerScoTicketManager.descartarCupon(code);
+                sendCouponException(code, I18N.getTexto("No se ha podido aplicar el cupón."), null);
+                return true;
+            }
+        }
+        catch (CuponAplicationException e) {
+            ametllerScoTicketManager.descartarCupon(code);
+            sendCouponException(code, e.getMessage(), null);
+            return true;
+        }
+
+        GlobalDiscountData couponData = globalDiscounts.get(GLOBAL_DISCOUNT_COUPON_PREFIX + code);
+
+        if (couponData == null || couponData.couponMessage == null) {
+            ametllerScoTicketManager.descartarCupon(code);
+            sendCouponException(code, I18N.getTexto("No se ha podido aplicar el cupón."), null);
+            return true;
+        }
+
+        ItemSold couponLine = createCouponItemSold(couponData.couponMessage);
+        couponData.itemSoldMessage = couponLine;
+
+        ametllerScoTicketManager.marcarCuponAplicado(code);
+
+        sendCouponException(code, I18N.getTexto("Tu cupon ha sido leído correctamente"), I18N.getTexto("Cupon leído"));
+
+        ncrController.sendMessage(couponLine);
+
+        sendTotals();
+        updateItems();
+
+        return true;
+    }
+
+    private void sendCouponException(String code, String message, String title) {
+        CouponException couponException = new CouponException();
+        couponException.setFieldValue(CouponException.UPC, code);
+        couponException.setFieldValue(CouponException.Message, message);
+        couponException.setFieldValue(CouponException.ExceptionType, "0");
+        couponException.setFieldValue(CouponException.ExceptionId, "0");
+        if (StringUtils.isNotBlank(title)) {
+            couponException.setFieldValue(CouponException.Title, title);
+        }
+        ncrController.sendMessage(couponException);
+    }
+
+    private ItemSold createCouponItemSold(Coupon couponMessage) {
+        ItemSold couponLine = new ItemSold();
+        couponLine.setFieldValue(ItemSold.UPC, couponMessage.getFieldValue(Coupon.UPC));
+        couponLine.setFieldValue(ItemSold.Description, couponMessage.getFieldValue(Coupon.Description));
+        couponLine.setFieldValue(ItemSold.ItemNumber, couponMessage.getFieldValue(Coupon.ItemNumber));
+        couponLine.setFieldIntValue(ItemSold.Price, BigDecimal.ZERO);
+        couponLine.setFieldIntValue(ItemSold.ExtendedPrice, BigDecimal.ZERO);
+        couponLine.setFieldValue(ItemSold.RequiresSecurityBagging, "5");
+        return couponLine;
+    }
+
+    @Override
+    public void deleteItem(VoidItem message) {
+        if (message != null && ticketManager instanceof AmetllerScoTicketManager) {
+            String itemNumberField = message.getFieldValue(VoidItem.ItemNumber);
+
+            if (StringUtils.isNotBlank(itemNumberField)) {
+                Integer itemNumber = Integer.valueOf(itemNumberField);
+
+                if (itemNumber >= GLOBAL_DISCOUNT_FIRST_ITEM_ID) {
+                    ((AmetllerScoTicketManager) ticketManager).descartarCupon(message.getFieldValue(VoidItem.UPC));
+                }
+            }
+        }
+
+        super.deleteItem(message);
+    }
 }

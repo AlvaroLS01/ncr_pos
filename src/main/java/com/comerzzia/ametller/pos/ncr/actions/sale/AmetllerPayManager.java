@@ -129,16 +129,16 @@ public class AmetllerPayManager extends PayManager {
 			}
 			return;
 		}
-		super.processMessage(message);
-	}
+        super.processMessage(message);
+    }
 
-	@Override
-	protected void activateTenderMode() {
-		if (ticketManager instanceof AmetllerScoTicketManager) {
-			((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
-		}
-		super.activateTenderMode();
-	}
+    @Override
+    protected void activateTenderMode() {
+            if (ticketManager instanceof AmetllerScoTicketManager) {
+                    ((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
+            }
+            super.activateTenderMode();
+    }
 
 	// LUST-141048 Correción pendiente pago de promociones del estandar sobre la clase personalizada
 	@Override
