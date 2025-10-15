@@ -371,38 +371,55 @@ public class AmetllerPayManager extends PayManager {
 
         private void executeGiftCardPayment(PendingPayment payment) {
 
-		try {
-			GiftCardBean giftCard = consultGiftCard(payment.cardNumber);
-			ensureGiftCardDefaults(giftCard);
-			BigDecimal available = calculateAvailableBalance(giftCard);
-			if (available.compareTo(BigDecimal.ZERO) <= 0)
-				throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+                try {
+                        GiftCardBean giftCard = consultGiftCard(payment.cardNumber);
+                        ensureGiftCardDefaults(giftCard);
+                        BigDecimal available = calculateAvailableBalance(giftCard);
+                        if (available.compareTo(BigDecimal.ZERO) <= 0)
+                                throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
 
-			BigDecimal amountToCharge = payment.amount.min(available);
-			if (amountToCharge.compareTo(BigDecimal.ZERO) <= 0)
-				throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+                        BigDecimal amountToCharge = payment.amount.min(available);
+                        if (amountToCharge.compareTo(BigDecimal.ZERO) <= 0)
+                                throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
 
-			giftCard.setNumTarjetaRegalo(payment.cardNumber);
-			giftCard.setImportePago(amountToCharge);
+                        giftCard.setNumTarjetaRegalo(payment.cardNumber);
+                        giftCard.setImportePago(amountToCharge);
 
-			payment.context.manager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
+                        if (payment.context != null && payment.context.manager != null) {
+                                payment.context.manager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
+                        }
 
-			payment.message.setFieldIntValue(Tender.Amount, amountToCharge.setScale(2, RoundingMode.HALF_UP));
+                        payment.message.setFieldIntValue(Tender.Amount, amountToCharge.setScale(2, RoundingMode.HALF_UP));
 
-			PaymentsManager pm = ticketManager.getPaymentsManager();
-			pm.pay(payment.context.paymentCode, amountToCharge);
+                        String mappedScoTender = null;
+                        if (payment.context != null && StringUtils.isNotBlank(payment.context.paymentCode)) {
+                                try {
+                                        mappedScoTender = comerzziaPaymentCodeToScoTenderType(payment.context.paymentCode);
+                                }
+                                catch (RuntimeException e) {
+                                        if (log.isDebugEnabled()) {
+                                                log.debug("executeGiftCardPayment() - Unable to resolve SCO tender type for payment code " + payment.context.paymentCode, e);
+                                        }
+                                }
+                        }
 
-                        sendCloseDialog();
+                        if (StringUtils.isNotBlank(mappedScoTender)) {
+                                payment.message.setFieldValue(Tender.TenderType, mappedScoTender);
+                        }
 
+                        super.trayPay(payment.message);
                 }
                 catch (GiftCardException e) {
                         log.error("executeGiftCardPayment() - " + e.getMessage(), e);
-                        sendGiftCardError(e.getMessage(), payment.context.scoTenderType);
-                        sendCloseDialog();
+                        sendGiftCardError(e.getMessage(), payment.context != null ? payment.context.scoTenderType : null);
+                        return;
                 }
                 catch (Exception e) {
                         log.error("executeGiftCardPayment() - Unexpected error: " + e.getMessage(), e);
-                        sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."), payment.context.scoTenderType);
+                        sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."), payment.context != null ? payment.context.scoTenderType : null);
+                        return;
+                }
+                finally {
                         sendCloseDialog();
                 }
         }
