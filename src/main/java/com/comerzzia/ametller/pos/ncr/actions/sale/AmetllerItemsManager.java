@@ -1,8 +1,11 @@
 package com.comerzzia.ametller.pos.ncr.actions.sale;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +39,9 @@ public class AmetllerItemsManager extends ItemsManager {
     @Autowired
     @Lazy
     private AmetllerPayManager ametllerPayManager;
+
+    private boolean skipExistingLineRefresh;
+    private Integer lastAddedLineId;
 
     @Override
     protected ItemSold lineaTicketToItemSold(LineaTicket linea) {
@@ -125,6 +131,28 @@ public class AmetllerItemsManager extends ItemsManager {
     }
 
     @Override
+    public void newItemAndUpdateAllItems(final LineaTicket newLine) {
+        if (newLine == null) {
+            return;
+        }
+
+        boolean previousSkipExisting = skipExistingLineRefresh;
+        Integer previousLastAddedLineId = lastAddedLineId;
+
+        skipExistingLineRefresh = true;
+        lastAddedLineId = newLine.getIdLinea();
+
+        try {
+            newItem(newLine);
+            updateItems();
+        }
+        finally {
+            skipExistingLineRefresh = previousSkipExisting;
+            lastAddedLineId = previousLastAddedLineId;
+        }
+    }
+
+    @Override
     public void newTicket() {
         super.newTicket();
 
@@ -147,6 +175,19 @@ public class AmetllerItemsManager extends ItemsManager {
     @Override
     @SuppressWarnings("unchecked")
     public void updateItems() {
+        Map<Integer, ItemSnapshot> previousSnapshots = new HashMap<>();
+
+        for (Map.Entry<Integer, ItemSold> cachedEntry : linesCache.entrySet()) {
+            ItemSold cachedItem = cachedEntry.getValue();
+
+            if (cachedItem != null) {
+                previousSnapshots.put(cachedEntry.getKey(), new ItemSnapshot(
+                        cachedItem.getFieldValue(ItemSold.Price),
+                        cachedItem.getFieldValue(ItemSold.ExtendedPrice),
+                        cachedItem.getFieldValue(ItemSold.Description)));
+            }
+        }
+
         Set<String> couponsBeforeUpdate = null;
 
         if (ticketManager instanceof AmetllerScoTicketManager) {
@@ -186,29 +227,24 @@ public class AmetllerItemsManager extends ItemsManager {
         }
 
         for (LineaTicket ticketLine : (List<LineaTicket>) ticketManager.getTicket().getLineas()) {
-            ItemSold cachedItem = linesCache.get(ticketLine.getIdLinea());
-
-            if (cachedItem == null) {
-                continue;
-            }
-
             ItemSold refreshedItem = lineaTicketToItemSold(ticketLine);
+            ItemSnapshot previousSnapshot = previousSnapshots.get(ticketLine.getIdLinea());
 
-            String cachedPrice = cachedItem.getFieldValue(ItemSold.Price);
-            String refreshedPrice = refreshedItem.getFieldValue(ItemSold.Price);
-            String cachedExtendedPrice = cachedItem.getFieldValue(ItemSold.ExtendedPrice);
-            String refreshedExtendedPrice = refreshedItem.getFieldValue(ItemSold.ExtendedPrice);
-            String cachedDescription = cachedItem.getFieldValue(ItemSold.Description);
-            String refreshedDescription = refreshedItem.getFieldValue(ItemSold.Description);
+            if (previousSnapshot != null
+                    && (!skipExistingLineRefresh || ticketLine.getIdLinea().equals(lastAddedLineId))) {
+                String refreshedPrice = refreshedItem.getFieldValue(ItemSold.Price);
+                String refreshedExtendedPrice = refreshedItem.getFieldValue(ItemSold.ExtendedPrice);
+                String refreshedDescription = refreshedItem.getFieldValue(ItemSold.Description);
 
-            if (!StringUtils.equals(cachedPrice, refreshedPrice)
-                    || !StringUtils.equals(cachedExtendedPrice, refreshedExtendedPrice)
-                    || !StringUtils.equals(cachedDescription, refreshedDescription)) {
-                ncrController.sendMessage(refreshedItem);
-                linesCache.put(ticketLine.getIdLinea(), refreshedItem);
-
-                sendTotals();
+                if (!StringUtils.equals(previousSnapshot.price, refreshedPrice)
+                        || !StringUtils.equals(previousSnapshot.extendedPrice, refreshedExtendedPrice)
+                        || !StringUtils.equals(previousSnapshot.description, refreshedDescription)) {
+                    ncrController.sendMessage(refreshedItem);
+                    sendTotals();
+                }
             }
+
+            linesCache.put(ticketLine.getIdLinea(), refreshedItem);
         }
     }
     
@@ -306,5 +342,17 @@ public class AmetllerItemsManager extends ItemsManager {
         }
 
         super.deleteItem(message);
+    }
+
+    private static final class ItemSnapshot {
+        private final String price;
+        private final String extendedPrice;
+        private final String description;
+
+        private ItemSnapshot(String price, String extendedPrice, String description) {
+            this.price = price;
+            this.extendedPrice = extendedPrice;
+            this.description = description;
+        }
     }
 }
