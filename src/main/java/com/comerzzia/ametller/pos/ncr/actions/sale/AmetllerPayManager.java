@@ -90,9 +90,6 @@ public class AmetllerPayManager extends PayManager {
 	private static final String DESCUENTO25_DIALOG_TYPE = "1";
 	private static final String DESCUENTO25_DIALOG_ID = "2";
 
-	private static final String WAIT_TYPE = "1";
-	private static final String WAIT_ID = "1";
-
 	private static final String RECEIPT_SEPARATOR = "------------------------------";
 	private static final Locale RECEIPT_LOCALE = new Locale("es", "ES");
 
@@ -340,25 +337,6 @@ public class AmetllerPayManager extends PayManager {
 		return true;
 	}
 
-	private void sendShowWait(String caption) {
-		DataNeeded w = new DataNeeded();
-		w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
-		w.setFieldValue(DataNeeded.Id, WAIT_ID);
-		w.setFieldValue(DataNeeded.Mode, "0"); // show
-		if (StringUtils.isNotBlank(caption)) {
-			w.setFieldValue(DataNeeded.TopCaption1, caption);
-		}
-		ncrController.sendMessage(w);
-	}
-
-	private void sendHideWait() {
-		// DataNeeded w = new DataNeeded();
-		// w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
-		// w.setFieldValue(DataNeeded.Id, WAIT_ID);
-		// w.setFieldValue(DataNeeded.Mode, "1");
-		// ncrController.sendMessage(w);
-	}
-
 	private void sendCloseDialog(String type, String id) {
 		if (StringUtils.isBlank(type) || StringUtils.isBlank(id)) {
 			return;
@@ -391,8 +369,7 @@ public class AmetllerPayManager extends PayManager {
 		}
 	}
 
-	private void executeGiftCardPayment(PendingPayment payment) {
-		sendShowWait(I18N.getTexto("Validando tarjeta..."));
+        private void executeGiftCardPayment(PendingPayment payment) {
 
 		try {
 			GiftCardBean giftCard = consultGiftCard(payment.cardNumber);
@@ -415,23 +392,20 @@ public class AmetllerPayManager extends PayManager {
 			PaymentsManager pm = ticketManager.getPaymentsManager();
 			pm.pay(payment.context.paymentCode, amountToCharge);
 
-			sendHideWait();
-			sendCloseDialog();
+                        sendCloseDialog();
 
-		}
-		catch (GiftCardException e) {
-			log.error("executeGiftCardPayment() - " + e.getMessage(), e);
-			sendGiftCardError(e.getMessage(), payment.context.scoTenderType);
-			sendHideWait();
-			sendCloseDialog();
-		}
-		catch (Exception e) {
-			log.error("executeGiftCardPayment() - Unexpected error: " + e.getMessage(), e);
-			sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."), payment.context.scoTenderType);
-			sendHideWait();
-			sendCloseDialog();
-		}
-	}
+                }
+                catch (GiftCardException e) {
+                        log.error("executeGiftCardPayment() - " + e.getMessage(), e);
+                        sendGiftCardError(e.getMessage(), payment.context.scoTenderType);
+                        sendCloseDialog();
+                }
+                catch (Exception e) {
+                        log.error("executeGiftCardPayment() - Unexpected error: " + e.getMessage(), e);
+                        sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."), payment.context.scoTenderType);
+                        sendCloseDialog();
+                }
+        }
 
 	@Override
 	protected void finishSale() {
