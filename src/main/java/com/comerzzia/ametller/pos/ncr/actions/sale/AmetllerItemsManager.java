@@ -112,7 +112,7 @@ public class AmetllerItemsManager extends ItemsManager {
         }
 
         if (ticketManager != null && ticketManager.getTicket() != null) {
-            ticketManager.getSesion().getSesionPromociones()
+        	ticketManager.getSesion().getSesionPromociones()
                     .aplicarPromociones((TicketVentaAbono) ticketManager.getTicket());
             ticketManager.getTicket().getTotales().recalcular();
         }
