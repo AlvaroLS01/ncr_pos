@@ -40,6 +40,9 @@ public class AmetllerItemsManager extends ItemsManager {
     @Lazy
     private AmetllerPayManager ametllerPayManager;
 
+    private boolean skipExistingLineRefresh;
+    private Integer lastAddedLineId;
+
     @Override
     protected ItemSold lineaTicketToItemSold(LineaTicket linea) {
         ItemSold itemSold = super.lineaTicketToItemSold(linea);
@@ -128,6 +131,28 @@ public class AmetllerItemsManager extends ItemsManager {
     }
 
     @Override
+    public void newItemAndUpdateAllItems(final LineaTicket newLine) {
+        if (newLine == null) {
+            return;
+        }
+
+        boolean previousSkipExisting = skipExistingLineRefresh;
+        Integer previousLastAddedLineId = lastAddedLineId;
+
+        skipExistingLineRefresh = true;
+        lastAddedLineId = newLine.getIdLinea();
+
+        try {
+            newItem(newLine);
+            updateItems();
+        }
+        finally {
+            skipExistingLineRefresh = previousSkipExisting;
+            lastAddedLineId = previousLastAddedLineId;
+        }
+    }
+
+    @Override
     public void newTicket() {
         super.newTicket();
 
@@ -205,7 +230,8 @@ public class AmetllerItemsManager extends ItemsManager {
             ItemSold refreshedItem = lineaTicketToItemSold(ticketLine);
             ItemSnapshot previousSnapshot = previousSnapshots.get(ticketLine.getIdLinea());
 
-            if (previousSnapshot != null) {
+            if (previousSnapshot != null
+                    && (!skipExistingLineRefresh || ticketLine.getIdLinea().equals(lastAddedLineId))) {
                 String refreshedPrice = refreshedItem.getFieldValue(ItemSold.Price);
                 String refreshedExtendedPrice = refreshedItem.getFieldValue(ItemSold.ExtendedPrice);
                 String refreshedDescription = refreshedItem.getFieldValue(ItemSold.Description);
