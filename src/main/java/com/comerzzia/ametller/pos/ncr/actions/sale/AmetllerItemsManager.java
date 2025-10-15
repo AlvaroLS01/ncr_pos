@@ -248,6 +248,8 @@ public class AmetllerItemsManager extends ItemsManager {
         }
     }
     
+    
+    //Misma implementacion que en Dino
     @Override
     public boolean isCoupon(String code) {
         if (!(ticketManager instanceof AmetllerScoTicketManager)) {

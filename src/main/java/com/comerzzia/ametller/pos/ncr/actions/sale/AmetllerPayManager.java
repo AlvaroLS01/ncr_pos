@@ -129,16 +129,16 @@ public class AmetllerPayManager extends PayManager {
 			}
 			return;
 		}
-        super.processMessage(message);
-    }
+		super.processMessage(message);
+	}
 
-    @Override
-    protected void activateTenderMode() {
-            if (ticketManager instanceof AmetllerScoTicketManager) {
-                    ((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
-            }
-            super.activateTenderMode();
-    }
+	@Override
+	protected void activateTenderMode() {
+		if (ticketManager instanceof AmetllerScoTicketManager) {
+			((AmetllerScoTicketManager) ticketManager).setDescuento25Activo(false);
+		}
+		super.activateTenderMode();
+	}
 
 	// LUST-141048 Correción pendiente pago de promociones del estandar sobre la clase personalizada
 	@Override
@@ -352,22 +352,12 @@ public class AmetllerPayManager extends PayManager {
 	}
 
 	private void sendHideWait() {
-		// DataNeeded w = new DataNeeded();
-		// w.setFieldValue(DataNeeded.Type, WAIT_TYPE);
-		// w.setFieldValue(DataNeeded.Id, WAIT_ID);
-		// w.setFieldValue(DataNeeded.Mode, "1");
-		// ncrController.sendMessage(w);
 	}
 
 	private void sendCloseDialog(String type, String id) {
 		if (StringUtils.isBlank(type) || StringUtils.isBlank(id)) {
 			return;
 		}
-		// DataNeeded close = new DataNeeded();
-		// close.setFieldValue(DataNeeded.Type, type);
-		// close.setFieldValue(DataNeeded.Id, id);
-		// close.setFieldValue(DataNeeded.Mode, "1");
-		// ncrController.sendMessage(close);
 	}
 
 	private void sendCloseDialog() {
