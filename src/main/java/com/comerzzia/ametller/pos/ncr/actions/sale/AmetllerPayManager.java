@@ -33,10 +33,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.comerzzia.ametller.pos.ncr.actions.sale.giftcard.GiftCardContext;
-import com.comerzzia.ametller.pos.ncr.actions.sale.giftcard.GiftCardException;
-import com.comerzzia.ametller.pos.ncr.actions.sale.giftcard.GiftCardPaymentContext;
-import com.comerzzia.ametller.pos.ncr.actions.sale.giftcard.PendingPayment;
 import com.comerzzia.ametller.pos.ncr.ticket.AmetllerScoTicketManager;
 import com.comerzzia.api.rest.client.exceptions.RestException;
 import com.comerzzia.api.rest.client.exceptions.RestHttpException;
