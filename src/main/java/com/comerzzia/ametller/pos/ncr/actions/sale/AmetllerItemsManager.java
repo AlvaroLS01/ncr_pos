@@ -1,11 +1,8 @@
 package com.comerzzia.ametller.pos.ncr.actions.sale;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,12 +33,11 @@ public class AmetllerItemsManager extends ItemsManager {
 
     private static final String DESCUENTO_25_DESCRIPTION = "Descuento del 25% aplicado";
 
+    private boolean skipPromotionRecalculation = false;
+
     @Autowired
     @Lazy
     private AmetllerPayManager ametllerPayManager;
-
-    private boolean skipExistingLineRefresh;
-    private Integer lastAddedLineId;
 
     @Override
     protected ItemSold lineaTicketToItemSold(LineaTicket linea) {
@@ -117,8 +113,8 @@ public class AmetllerItemsManager extends ItemsManager {
             return;
         }
 
-        if (ticketManager != null && ticketManager.getTicket() != null) {
-        	ticketManager.getSesion().getSesionPromociones()
+        if (!skipPromotionRecalculation && ticketManager != null && ticketManager.getTicket() != null) {
+            ticketManager.getSesion().getSesionPromociones()
                     .aplicarPromociones((TicketVentaAbono) ticketManager.getTicket());
             ticketManager.getTicket().getTotales().recalcular();
         }
@@ -136,19 +132,15 @@ public class AmetllerItemsManager extends ItemsManager {
             return;
         }
 
-        boolean previousSkipExisting = skipExistingLineRefresh;
-        Integer previousLastAddedLineId = lastAddedLineId;
-
-        skipExistingLineRefresh = true;
-        lastAddedLineId = newLine.getIdLinea();
-
-        try {
-            newItem(newLine);
+        if (ticketManager != null && ticketManager.getTicket() != null) {
             updateItems();
         }
-        finally {
-            skipExistingLineRefresh = previousSkipExisting;
-            lastAddedLineId = previousLastAddedLineId;
+
+        skipPromotionRecalculation = true;
+        try {
+            newItem(newLine);
+        } finally {
+            skipPromotionRecalculation = false;
         }
     }
 
@@ -175,19 +167,6 @@ public class AmetllerItemsManager extends ItemsManager {
     @Override
     @SuppressWarnings("unchecked")
     public void updateItems() {
-        Map<Integer, ItemSnapshot> previousSnapshots = new HashMap<>();
-
-        for (Map.Entry<Integer, ItemSold> cachedEntry : linesCache.entrySet()) {
-            ItemSold cachedItem = cachedEntry.getValue();
-
-            if (cachedItem != null) {
-                previousSnapshots.put(cachedEntry.getKey(), new ItemSnapshot(
-                        cachedItem.getFieldValue(ItemSold.Price),
-                        cachedItem.getFieldValue(ItemSold.ExtendedPrice),
-                        cachedItem.getFieldValue(ItemSold.Description)));
-            }
-        }
-
         Set<String> couponsBeforeUpdate = null;
 
         if (ticketManager instanceof AmetllerScoTicketManager) {
@@ -227,29 +206,32 @@ public class AmetllerItemsManager extends ItemsManager {
         }
 
         for (LineaTicket ticketLine : (List<LineaTicket>) ticketManager.getTicket().getLineas()) {
-            ItemSold refreshedItem = lineaTicketToItemSold(ticketLine);
-            ItemSnapshot previousSnapshot = previousSnapshots.get(ticketLine.getIdLinea());
+            ItemSold cachedItem = linesCache.get(ticketLine.getIdLinea());
 
-            if (previousSnapshot != null
-                    && (!skipExistingLineRefresh || ticketLine.getIdLinea().equals(lastAddedLineId))) {
-                String refreshedPrice = refreshedItem.getFieldValue(ItemSold.Price);
-                String refreshedExtendedPrice = refreshedItem.getFieldValue(ItemSold.ExtendedPrice);
-                String refreshedDescription = refreshedItem.getFieldValue(ItemSold.Description);
-
-                if (!StringUtils.equals(previousSnapshot.price, refreshedPrice)
-                        || !StringUtils.equals(previousSnapshot.extendedPrice, refreshedExtendedPrice)
-                        || !StringUtils.equals(previousSnapshot.description, refreshedDescription)) {
-                    ncrController.sendMessage(refreshedItem);
-                    sendTotals();
-                }
+            if (cachedItem == null) {
+                continue;
             }
 
-            linesCache.put(ticketLine.getIdLinea(), refreshedItem);
+            ItemSold refreshedItem = lineaTicketToItemSold(ticketLine);
+
+            String cachedPrice = cachedItem.getFieldValue(ItemSold.Price);
+            String refreshedPrice = refreshedItem.getFieldValue(ItemSold.Price);
+            String cachedExtendedPrice = cachedItem.getFieldValue(ItemSold.ExtendedPrice);
+            String refreshedExtendedPrice = refreshedItem.getFieldValue(ItemSold.ExtendedPrice);
+            String cachedDescription = cachedItem.getFieldValue(ItemSold.Description);
+            String refreshedDescription = refreshedItem.getFieldValue(ItemSold.Description);
+
+            if (!StringUtils.equals(cachedPrice, refreshedPrice)
+                    || !StringUtils.equals(cachedExtendedPrice, refreshedExtendedPrice)
+                    || !StringUtils.equals(cachedDescription, refreshedDescription)) {
+                ncrController.sendMessage(refreshedItem);
+                linesCache.put(ticketLine.getIdLinea(), refreshedItem);
+
+                sendTotals();
+            }
         }
     }
     
-    
-    //Misma implementacion que en Dino
     @Override
     public boolean isCoupon(String code) {
         if (!(ticketManager instanceof AmetllerScoTicketManager)) {
@@ -344,17 +326,5 @@ public class AmetllerItemsManager extends ItemsManager {
         }
 
         super.deleteItem(message);
-    }
-
-    private static final class ItemSnapshot {
-        private final String price;
-        private final String extendedPrice;
-        private final String description;
-
-        private ItemSnapshot(String price, String extendedPrice, String description) {
-            this.price = price;
-            this.extendedPrice = extendedPrice;
-            this.description = description;
-        }
     }
 }
