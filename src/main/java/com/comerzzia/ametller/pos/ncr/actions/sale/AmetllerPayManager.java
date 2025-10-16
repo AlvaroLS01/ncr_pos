@@ -101,10 +101,10 @@ public class AmetllerPayManager extends PayManager {
 	@Autowired
 	private VariablesServices variablesServices;
 
-        private PendingPayment pendingPayment;
+	private PendingPayment pendingPayment;
 
-        private final Map<String, GiftCardPaymentContext> pendingGiftCardPayments = new HashMap<>();
-        private final Map<Integer, String> paymentIdToGiftCardUid = new HashMap<>();
+	private final Map<String, GiftCardPaymentContext> pendingGiftCardPayments = new HashMap<>();
+	private final Map<Integer, String> paymentIdToGiftCardUid = new HashMap<>();
 
 	@PostConstruct
 	@Override
@@ -206,19 +206,19 @@ public class AmetllerPayManager extends PayManager {
 		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
 			amount = ticketManager.getTicket().getTotales().getPendiente();
 		}
-                if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-                        sendGiftCardError(I18N.getTexto("El importe indicado no es válido."), context.getScoTenderType());
-                        return;
-                }
+		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+			sendGiftCardError(I18N.getTexto("El importe indicado no es válido."), context.scoTenderType);
+			return;
+		}
 
-                PendingPayment payment = new PendingPayment(message, context, cardNumber, amount);
+		PendingPayment payment = new PendingPayment(message, context, cardNumber, amount);
 
-                if (context.requiresConfirmation()) {
-                        pendingPayment = payment;
-                        sendConfirmationDialog(context);
-                        return;
-                }
-                executeGiftCardPayment(payment);
+		if (context.requiresConfirmation) {
+			pendingPayment = payment;
+			sendConfirmationDialog(context);
+			return;
+		}
+		executeGiftCardPayment(payment);
 	}
 
 	private GiftCardContext resolveGiftCardContext(String tenderTypeRaw, String normalizedTender, String cardNumber, PaymentsManager paymentsManager) {
@@ -272,18 +272,18 @@ public class AmetllerPayManager extends PayManager {
 			return null;
 		}
 
-                MedioPagoBean mp = mediosPagosService.getMedioPago(foundCode);
-                return new GiftCardContext(foundCode, foundManager, mp, true, tenderTypeRaw, true);
+		MedioPagoBean mp = mediosPagosService.getMedioPago(foundCode);
+		return new GiftCardContext(foundCode, foundManager, mp, true, tenderTypeRaw, true);
 	}
 
-        private void sendConfirmationDialog(GiftCardContext context) {
-                DataNeeded d = new DataNeeded();
-                d.setFieldValue(DataNeeded.Type, DIALOG_CONFIRM_TYPE);
-                d.setFieldValue(DataNeeded.Id, DIALOG_CONFIRM_ID);
-                d.setFieldValue(DataNeeded.Mode, "0");
+	private void sendConfirmationDialog(GiftCardContext context) {
+		DataNeeded d = new DataNeeded();
+		d.setFieldValue(DataNeeded.Type, DIALOG_CONFIRM_TYPE);
+		d.setFieldValue(DataNeeded.Id, DIALOG_CONFIRM_ID);
+		d.setFieldValue(DataNeeded.Mode, "0");
 
-                String desc = context.getMedioPago() != null ? context.getMedioPago().getDesMedioPago() : I18N.getTexto("Tarjeta regalo");
-                d.setFieldValue(DataNeeded.TopCaption1, MessageFormat.format(I18N.getTexto("¿Desea usar su tarjeta {0}?"), desc));
+		String desc = context.medioPago != null ? context.medioPago.getDesMedioPago() : I18N.getTexto("Tarjeta regalo");
+		d.setFieldValue(DataNeeded.TopCaption1, MessageFormat.format(I18N.getTexto("¿Desea usar su tarjeta {0}?"), desc));
 		d.setFieldValue(DataNeeded.SummaryInstruction1, I18N.getTexto("Pulse una opción"));
 		d.setFieldValue(DataNeeded.ButtonData1, "TxSi");
 		d.setFieldValue(DataNeeded.ButtonText1, I18N.getTexto("SI"));
@@ -317,11 +317,11 @@ public class AmetllerPayManager extends PayManager {
 			executeGiftCardPayment(payment);
 		}
 		else {
-                        sendGiftCardError(I18N.getTexto("Operación cancelada por el usuario"), payment.getContext().getScoTenderType());
-                        itemsManager.sendTotals();
-                }
-                return true;
-        }
+			sendGiftCardError(I18N.getTexto("Operación cancelada por el usuario"), payment.context.scoTenderType);
+			itemsManager.sendTotals();
+		}
+		return true;
+	}
 
 	private boolean handleDescuento25DataNeededReply(DataNeededReply reply) {
 		String type = StringUtils.trimToEmpty(reply.getFieldValue(DataNeededReply.Type));
@@ -385,43 +385,43 @@ public class AmetllerPayManager extends PayManager {
 		sendShowWait(I18N.getTexto("Validando tarjeta..."));
 
 		try {
-                        GiftCardBean giftCard = consultGiftCard(payment.getCardNumber());
-                        ensureGiftCardDefaults(giftCard);
-                        BigDecimal available = calculateAvailableBalance(giftCard);
-                        if (available.compareTo(BigDecimal.ZERO) <= 0)
-                                throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+			GiftCardBean giftCard = consultGiftCard(payment.cardNumber);
+			ensureGiftCardDefaults(giftCard);
+			BigDecimal available = calculateAvailableBalance(giftCard);
+			if (available.compareTo(BigDecimal.ZERO) <= 0)
+				throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
 
-                        BigDecimal amountToCharge = payment.getAmount().min(available);
-                        if (amountToCharge.compareTo(BigDecimal.ZERO) <= 0)
-                                throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
+			BigDecimal amountToCharge = payment.amount.min(available);
+			if (amountToCharge.compareTo(BigDecimal.ZERO) <= 0)
+				throw new GiftCardException(I18N.getTexto("El saldo de la tarjeta regalo no es suficiente."));
 
-                        giftCard.setNumTarjetaRegalo(payment.getCardNumber());
-                        giftCard.setImportePago(amountToCharge);
+			giftCard.setNumTarjetaRegalo(payment.cardNumber);
+			giftCard.setImportePago(amountToCharge);
 
-                        payment.getContext().getManager().addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
+			payment.context.manager.addParameter(GiftCardManager.PARAM_TARJETA, giftCard);
 
-                        payment.getMessage().setFieldIntValue(Tender.Amount, amountToCharge.setScale(2, RoundingMode.HALF_UP));
+			payment.message.setFieldIntValue(Tender.Amount, amountToCharge.setScale(2, RoundingMode.HALF_UP));
 
-                        PaymentsManager pm = ticketManager.getPaymentsManager();
-                        pm.pay(payment.getContext().getPaymentCode(), amountToCharge);
+			PaymentsManager pm = ticketManager.getPaymentsManager();
+			pm.pay(payment.context.paymentCode, amountToCharge);
 
-                        sendHideWait();
-                        sendCloseDialog();
+			sendHideWait();
+			sendCloseDialog();
 
-                }
-                catch (GiftCardException e) {
-                        log.error("executeGiftCardPayment() - " + e.getMessage(), e);
-                        sendGiftCardError(e.getMessage(), payment.getContext().getScoTenderType());
-                        sendHideWait();
-                        sendCloseDialog();
-                }
-                catch (Exception e) {
-                        log.error("executeGiftCardPayment() - Unexpected error: " + e.getMessage(), e);
-                        sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."), payment.getContext().getScoTenderType());
-                        sendHideWait();
-                        sendCloseDialog();
-                }
-        }
+		}
+		catch (GiftCardException e) {
+			log.error("executeGiftCardPayment() - " + e.getMessage(), e);
+			sendGiftCardError(e.getMessage(), payment.context.scoTenderType);
+			sendHideWait();
+			sendCloseDialog();
+		}
+		catch (Exception e) {
+			log.error("executeGiftCardPayment() - Unexpected error: " + e.getMessage(), e);
+			sendGiftCardError(I18N.getTexto("No se ha podido validar la tarjeta regalo."), payment.context.scoTenderType);
+			sendHideWait();
+			sendCloseDialog();
+		}
+	}
 
 	@Override
 	protected void finishSale() {
@@ -1170,12 +1170,12 @@ public class AmetllerPayManager extends PayManager {
 		}
 
 		Integer paymentId = normalizePaymentId(eventOk.getPaymentId());
-                GiftCardPaymentContext context = new GiftCardPaymentContext(giftCard, amount, paymentId);
-                pendingGiftCardPayments.put(uid, context);
+		GiftCardPaymentContext context = new GiftCardPaymentContext(giftCard, amount, paymentId);
+		pendingGiftCardPayments.put(uid, context);
 
-                if (paymentId != null) {
-                        paymentIdToGiftCardUid.put(paymentId, uid);
-                }
+		if (paymentId != null) {
+			paymentIdToGiftCardUid.put(paymentId, uid);
+		}
 	}
 
 	public void onTransactionVoided() {
@@ -1197,36 +1197,36 @@ public class AmetllerPayManager extends PayManager {
 		clearPendingGiftCardPayments();
 	}
 
-        private void cancelGiftCardMovement(String uid, GiftCardPaymentContext context) {
-                if (context == null || context.getGiftCard() == null) {
-                        return;
-                }
+	private void cancelGiftCardMovement(String uid, GiftCardPaymentContext context) {
+		if (context == null || context.giftCard == null) {
+			return;
+		}
 
-                String normalizedUid = normalizeUid(uid);
-                if (normalizedUid == null) {
-                        normalizedUid = normalizeUid(context.getGiftCard().getUidTransaccion());
-                }
+		String normalizedUid = normalizeUid(uid);
+		if (normalizedUid == null) {
+			normalizedUid = normalizeUid(context.giftCard.getUidTransaccion());
+		}
 
-                BigDecimal amount = context.getAmount() != null ? context.getAmount() : BigDecimal.ZERO;
-                if (normalizedUid == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-                        removeGiftCardTracking(normalizedUid);
-                        return;
-                }
+		BigDecimal amount = context.amount != null ? context.amount : BigDecimal.ZERO;
+		if (normalizedUid == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+			removeGiftCardTracking(normalizedUid);
+			return;
+		}
 
-                try {
-                        ListaMovimientoRequestRest request = buildGiftCardMovementRequest(amount, context.getGiftCard(), normalizedUid);
-                        MovimientosRest.anularMovimientosProvisionalesTarjetaRegalo(request);
-                }
-                catch (RestHttpException | RestException e) {
-                        log.error(MessageFormat.format("cancelGiftCardMovement() - Error cancelling provisional movement for card {0}: {1}", safeCardNumber(context.getGiftCard()), e.getMessage()), e);
-                }
-                catch (Exception e) {
-                        log.error(MessageFormat.format("cancelGiftCardMovement() - Unexpected error cancelling provisional movement for card {0}: {1}", safeCardNumber(context.getGiftCard()), e.getMessage()), e);
-                }
-                finally {
-                        removeGiftCardTracking(normalizedUid);
-                }
-        }
+		try {
+			ListaMovimientoRequestRest request = buildGiftCardMovementRequest(amount, context.giftCard, normalizedUid);
+			MovimientosRest.anularMovimientosProvisionalesTarjetaRegalo(request);
+		}
+		catch (RestHttpException | RestException e) {
+			log.error(MessageFormat.format("cancelGiftCardMovement() - Error cancelling provisional movement for card {0}: {1}", safeCardNumber(context.giftCard), e.getMessage()), e);
+		}
+		catch (Exception e) {
+			log.error(MessageFormat.format("cancelGiftCardMovement() - Unexpected error cancelling provisional movement for card {0}: {1}", safeCardNumber(context.giftCard), e.getMessage()), e);
+		}
+		finally {
+			removeGiftCardTracking(normalizedUid);
+		}
+	}
 
 	private ListaMovimientoRequestRest buildGiftCardMovementRequest(BigDecimal amount, GiftCardBean giftCard, String uidTransaccion) throws RestException, RestHttpException {
 		MovimientoRequestRest movimiento = new MovimientoRequestRest();
@@ -1307,7 +1307,67 @@ public class AmetllerPayManager extends PayManager {
 		return StringUtils.trimToNull(uid);
 	}
 
-        private String safeCardNumber(GiftCardBean giftCard) {
-                return giftCard != null ? StringUtils.defaultString(giftCard.getNumTarjetaRegalo(), "?") : "?";
-        }
+	private String safeCardNumber(GiftCardBean giftCard) {
+		return giftCard != null ? StringUtils.defaultString(giftCard.getNumTarjetaRegalo(), "?") : "?";
+	}
+
+	private static final class GiftCardPaymentContext {
+
+		private final GiftCardBean giftCard;
+		private final BigDecimal amount;
+		private final Integer paymentId;
+
+		private GiftCardPaymentContext(GiftCardBean giftCard, BigDecimal amount, Integer paymentId) {
+			this.giftCard = giftCard;
+			this.amount = amount;
+			this.paymentId = paymentId;
+		}
+	}
+
+	private static class PendingPayment {
+
+		private final Tender message;
+		private final GiftCardContext context;
+		private final String cardNumber;
+		private final BigDecimal amount;
+
+		PendingPayment(Tender m, GiftCardContext c, String n, BigDecimal a) {
+			this.message = m;
+			this.context = c;
+			this.cardNumber = n;
+			this.amount = a;
+		}
+	}
+
+	private static class GiftCardContext {
+
+		private final String paymentCode;
+		private final GiftCardManager manager;
+		private final MedioPagoBean medioPago;
+		private final boolean requiresConfirmation;
+		private final String scoTenderType;
+		private final boolean autoDetected;
+
+		GiftCardContext(String code, GiftCardManager m, MedioPagoBean mp, boolean confirm, String scoType, boolean auto) {
+			this.paymentCode = code;
+			this.manager = m;
+			this.medioPago = mp;
+			this.requiresConfirmation = confirm;
+			this.scoTenderType = scoType;
+			this.autoDetected = auto;
+		}
+	}
+
+	private static class GiftCardException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		GiftCardException(String m) {
+			super(m);
+		}
+
+		GiftCardException(String m, Throwable c) {
+			super(m, c);
+		}
+	}
 }
